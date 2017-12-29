@@ -74,7 +74,7 @@
 }
 <div class="container">
     <!-- Modal -->
-    <div class="modal cjModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal cjModal" id="success"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header modal-header-cj">
@@ -144,7 +144,7 @@
             });
             $(window).load(function () {
                 $('#success').modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
                 });
             });

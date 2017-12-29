@@ -11,6 +11,7 @@
     <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
     <link href="~/Content/css/dataTables.jqueryui.css" rel="stylesheet" />
     <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <link href="~/Content/css/common.css" rel="stylesheet" />
     <style>
         body .modal-dialog {
             /*margin-top: 3px;*/
@@ -118,9 +119,13 @@
             cursor: pointer;
             margin: 0 5px 0 0;
         }
+        #option-one {
+            margin-top: -216px;
+            text-align: left !important;
+        }
     </style>
 }
-<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal" id="myModal"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -158,15 +163,11 @@
                         </div>
                     </div>
                     <div class="form-group-sm">
-                        <div class="col-sm-6" style="padding-right: 0;">
+                        <div class="col-sm-6" style="padding-right: 0; margin-top: -20px;">
                             <label class="col-sm-12 control-label">Company</label>
                             <div class="col-sm-12">
                                 <input type="text" id="companies" class="form-control input-sm select" style="height: 30px;" />
                                 <select hidden size="10" id="CompanyList" style="border: 1px solid gray; font-size: 12px; z-index: 9999999999999; height: 200px; position: absolute; overflow-y: auto; overflow-x: hidden; background: white;">
-                                    @foreach (Company company in ViewBag.CompanyList)
-                                    {
-                                        <option value="@company.Id" data-blacklisted="@company.BlackListed">@company.Name</option>
-                                    }
                                 </select>
                             </div>
                             <div class="col-sm-12" style="margin-top: 5px;">
@@ -197,7 +198,7 @@
                                 <button type="button" class="btn btn-block btn-sm btn-default" id="back" value="2"><i class="fa fa-arrow-left"></i></button>
                             </div>
                         </div>
-                        <div class="col-sm-4" style="padding-left: 0;">
+                        <div class="col-sm-4" style="padding-left: 0;margin-top:-15px;">
                             <div class="col-sm-12">
                                 <span class="col-sm-7" style="text-align: right; padding-top: 5px; padding-right: 0;">Invoice Price</span>
                                 <div class="col-sm-5" style="padding-right: 0;">
@@ -235,11 +236,24 @@
                     <div class="form-group-sm">
                         <div class="col-sm-12">
                             <div class="col-sm-6" style="padding-right: 0; padding-left: 0; margin-top: 5px;">
-                                <label class="col-sm-12 control-label">Labels of Companies</label>
-                                <div class="col-sm-12" style="margin-top: 5px; padding-top: 7px;">
-                                    <textarea id="labels" readonly class="form-control input-sm" style="height: 100px; background-color: white;"></textarea>
+                                <div class="col-sm-8">
+                                    <label class="control-label">Labels of Companies</label>
                                 </div>
-                                <div class="col-sm-12" style="margin-top: 10px;">
+                                <div class="col-sm-4 list-container">
+                                    <button class="btn btn-block btn-info" id="previewLabel" style="padding: 2px 5px; height: 25px;">Preview Label</button>
+                                    <ul class="export-container" id="option-two">
+                                        <li data-type="Pdf">Pdf</li>
+                                        <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                                        <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                                        <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                                        <li data-type="Word">Microsoft Word (97-2003)</li>
+                                        <li data-type="XML">XML</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-12" style="margin-top: 2px;">
+                                    <textarea id="labels" readonly class="form-control input-sm" style="height: 115px; background-color: white;"></textarea>
+                                </div>
+                                <div class="col-sm-12" style="margin-top: 5px;">
                                     <span style="background-color: #D5D5D5; padding-top: 5px; padding-bottom: 5px; padding-right: 5px;">
                                         <label style="cursor: pointer; padding: 0; margin: 0;"><input type="checkbox" id="request" style="margin-right: 5px;" />Request Comment</label>
                                         <label style="cursor: pointer; padding: 0; margin: 0;"><input type="checkbox" id="print" style="margin-left: 20px; margin-right: 5px;" />Print on color pad</label>
@@ -289,8 +303,16 @@
                         <div class="col-sm-2">
                             <button type="button" id="save" class="btn btn-block btn-primary btn-sm" value="2">Save</button>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-2 list-container">
                             <button type="button" id="show" class="btn btn-block btn-primary btn-sm" value="3">Show Invoice</button>
+                            <ul class="export-container" id="option-one">
+                                <li data-type="Pdf">Pdf</li>
+                                <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                                <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                                <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                                <li data-type="Word">Microsoft Word (97-2003)</li>
+                                <li data-type="XML">XML</li>
+                            </ul>
                         </div>
                         <div class="col-sm-2">
                             <button type="button" id="exit" class="btn btn-block btn-primary btn-sm" value="exit">Exit</button>
@@ -309,15 +331,15 @@
     <script src="~/Scripts/js/jquery.jeditable.js"></script>
 
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             var change = false;
             $("#issueDate").datepicker({
                 changeMonth: true,
                 changeYear: true
             });
-            $(window).on('load', function () {
+            $(window).on('load', function() {
                 $("#myModal").modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
                 });
                 $('#CompanyList').css('width', ($('#companies').width() + 22) + 'px');
@@ -329,7 +351,7 @@
             //});
             var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
 
-            $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+            $.fn.modal.Constructor.prototype.enforceFocus = function() {};
             //$(document).click(function () {
             //    $('#myModal').modal('show');
             //});
@@ -339,20 +361,37 @@
             //});
 
 
-            $("#close, #exit").on('click', function () {
+            $("#close, #exit").on('click', function() {
                 $('#myModal').modal('hide');
             });
 
-            $(document).on('click', function () {
-                if (!$('#companies').is(':focus') && !$('#CompanyList').is(':focus') && $('#CompanyList').is(':visible'))
+            $(document).mousedown(function (e) {
+                var container = $("#CompanyList,#companies");
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
                     $('#CompanyList').hide();
+                }
             });
 
-
-            $('#CompanyList').on('click', function () {
-                $('#companies').val($('#CompanyList option:selected').text());
+            $(document).on('click', '#CompanyList option', function() {
+                setOptions();
+                $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th.sorting').css('width', '288px');
+                $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th:nth-child(2)').css('width', '54px');
+                $('#commentTable').find('tbody tr td:nth-child(1), thead tr:first th.sorting').css('width', '288px');
+                $('#commentTable').find('tbody tr td:nth-child(2), thead tr:first th:nth-child(2)').css('width', '54px');
                 $('#CompanyList').hide();
                 $('#companies').focus();
+            });
+
+            $(document).on('keydown', '#CompanyList', function (e) {
+                if (e.keyCode == 13) {
+                    setOptions();
+                    $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th.sorting').css('width', '288px');
+                    $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th:nth-child(2)').css('width', '54px');
+                    $('#commentTable').find('tbody tr td:nth-child(1), thead tr:first th.sorting').css('width', '288px');
+                    $('#commentTable').find('tbody tr td:nth-child(2), thead tr:first th:nth-child(2)').css('width', '54px');
+                    $('#CompanyList').hide();
+                    $('#companies').focus();
+                }
             });
 
             function setOptions() {
@@ -363,63 +402,67 @@
                 $('#updateComment, #deleteComment').prop('disabled', true);
             }
 
-            $("#CompanyList").on('change', function () {
-                setOptions();
-                $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th.sorting').css('width', '288px');
-                $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th:nth-child(2)').css('width', '54px');
-                $('#commentTable').find('tbody tr td:nth-child(1),thead tr:first th.sorting').css('width', '288px');
-                $('#commentTable').find('tbody tr td:nth-child(2),thead tr:first th:nth-child(2)').css('width', '54px');
+            $('#companies').on("focus", function () {
+                $(this).select();
             });
-            $("#CompanyList").on('keydown', function (e) {
-                if (e.keyCode == 13 || e.keyCode == 27) {
-                    $('#companies').val($('#CompanyList option:selected').text());
-                    $('#CompanyList').hide();
-                    $('#companies').focus();
-                }
-            });
-            $('#companies').on('click', function () {
-                var str = $(this).val();
-                $.each($('#CompanyList option'), function () {
-                    if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) == 0) {
-                        $(this).prop('selected', true);
-                        return false;
-                    }
-                    return true;
-                });
 
-                if ($('#CompanyList').is(':visible'))
-                    $('#CompanyList').hide();
-                else
-                    $('#CompanyList').show().focus();
-            });
-            $('#companies').on('keyup', function (e) {
+            $('#companies').on('keyup click', function(e) {
                 if (e.keyCode != 13 && e.keyCode != 27) {
                     var str = $(this).val();
-                    $.each($('#CompanyList option'), function () {
-                        if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) == 0) {
-                            $(this).prop('selected', true);
-                            return false;
-                        }
-                        return true;
-                    });
-                    $('#CompanyList').show();
+                    str = str.trim();
+                    if (str != "") {
+                        var jsonData = { startingKey: str };
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("GetCompanyListByKey", "Company")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(jsonData),
+                            dataType: "json",
+                            success: function(data) {
+                                var strHtml = "";
+                                $.each(data, function(i, d) {
+                                    strHtml += "<option " + (d.Name.toLowerCase() == str.toLowerCase() ? "selected='selected'" : "") + " value='" + d.Id + "' data-blacklisted='" + d.BlackListed + "'>" + d.Name + "</option>";
+                                });
+                                if (strHtml != "")
+                                    $('#CompanyList').html(strHtml).show();
+                                else
+                                    $('#CompanyList').html("").hide();
+                            },
+                        });
+
+                    } else {
+                        productTableClear();
+                        productsClear();
+                        commentTableClear();
+                        $("#labels").val('');
+                        $("#comments").val('');
+                        $("#go").prop('disabled', true);
+                        $("#back").prop('disabled', true);
+                        $("#invoice_no_generate").val('0000-000000-000-000000');
+                        $("#issueDate").val(toDate);
+                        $("#deleteComment").prop('disabled', true);
+                        $("#updateComment").prop('disabled', true);
+                        $("#show,#previewLabel").prop('disabled', true);
+                        blankPrices();
+                        $('#CompanyList').html("").hide();
+                    }
                 }
             });
             $("#deleteComment").prop('disabled', true);
             $("#updateComment").prop('disabled', true);
-            $("#show").prop('disabled', true);
+            $("#show,#previewLabel").prop('disabled', true);
             var productTable = $("#productTable").DataTable({
                 "bFilter": false,
                 "bInfo": false,
-                "scrollY": "100px",
+                "scrollY": "200px",
                 "scrollCollapse": true,
                 "paging": false,
                 "jQueryUI": true,
                 "aoColumns": [
-                    { "bSortable": true, "sType": "nullable" }
+                    { "bSortable": false, "sType": "nullable" }
                 ],
                 columnDefs: [
-                    { sortable: false, targets: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
+                    { sortable: false, targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
                     { visible: false, targets: [1, 2, 3, 4, 5, 6, 7, 8, 9] }
                     //{ className: "aright", targets: [3] },
                     //{ className: "acenter", targets: [0, 4, 5, 8, 9] }
@@ -428,7 +471,7 @@
             var products = $("#products").DataTable({
                 "bFilter": false,
                 "bInfo": false,
-                "scrollY": "100px",
+                "scrollY": "160px",
                 "scrollCollapse": true,
                 "paging": false,
                 "jQueryUI": true,
@@ -463,7 +506,7 @@
             });
 
 
-            $.fn.dataTableExt.oSort['nullable-asc'] = function (a, b) {
+            $.fn.dataTableExt.oSort['nullable-asc'] = function(a, b) {
                 if (a == '')
                     return 1;
                 else if (b == '')
@@ -475,7 +518,7 @@
                 }
             }
 
-            $.fn.dataTableExt.oSort['nullable-desc'] = function (a, b) {
+            $.fn.dataTableExt.oSort['nullable-desc'] = function(a, b) {
                 if (a == '')
                     return 1;
                 else if (b == '')
@@ -493,11 +536,12 @@
                 var $dialog = $('.modal').find(".modal-dialog");
                 var offset = ($(window).height() - $dialog.height()) / 2;
                 // Center modal vertically in window
-                if (offset >= 0)
-                    $dialog.css("margin-top", offset);
+                //if (offset >= 0)
+                //    $dialog.css("margin-top", offset);
+                $dialog.css("margin-top",  "0px");
             }
 
-            $(window).on("resize", function () {
+            $(window).on("resize", function() {
                 centerSuccess();
                 $('#CompanyList').css('width', ($('#companies').width() + 22) + 'px');
             });
@@ -505,7 +549,7 @@
             var toDate = (today.getMonth() + 1) + "/" + today.getDate() + "/" + today.getFullYear();
             $("#go").prop('disabled', true);
             $("#back").prop('disabled', true);
-            $("#invoice_no_generate").val('0000-00000-000-00000');
+            $("#invoice_no_generate").val('0000-000000-000-000000');
             $("#issueDate").val(toDate);
 
             function blankPrices() {
@@ -520,9 +564,11 @@
                 return str.length < max ? pad("0" + str, max) : str;
             }
 
-            $.fn.fillProducts = function () {
+            $.fn.fillProducts = function() {
                 var type = $('input:radio:checked').val();
                 var cId = $("#CompanyList").val();
+                if (cId == null)
+                    cId = 0;
                 var jsonData = { type: type, cId: cId };
                 $.ajax({
                     type: "Post",
@@ -530,28 +576,83 @@
                     contentType: "application/json; charset=utf-8",
                     data: JSON.stringify(jsonData),
                     dataType: "json",
-                    success: function (data) {
-                        productTable.clear().draw();
-                        $.each(data, function (key, value) {
-                            if (type == 0)
-                                productTable.row.add([value.ListItem, value.Id, value.Product, value.LedgerId, value.SbName, value.SDate, value.EDate, value.Comments, value.Amount, value.TNO]).draw();
-                            else {
-                                productTable.row.add([value.ListItem, value.Id, 0, 0, value.SbName, value.SDate, 0, 0, value.Amount, 0]).draw();
+                    success: function(data) {
+                        $("#productTable").dataTable().fnDestroy();
+                        $("#productTable tbody").html('');
+                        var str = "";
+                        $.each(data, function(key, value) {
+                            if (type == 0) {
+                                str += "<tr>";
+                                str += "<td>" + value.ListItem + "</td>";
+                                str += "<td>" + value.Id + "</td>";
+                                str += "<td>" + value.Product + "</td>";
+                                str += "<td>" + value.LedgerId + "</td>";
+                                str += "<td>" + value.SbName + "</td>";
+                                str += "<td>" + value.SDate + "</td>";
+                                str += "<td>" + value.EDate + "</td>";
+                                str += "<td>" + value.Comments + "</td>";
+                                str += "<td>" + value.Amount + "</td>";
+                                str += "<td>" + value.TNO + "</td>";
+                                str += "</tr>";
+                                //productTable.row.add([value.ListItem, value.Id, value.Product, value.LedgerId, value.SbName, value.SDate, value.EDate, value.Comments, value.Amount, value.TNO]).draw();
+                            } else {
+                                str += "<tr>";
+                                str += "<td>" + value.ListItem + "</td>";
+                                str += "<td>" + value.Id + "</td>";
+                                str += "<td>0</td>";
+                                str += "<td>0</td>";
+                                str += "<td>" + value.SbName + "</td>";
+                                str += "<td>" + value.SDate + "</td>";
+                                str += "<td>0</td>";
+                                str += "<td>0</td>";
+                                str += "<td>" + value.Amount + "</td>";
+                                str += "<td>0</td>";
+                                str += "</tr>";
+                                //productTable.row.add([value.ListItem, value.Id, 0, 0, value.SbName, value.SDate, 0, 0, value.Amount, 0]).draw();
                             }
                         });
-                        if (data.length < 6) {
-                            for (var i = 1; i <= 6 - data.length; i++) {
-                                productTable.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
+
+                        if (data.length < 11) {
+                            for (var i = 1; i <= 11 - data.length; i++) {
+                                // productTable.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
+                                str += "<tr>";
+                                str += "<td></td>";
+                                str += "<td></td>";
+                                str += "<td></td>";
+                                str += "<td></td>";
+                                str += "<td></td>";
+                                str += "<td></td>";
+                                str += "<td></td>";
+                                str += "<td></td>";
+                                str += "<td></td>";
+                                str += "<td></td>";
+                                str += "</tr>";
                             }
                         }
+                        $("#productTable tbody").html(str);
+                        productTable = $("#productTable").DataTable({
+                            "bFilter": false,
+                            "bInfo": false,
+                            "scrollY": "200px",
+                            "scrollCollapse": true,
+                            "paging": false,
+                            "jQueryUI": true,
+                            "aoColumns": [
+                                { "bSortable": false, "sType": "nullable" }
+                            ],
+                            columnDefs: [
+                                { sortable: false, targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
+                                { visible: false, targets: [1, 2, 3, 4, 5, 6, 7, 8, 9] }
+                            ]
+                        });
                         productsClear();
                         blankPrices();
                         if (data.length == 0) {
-                            $("#invoice_no_generate").val('0000-' + pad(cId, 5) + '-000-00000');
+                            $("#invoice_no_generate").val('0000-' + pad(cId, 6) + '-000-000000');
                         } else {
                             setInvoiceNumber();
                         }
-                        $("#show").prop('disabled', true);
+                        $("#show,#previewLabel").prop('disabled', true);
                     },
                 });
             }
@@ -563,7 +664,7 @@
 
             function productTableClear() {
                 productTable.clear().draw();
-                for (var i = 1; i <= 6; i++) {
+                for (var i = 1; i <= 11; i++) {
                     productTable.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
                 }
 
@@ -571,7 +672,7 @@
 
             function productsClear() {
                 products.clear().draw();
-                for (var i = 1; i <= 6; i++) {
+                for (var i = 1; i <= 9; i++) {
                     products.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
                 }
             }
@@ -584,31 +685,31 @@
                 $('table:not(#productTable):not(#products):not(#commentTable), .dataTables_scrollHeadInner').css('width', '377px');
                 $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th.sorting').css('width', '288px');
                 $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th:nth-child(2)').css('width', '54px');
-                $('#commentTable').find('tbody tr td:nth-child(1),thead tr:first th.sorting').css('width', '288px');
-                $('#commentTable').find('tbody tr td:nth-child(2),thead tr:first th:nth-child(2)').css('width', '54px');
+                $('#commentTable').find('tbody tr td:nth-child(1), thead tr:first th.sorting').css('width', '288px');
+                $('#commentTable').find('tbody tr td:nth-child(2), thead tr:first th:nth-child(2)').css('width', '54px');
             }
 
             function setInvoiceNumber() {
                 if (productTable.cell(0, 0).data() != "" || products.cell(0, 0).data() != "") {
-                    var jsonData = { cId: $("#CompanyList").val(), issueDate: $("#issueDate").val() };
+                    var jsonData = { cId: $("#CompanyList").val() == null ? 0 : $("#CompanyList").val(), issueDate: $("#issueDate").val() };
                     $.ajax({
                         type: "Post",
                         url: '@Url.Action("GenerateInvoiceNumber", "Invoice")',
                         contentType: "application/json; charset=utf-8",
                         data: JSON.stringify(jsonData),
                         dataType: "json",
-                        success: function (data) {
+                        success: function(data) {
                             $("#invoice_no_generate").val(data.InvoiceNo);
                         },
                     });
                 } else
-                    $("#invoice_no_generate").val('0000-' + pad($("#CompanyList").val(), 5) + '-000-00000');
+                    $("#invoice_no_generate").val('0000-' + pad($("#CompanyList").val(), 6) + '-000-000000');
                 invoiceNoChange();
             }
 
             $('input:radio[value=0]').prop('checked', true);
 
-            $('#productTable tbody').on('click', 'tr', function () {
+            $('#productTable tbody').on('click', 'tr', function() {
                 if (productTable.cell($(this), 0).data() != "") {
                     if ($(this).hasClass('selected')) {
                         $(this).removeClass('selected');
@@ -619,8 +720,8 @@
                             commentTableClear();
                             blankPrices();
                             $("#issueDate").val(toDate);
-                            $("#invoice_no_generate").val('0000-' + pad($("#CompanyList").val(), 5) + '-000-00000');
-                            $("#show").prop('disabled', true);
+                            $("#invoice_no_generate").val('0000-' + pad($("#CompanyList").val(), 6) + '-000-000000');
+                            $("#show,#previewLabel").prop('disabled', true);
                             invoiceNoChange();
                         }
                     } else {
@@ -630,7 +731,7 @@
                             $("#go").prop('disabled', false);
                             $('#invoicePrice').val(productTable.cell($(this), 8).data().toFixed(2));
                         } else if ($("#existing_radio").is(':checked')) {
-                            $("#show").prop('disabled', false);
+                            $("#show,#previewLabel").prop('disabled', false);
                             var jsonData = { id: productTable.cell($(this), 1).data() };
                             $.ajax({
                                 type: "Post",
@@ -638,14 +739,14 @@
                                 contentType: "application/json; charset=utf-8",
                                 data: JSON.stringify(jsonData),
                                 dataType: "json",
-                                success: function (data) {
+                                success: function(data) {
                                     commentTable.clear().draw();
                                     if (data.length != 0) {
                                         $("#labels").val(data[0].CompanyName);
                                         $("#invoicePrice, #totalPrice").val(parseInt(data[0].FullPayment).toFixed(2));
                                         $("#invoice_no_generate").val(data[0].InvoiceNo);
                                         $("#issueDate").val(data[0].InvSendDt);
-                                        $.each(data, function (key, value) {
+                                        $.each(data, function(key, value) {
                                             commentTable.row.add([value.Comments, value.TAmount.toFixed(2), value.Id]).draw();
                                         });
                                     } else {
@@ -664,22 +765,16 @@
 
                                     $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th.sorting').css('width', '288px');
                                     $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th:nth-child(2)').css('width', '54px');
-                                    $('#commentTable').find('tbody tr td:nth-child(1),thead tr:first th.sorting').css('width', '288px');
-                                    $('#commentTable').find('tbody tr td:nth-child(2),thead tr:first th:nth-child(2)').css('width', '54px');
+                                    $('#commentTable').find('tbody tr td:nth-child(1), thead tr:first th.sorting').css('width', '288px');
+                                    $('#commentTable').find('tbody tr td:nth-child(2), thead tr:first th:nth-child(2)').css('width', '54px');
 
                                     $("#deleteComment").prop('disabled', true);
                                     for (var k = 1; k <= commentTable.rows().data().length; k++) {
                                         if (commentTable.cell(k - 1, 0).data() != "") {
-                                            $('#commentTable tr:nth-child(' + k + ') td:nth-child(1)').editable(function (value, settings) {
+                                            $('#commentTable tr:nth-child(' + k + ') td:nth-child(1)').editable(function(value, settings) {
                                                 var schId = commentTable.cell($(this).parents("tr"), 2).data();
                                                 var amount = commentTable.cell($(this).parents("tr"), 1).data();
-                                                var newStr = "";
-                                                for (var i = 0; i < value.length; i++) {
-                                                    var c = value[i];
-                                                    if (value[i] == "'")
-                                                        c = "`";
-                                                    newStr += c;
-                                                }
+                                                var newStr = value.replace(/'/g,"`");
                                                 updateDeleteComments('U', schId, productTable.cell('tr.selected', 1).data(), amount, newStr);
                                                 return (value);
                                             }, {
@@ -690,12 +785,12 @@
                                                 tooltip: "Double click to edit",
                                             });
 
-                                            $('#commentTable tr:nth-child(' + k + ') td:not(:nth-child(1))').editable(function (value, settings) {
+                                            $('#commentTable tr:nth-child(' + k + ') td:not(:nth-child(1))').editable(function(value, settings) {
                                                 var changeAmount = +commentTable.cell($(this).parents("tr"), 1).data() - +value;
                                                 var newPrice = +$("#invoicePrice").val() - +changeAmount;
                                                 $("#invoicePrice, #totalPrice").val(newPrice.toFixed(2));
                                                 updateDeleteComments('U', commentTable.cell($(this).parents("tr"), 2).data(), productTable.cell('tr.selected', 1).data(), value, commentTable.cell($(this).parents("tr"), 0).data());
-                                                return (value);
+                                                return(value);
                                             }, {
                                                 type: 'text',
                                                 cssclass: 'someclass',
@@ -703,9 +798,9 @@
                                                 submit: 'ok',
                                                 cancel: '<input type="button" style="margin-left: 2px; width: 37px; padding: 0;"  value="Cancel" >',
                                                 tooltip: "Double click to edit",
-                                                onsubmit: function (settings, td) {
+                                                onsubmit: function(settings, td) {
                                                     var inp = $(td).find('input');
-                                                    if ($.isNumeric(inp.val() && inp.val() > 0)) {
+                                                    if (!isNaN(inp.val()) && inp.val().trim()!="" && +inp.val()>0) {
                                                         return true;
                                                     } else {
                                                         var msg = new Messi('Invalid or Wrong input. Input must be positive number',
@@ -734,14 +829,14 @@
             });
 
             function updateDeleteComments(action, invSchId, invoiceId, amount, comments) {
-                var jsonData = { action: action, invSchId: invSchId, invoiceId: invoiceId, amount: amount, comments: comments };
+                var jsonData = { action: action, invSchId: invSchId, invoiceId: invoiceId, amount: amount, comments: comments, sendDate: $("#issueDate").val().trim() };
                 $.ajax({
                     type: "Post",
                     url: '@Url.Action("UpdateDeleteComments", "Invoice")',
                     contentType: "application/json; charset=utf-8",
                     data: JSON.stringify(jsonData),
                     dataType: "json",
-                    success: function (data) {
+                    success: function(data) {
                         var str = "";
                         if (action == 'U')
                             str = "Comment is updated successfully.";
@@ -772,7 +867,7 @@
                 return str;
             }
 
-            $('#products tbody').on('click', 'tr', function () {
+            $('#products tbody').on('click', 'tr', function() {
                 if (products.cell($(this), 0).data() != "") {
                     if ($(this).hasClass('selected')) {
                         $(this).removeClass('selected');
@@ -787,11 +882,13 @@
                         var data = products.cell($(this), 7).data();
                         if (data == "" || data == null || data.length < 110) {
                             if (products.cell($(this), 1).data() == gLedgerId)
-                                comments = "Payment for '" + products.cell($(this), 4).data() + "' at the classified section of Bdjobs.com from " + getFormattedDate(products.cell($(this), 5).data()) + " to " + getFormattedDate(products.cell($(this), 6).data()) + " for the following job position(s):\n\n" + products.cell($(this), 2).data();
+                                comments = "Payment for '" + products.cell($(this), 4).data().replace(/&amp;/g, "&") + "' at the classified section of Bdjobs.com from " + getFormattedDate(products.cell($(this), 5).data()).replace(/&amp;/g, "&") + " to " + getFormattedDate(products.cell($(this), 6).data()) + " for the following job position(s):\n\n" + products.cell($(this), 2).data().replace(/&amp;/g, "&");
                             else if (products.cell($(this), 1).data() == 18)
-                                comments = "Payment for 'Job Announcement Display' at the Home Page of Bdjobs.com from " + getFormattedDate(products.cell($(this), 5).data()) + " to " + getFormattedDate(products.cell($(this), 6).data()) + " for the following position(s):\n\n" + products.cell($(this), 2).data();
+                                comments = "Payment for 'Job Announcement Display' at the Home Page of Bdjobs.com from " + getFormattedDate(products.cell($(this), 5).data()).replace(/&amp;/g, "&") + " to " + getFormattedDate(products.cell($(this), 6).data()) + " for the following position(s):\n\n" + products.cell($(this), 2).data().replace(/&amp;/g, "&");
+                            else if (products.cell($(this), 2).data().trim() == "VAT (AP)")
+                                comments = "VAT";
                             else
-                                comments = "Payment for Web Listing (" + products.cell($(this), 2).data() + ") at the classified section of www.bdjobs.com from " + getFormattedDate(products.cell($(this), 5).data()) + " to " + getFormattedDate(products.cell($(this), 6).data()) + " for the following position:\n\n" + products.cell($(this), 2).data();
+                                comments = "Payment for Web Listing (" + products.cell($(this), 2).data().replace(/&amp;/g, "&") + ") at the classified section of www.bdjobs.com from " + getFormattedDate(products.cell($(this), 5).data()) + " to " + getFormattedDate(products.cell($(this), 6).data()) + " for the following position:\n\n" + products.cell($(this), 2).data().replace(/&amp;/g, "&");
                         } else
                             comments = data;
                         $("#comments").val(comments);
@@ -800,7 +897,7 @@
                 }
             });
 
-            $('#commentTable tbody').on('click', 'tr', function () {
+            $('#commentTable tbody').on('click', 'tr', function() {
                 if (commentTable.cell($(this), 0).data() != "") {
                     if ($(this).hasClass('selected')) {
                         $(this).removeClass('selected');
@@ -813,7 +910,7 @@
                 }
             });
 
-            $("#deleteComment").on('click', function () {
+            $("#deleteComment").on('click', function() {
                 var ct = 0;
                 var msg = new Messi('Are you sure to delete comments?',
                 {
@@ -823,7 +920,7 @@
                         { id: 0, label: 'Yes', val: 'Y' },
                         { id: 1, label: 'No', val: 'N' }
                     ],
-                    callback: function (val) {
+                    callback: function(val) {
                         if (ct == 1)
                             return false;
                         if (val == 'Y') {
@@ -845,7 +942,7 @@
 
             });
 
-            $("#updateComment").on('click', function () {
+            $("#updateComment").on('click', function() {
                 var c = 0;
                 var msg = new Messi('Are you sure to update comments?',
                 {
@@ -855,7 +952,7 @@
                         { id: 0, label: 'Yes', val: 'Y' },
                         { id: 1, label: 'No', val: 'N' }
                     ],
-                    callback: function (val) {
+                    callback: function(val) {
                         if (c == 1)
                             return false;
                         if (val == 'Y') {
@@ -867,19 +964,20 @@
                 });
             });
 
-            $("#go").on('click', function () {
+            $("#go").on('click', function() {
                 products.row.add([productTable.cell('.selected', 0).data(), productTable.cell('.selected', 1).data(), productTable.cell('.selected', 2).data(), productTable.cell('.selected', 3).data(), productTable.cell('.selected', 4).data(), productTable.cell('.selected', 5).data(), productTable.cell('.selected', 6).data(), productTable.cell('.selected', 7).data(), productTable.cell('.selected', 8).data(), productTable.cell('.selected', 9).data()]).draw();
+                //console.log("[" + productTable.cell('.selected', 0).data() + "," + productTable.cell('.selected', 1).data() + "," + productTable.cell('.selected', 2).data() + "," + productTable.cell('.selected', 3).data() + "," + productTable.cell('.selected', 4).data() + "," + productTable.cell('.selected', 5).data() + "," + productTable.cell('.selected', 6).data() + "," + productTable.cell('.selected', 7).data() + "," + productTable.cell('.selected', 8).data() + "," + productTable.cell('.selected', 9).data() + "]");
                 var newprice = +productTable.cell('.selected', 8).data() + +$('#totalPrice').val();
                 productTable.row('.selected').remove().draw(false);
                 $('#totalPrice').val(newprice.toFixed(2));
                 $(this).prop('disabled', true);
-                if (productTable.rows().data().length < 6) {
-                    for (var j = 1; j <= 6 - productTable.rows().data().length; j++) {
+                if (productTable.rows().data().length < 11) {
+                    for (var j = 1; j <= 11 - productTable.rows().data().length; j++) {
                         productTable.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
                     }
                 }
             });
-            $("#back").on('click', function () {
+            $("#back").on('click', function() {
                 if (products.rows().data().length != 0) {
                     productTable.row.add([products.cell('.selected', 0).data(), products.cell('.selected', 1).data(), products.cell('.selected', 2).data(), products.cell('.selected', 3).data(), products.cell('.selected', 4).data(), products.cell('.selected', 5).data(), products.cell('.selected', 6).data(), products.cell('.selected', 7).data(), products.cell('.selected', 8).data(), products.cell('.selected', 9).data()]).draw();
                     var newprice = +$('#totalPrice').val() - +products.cell('.selected', 8).data();
@@ -887,8 +985,8 @@
                     products.row('.selected').remove().draw(false);
                     $(this).prop('disabled', true);
                     $("#comments").val('');
-                    if (products.rows().data().length < 6) {
-                        for (var j = 1; j <= 6 - products.rows().data().length; j++) {
+                    if (products.rows().data().length < 9) {
+                        for (var j = 1; j <= 9 - products.rows().data().length; j++) {
                             products.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
                         }
                     }
@@ -897,12 +995,12 @@
             });
 
 
-            $('input:radio').on('change', function () {
+            $('input:radio').on('change', function() {
                 if ($(this).val() == 1) {
                     $("#make").hide();
                     $("#view").show();
                     $("#makeProducts, #go, #back").prop('disabled', true);
-                    $("#show").prop('disabled', true);
+                    $("#show,#previewLabel").prop('disabled', true);
                 } else {
                     $("#make").show();
                     $("#view").hide();
@@ -913,29 +1011,40 @@
                 $("#updateComment, #deleteComment").prop('disabled', true);
                 $("#comments").val('');
 
-                if ($('#companies').val() != "") {
-                    var isExist = false;
-                    $.each($('#CompanyList option'), function () {
-                        if ($(this).text() == $('#companies').val()) {
-                            $(this).prop('selected', true);
-                            isExist = true;
-                            return false;
-                        }
-                        return true;
-                    });
-                    if (isExist == true)
-                        $(document).fillProducts();
-                }
+                //$('#companies').val('');
+                //$('#CompanyList').html('');
+                productTableClear();
+                productsClear();
+                commentTableClear();
                 $("#issueDate").val(toDate);
+                $(document).fillProducts();
             });
-            $("#generateInvoice").on('click', function () {
+            $("#generateInvoice").on('click', function() {
                 if (products.cell(0, 0).data() != "" || productTable.cell(0, 0).data() != "")
                     setInvoiceNumber();
             });
-            $("#invoice_no_generate").on('focusout', function (e) {
+            $("#invoice_no_generate").on('focusout', function(e) {
                 invoiceNoChange();
             });
+            var exportOption;
+            $("#option-one li").on("click", function () {
+                exportOption = $(this).attr("data-type");
+                $("#option-one").toggleClass('active');
+                showInvoice();
+            });
+
+            $("#option-two li").on("click", function () {
+                exportOption = $(this).attr("data-type");
+                $("#option-two").toggleClass('active');
+                showLabel();
+            });
+
             $("#show").on('click', function () {
+                $("#option-one").toggleClass("active");
+            });
+
+
+            function showInvoice() {
                 var jsonData = { invoiceNo: productTable.cell('.selected', 4).data(), isRequested: $('#request').is(':checked'), isColor: $("#print").is(':checked') };
                 $.ajax({
                     type: "Post",
@@ -945,14 +1054,33 @@
                     dataType: "json",
                     success: function (data) {
                         if (data == true) {
-                            window.open('.././ReportingForms/CRViewer.aspx');
+                            window.open('@Url.Action("Show","Report")'+'?type='+exportOption);
                         }
                     },
                 });
+            }
+
+            $("#previewLabel").on("click", function () {
+                $("#option-two").toggleClass("active");
             });
 
+            function showLabel() {
+                var jsonData = { type: 0, list: productTable.cell('.selected', 1).data(), companyBold: false, contactBold: true, fontSize: "12" };
+                $.ajax({
+                    type: "Post",
+                    url: '/Accounting/Invoice/PreviewLabelReport',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        if (data == true) {
+                            window.open('@Url.Action("Show","Report")'+'?type='+exportOption);
+                        }
+                    },
+                });
+            }
 
-            $("#save").on('click', function () {
+            $("#save").on('click', function() {
                 if ('@accessRights.Contains("1")' != 'True') {
                     var mm0 = new Messi("Sorry, You have no permission to save a record.",
                     {
@@ -973,7 +1101,7 @@
                             { id: 0, label: 'Yes', val: 'Y' },
                             { id: 1, label: 'No', val: 'N' }
                         ],
-                        callback: function (val) {
+                        callback: function(val) {
                             if (co == 1)
                                 return false;
                             if (val == 'Y') {
@@ -1020,14 +1148,15 @@
                                             $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                                             return false;
                                         }
-                                        var jsonData = { cId: $("#CompanyList").val(), tnolist: tnolist };
+                                        var c_id = $("#CompanyList").val() == null ? 0 : $("#CompanyList").val();
+                                        var jsonData = { cId: c_id, tnolist: tnolist };
                                         $.ajax({
                                             type: "Post",
                                             url: '@Url.Action("CheckOnlineJobs", "Invoice")',
                                             contentType: "application/json; charset=utf-8",
                                             data: JSON.stringify(jsonData),
                                             dataType: "json",
-                                            success: function (data) {
+                                            success: function(data) {
                                                 if (data.Online < data.Total) {
                                                     var p = 0;
                                                     var ms = new Messi("Total Online job posted " + data.Total + ".<br/>You select for making invoice " + data.Online + " jobs.<br/>You need another " + (data.Total - data.Online) + " job(s).<br/><br/>Do you want to make invoice without adding remaining job(s)?",
@@ -1038,7 +1167,7 @@
                                                             { id: 0, label: 'Yes', val: 'Y' },
                                                             { id: 1, label: 'No', val: 'N' }
                                                         ],
-                                                        callback: function (v) {
+                                                        callback: function(v) {
                                                             if (p == 1)
                                                                 return false;
                                                             if (v == 'Y') {
@@ -1082,7 +1211,7 @@
                         { id: 0, label: 'Yes', val: 'Y' },
                         { id: 1, label: 'No', val: 'N' }
                     ],
-                    callback: function (v11) {
+                    callback: function(v11) {
                         if (f == 1)
                             return false;
                         if (v11 == 'Y') {
@@ -1092,14 +1221,15 @@
                                 action = 'Make';
                             else
                                 action = 'View';
-                            var json = { action: action, cId: $("#CompanyList").val(), invoice: $("#invoice_no_generate").val(), issueDate: $("#issueDate").val(), totalprice: $("#totalPrice").val(), idList: idList };
+                            var cpId = $("#CompanyList").val();
+                            var json = { action: action, cId: cpId==null?0:cpId, invoice: $("#invoice_no_generate").val(), issueDate: $("#issueDate").val(), totalprice: $("#totalPrice").val(), idList: idList };
                             $.ajax({
                                 type: "Post",
                                 url: '@Url.Action("SaveInvoice", "Invoice")',
                                 contentType: "application/json; charset=utf-8",
                                 data: JSON.stringify(json),
                                 dataType: "json",
-                                success: function (data) {
+                                success: function(data) {
                                     var finalBox = new Messi("Invoice information is successfully saved.",
                                     {
                                         title: 'Success',
@@ -1113,7 +1243,7 @@
                                     $("#make").hide();
                                     $("#view").show();
                                     $("#makeProducts, #go, #back").prop('disabled', true);
-                                    $("#show").prop('disabled', true);
+                                    $("#show,#previewLabel").prop('disabled', true);
                                     $(document).fillProducts();
                                     $("#issueDate").val(toDate);
                                 },
@@ -1136,7 +1266,7 @@
                     contentType: "application/json; charset=utf-8",
                     data: JSON.stringify(jsonData),
                     dataType: "json",
-                    success: function (data) {
+                    success: function(data) {
                         if (data == true) {
                             var a = 0;
                             var m1 = new Messi("The invoice Number is already exist. Do you want to make invoice with this existing invoice Number?.",
@@ -1147,7 +1277,7 @@
                                     { id: 0, label: 'Yes', val: 'Y' },
                                     { id: 1, label: 'No', val: 'N' }
                                 ],
-                                callback: function (v1) {
+                                callback: function(v1) {
                                     if (a == 1)
                                         return false;
                                     if (v1 == 'Y') {
@@ -1177,9 +1307,10 @@
                 change = true;
             }
 
-            if ('@ViewBag.Companyid' != "" && '@ViewBag.Companyid' != null && '@ViewBag.Companyid' != 'NULL') {
-                $('#CompanyList option[value="@ViewBag.Companyid"]').prop('selected', true);
-                $('#companies').val($('#CompanyList option[value="@ViewBag.Companyid"]').text());
+            if ('@ViewBag.Companyid' != '' && '@ViewBag.Companyid' != 'null' && '@ViewBag.Companyid' != 'Null' && '@ViewBag.Companyid' != null && '@ViewBag.Companyid' != 'NULL') {
+                
+                $("#CompanyList").html("<option selected='selected' value='@ViewBag.Companyid' data-blacklisted='@ViewBag.BlackList'>@ViewBag.CompanyName</option>");
+                $('#companies').val('@ViewBag.CompanyName');
                 $("#new_radio").prop('checked', true);
                 $(document).fillProducts();
                 commentTableClear();
@@ -1188,112 +1319,11 @@
                 $("#make").show();
                 $("#view").hide();
             }
-            //$(document).myPlugin(productTable, products, commentTable);
+
         });
     </script>
-
-    @*@if (ViewBag.Companyid != null)
-        {
-            <script>
-                (function ($) {
-                    $.fn.myPlugin = function (productTable, products, commentTable) {
-                        $("#CompanyList option[value='" + @ViewBag.Companyid + "'").prop('selected', true);
-                        $("#CompanyList option[value='']").remove();
-                        $("#existing_radio").prop('checked', true);
-                        fillProducts();
-                        commentTableClear();
-                        $("#labels").val('');
-                        $("#comments").val('');
-
-                        function fillProducts() {
-                            var type = $('input:radio:checked').val();
-                            var cId = $("#CompanyList").val();
-                            var query = "USP_GET_INVOICE_INVSCHEDULE '" + type + "','" + cId + "';";
-                            var jsonData = { query: query, type: type };
-                            $.ajax({
-                                type: "Post",
-                                url: '@Url.Action("GetProductsForInvoice", "Invoice")',
-                                contentType: "application/json; charset=utf-8",
-                                data: JSON.stringify(jsonData),
-                                dataType: "json",
-                                success: function (data) {
-                                    productTable.clear().draw();
-                                    $.each(data, function (key, value) {
-                                        if (type == 0)
-                                            productTable.row.add([value.ListItem, value.Id, value.Product, value.LedgerId, value.SbName, value.SDate, value.EDate, value.Comments, value.Amount, value.TNO]).draw();
-                                        else {
-                                            productTable.row.add([value.ListItem, value.Id, 0, 0, value.SbName, value.SDate, 0, 0, value.Amount, 0]).draw();
-                                        }
-                                    });
-                                    if (data.length < 6) {
-                                        for (var i = 1; i <= 6 - data.length; i++) {
-                                            productTable.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
-                                        }
-                                    }
-                                    productsClear();
-                                    blankPrices();
-                                    if (data.length == 0) {
-                                        $("#invoice_no_generate").val('0000-' + pad(cId, 5) + '-000-00000');
-                                    } else {
-                                        setInvoiceNumber();
-                                    }
-                                    $("#show").prop('disabled', true);
-                                },
-                            });
-                        }
-
-                        function blankPrices() {
-                            $('#totalPrice').val('0.00');
-                            $('#invoicePrice').val('0.00');
-                        }
-
-                        function productTableClear() {
-                            productTable.clear().draw();
-                            for (var i = 1; i <= 6; i++) {
-                                productTable.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
-                            }
-                        }
-
-                        function productsClear() {
-                            products.clear().draw();
-                            for (var i = 1; i <= 6; i++) {
-                                products.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
-                            }
-                        }
-
-                        function commentTableClear() {
-                            commentTable.clear().draw();
-                            for (var i = 1; i <= 7; i++) {
-                                commentTable.row.add(["", "", ""]).draw();
-                            }
-                        }
-
-                        function setInvoiceNumber() {
-                            if (productTable.cell(0, 0).data() != "" || products.cell(0, 0).data() != "") {
-                                var query = "USP_SET_INVOICE_NUMBER " + $("#CompanyList").val() + ",'" + $("#issueDate").val() + "';";
-                                var jsonData = { query: query };
-                                $.ajax({
-                                    type: "Post",
-                                    url: '@Url.Action("GenerateInvoiceNumber", "Invoice")',
-                                    contentType: "application/json; charset=utf-8",
-                                    data: JSON.stringify(jsonData),
-                                    dataType: "json",
-                                    success: function (data) {
-                                        $("#invoice_no_generate").val(data.InvoiceNo);
-                                    },
-                                });
-                            } else
-                                $("#invoice_no_generate").val('0000-' + pad($("#CompanyList").val(), 5) + '-000-00000');
-                        }
-
-                        function pad(str, max) {
-                            str = str.toString();
-                            return str.length < max ? pad("0" + str, max) : str;
-                        }
-
-                    };
-                })(jQuery);
-            </script>*@
+    <script type="text/javascript" src="~/Scripts/js/common.js"></script>
+    
 }
 
 @if (!accessRights.Contains("1"))

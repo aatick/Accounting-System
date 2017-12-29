@@ -3,16 +3,22 @@
 }
 @section styles
 {
+    <link href="~/Content/css/colorbox.css" rel="stylesheet" />
     <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
     <link href="~/Content/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <link href="~/Content/css/common.css" rel="stylesheet" />
     <style>
         legend {
             width: auto;
             border-bottom: 0px;
             color: inherit;
         }
-        ul.pagination {margin-bottom: 0px;}
+
+        ul.pagination {
+            margin-bottom: 0px;
+        }
+
         fieldset.schedule-border {
             font-family: Verdana, Arial, sans-serif;
             font-size: small;
@@ -61,6 +67,9 @@
         #withCheckbox {
             min-height: 196px;
             border: 1px solid gray;
+        }
+        #option-one {
+            margin-top: -216px;
         }
     </style>
 
@@ -146,10 +155,11 @@
             <div class="col-sm-7" id="paging" style="text-align: right; margin-top: -20px; margin-bottom: -10px; margin-left: 15px; padding: 0;">
 
             </div>
-            <div class="col-sm-12" id="withCheckbox" style="background-color: white;">
+            <div class="col-sm-12" id="withCheckbox" style="background-color: white; position: relative;">
                 <table class="multiselect table table-responsive" style="border: none; margin-bottom: 0px;" id="lists">
                     <tbody></tbody>
                 </table>
+                <img src='/Accounting/image/ajax_loader.gif' style="position: absolute; top: 48px; left: 45%; z-index: 9999; display: none;" width='100' height='100' align='center' valign='middle' id="loader" />
             </div>
             <div class="col-sm-12" style="padding-right: 0;">
                 <div class="col-sm-offset-5 col-sm-7" id="pagingBottom" style="text-align: right; padding-right: 0;">
@@ -171,7 +181,7 @@
                                 </select>
                             </span>
                             <span class="col-sm-offset-1 col-sm-3" style="padding-right: 0;">
-                                <input type="checkbox" id="contact" style="padding-right: 0;" />
+                                <input type="checkbox" checked="checked" id="contact" style="padding-right: 0;" />
                                 <span class="control-label" style="font-size: 11px;">Bold Contact person</span>
                             </span>
                             <span class="col-sm-3">
@@ -186,8 +196,16 @@
                 <div class="col-sm-3" style="padding-left: 0; margin-left: 0;padding-right: 0;">
                     <input type="button" id="addCompany" class="btn btn-block btn-primary" value="Add/Update Company" />
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-2 list-container">
                     <input type="button" id="preview" class="btn btn-block btn-primary" value="Preview Label" />
+                    <ul class="export-container" id="option-one">
+                        <li data-type="Pdf">Pdf</li>
+                        <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                        <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                        <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                        <li data-type="Word">Microsoft Word (97-2003)</li>
+                        <li data-type="XML">XML</li>
+                    </ul>
                 </div>
                 <div class="col-sm-2">
                     <input type="button" id="refresh" class="btn btn-block btn-primary" value="Refresh" />
@@ -200,6 +218,7 @@
     </div>
 </div>
 @section scripts{
+    <script src="~/Scripts/js/jquery.colorbox.js"></script>
     <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
     <script src="~/Scripts/js/jquery.bootpag.min.js"></script>
     <script src="~/Scripts/js/jquery.dataTables.min.js"></script>
@@ -228,7 +247,7 @@
             $("#show").on('click', function () {
                 fillData(1, $("#pagesize").val(), $('input:radio[name=type]:checked').val(), $("#Products").val(), $("#fromRange").val(), $("#toRange").val());
             });
-            $("#close,#cross").on('click', function () {
+            $("#close, #cross").on('click', function () {
                 $("#CLabel").remove();
             });
             $('#lists').on('click', function () {
@@ -251,12 +270,12 @@
                         mmg = "'<strong>From</strong>' value must be less than or equal to '<string>To</strong>' value.";
                     else
                         mmg = 'The value must between 1 to ' + $('#pagesize').val() + '.';
-                    new Messi(mmg,
+                    var ccc = new Messi(mmg,
                     {
                         title: 'Error',
                         modal: true,
                         buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                            { id: 0, label: 'OK', val: 'X' }
                         ]
                     });
                     $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -280,11 +299,20 @@
                 checks.each(function () {
                     $(this).prop('checked', false);
                 });
-                $("#from,#to").val(0);
+                $("#from, #to").val(0);
                 $("#preview").prop('disabled', true);
             });
+            var exportOption;
+            $("#option-one li").on("click", function () {
+                exportOption = $(this).attr("data-type");
+                $("#option-one").removeClass('active');
+                showPreview();
+            });
 
-            $("#preview").on('click', function () {
+            $("#preview").on('click', function() {
+                $(".export-container").toggleClass("active");
+            });
+            function showPreview() {
                 var str = "";
                 var checks = $('.multiselect').find('input:checkbox');
                 checks.each(function () {
@@ -294,14 +322,8 @@
                 str = str.substring(0, str.length - 1);
 
                 var contactBold, companyBold;
-                if ($("#contact").is(':checked'))
-                    contactBold = "true";
-                else
-                    contactBold = "false";
-                if ($("#company").is(':checked'))
-                    companyBold = "true";
-                else
-                    companyBold = "false";
+                contactBold = $("#contact").is(':checked') ? 'true' : 'false';
+                companyBold = $("#company").is(':checked') ? 'true' : 'false';
                 var fontSize = $("#fontSize").val();
                 var jsonData = { type: $('input:radio[name=type]:checked').val(), list: str, companyBold: companyBold, contactBold: contactBold, fontSize: fontSize };
                 $.ajax({
@@ -311,10 +333,10 @@
                     data: JSON.stringify(jsonData),
                     dataType: "json",
                     success: function (data) {
-                        window.open('.././ReportingForms/CRViewer.aspx');
+                        window.open('/Accounting/Report/Show?type='+exportOption);
                     },
                 });
-            });
+            }
 
             $("input:radio, #Products, #pagesize").on('change', function () {
                 fillData(1, $("#pagesize").val(), $('input:radio[name=type]:checked').val(), $("#Products").val(), $("#fromRange").val(), $("#toRange").val());
@@ -339,6 +361,8 @@
             fillData(1, 20, 0, 0, fromdate, toDate);
 
             function fillData(pageNo, pageSize, type, productId, from, to) {
+                $("#loader").show();
+                $("#lists tbody").html('');
                 var jsonData = { pageNo: pageNo, pageSize: pageSize, type: type, productId: productId, from: from, to: to };
                 $.ajax({
                     type: "Post",
@@ -361,6 +385,7 @@
                             }
                             str += '</tr>';
                         }
+                        $("#loader").hide();
                         $("#lists tbody").append(str);
                         $('#lists tbody tr:first td').css('border-top', 'none');
                         var total = 0;
@@ -393,21 +418,28 @@
                         } else {
                             $('#pagingBottom, #paging').hide();
                         }
-                        $('.footer').css('margin-bottom', '-15px');
-                        $('.sidebar1').css('height', ($('.footer').offset().top - $('.sidebar1').offset().top) + 'px');
                     },
                 });
 
             }
+
             $('#pagingBottom').bootpag({ total: 1 });
 
             $('#paging').bootpag({ total: 1 }).on("page", function (event, num) {
                 fillData(num, $("#pagesize").val(), $('input:radio[name=type]:checked').val(), $("#Products").val(), $("#fromRange").val(), $("#toRange").val());
             });
             $('#addCompany').on('click', function () {
-                window.open('@Url.Action("Index","Company")');
+                $.colorbox({
+                    iframe: true,
+                    width: "800px",
+                    height: "630px",
+                    href: '/Accounting/Company?page=new',
+                    scrolling: true,
+                    innerWidth: '545px'
+                });
             });
         });
     </script>
+    <script type="text/javascript" src="~/Scripts/js/common.js"></script>
 }
 

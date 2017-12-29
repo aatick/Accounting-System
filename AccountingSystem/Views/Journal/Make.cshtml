@@ -5,117 +5,146 @@
     var user = (User)Session["loggedinUser"];
     var accessRights = user.AccessRight.Split(',');
 }
-@section styles
+@if (ViewBag.Page != null)
 {
-    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
-    <link href="~/Content/css/colorbox.css" rel="stylesheet" />
-    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
-    <style>
-        .modal-header-mj {
+    Layout = null;
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-2.1.3.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+}
+<link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+<link href="~/Content/css/colorbox.css" rel="stylesheet" />
+<link href="~/Content/css/messi.min.css" rel="stylesheet" />
+<style>
+    .modal-header-mj {
+        color: #fff;
+        border-bottom: 1px solid #eee;
+        background-color: #005BF1;
+        -webkit-border-radius: 5px 5px 0px 0px;
+        -moz-border-radius: 5px 5px 0px 0px;
+        border-radius: 5px 5px 0px 0px;
+        padding: 0px 5px 0px 5px;
+        margin: -10px 0px 0px 0px;
+    }
+
+        .modal-header-mj h4 {
             color: #fff;
-            border-bottom: 1px solid #eee;
-            background-color: #005BF1;
-            -webkit-border-radius: 5px 5px 0px 0px;
-            -moz-border-radius: 5px 5px 0px 0px;
-            border-radius: 5px 5px 0px 0px;
-            padding: 0px 5px 0px 5px;
-            margin: -10px 0px 0px 0px;
+            line-height: 28px;
+            font-size: 15px;
+            margin: 2px 0px 0px 0px;
         }
 
-            .modal-header-mj h4 {
-                color: #fff;
-                line-height: 28px;
-                font-size: 15px;
-                margin: 2px 0px 0px 0px;
-            }
-
-            .modal-header-mj .close {
-                color: #fff;
-                font-size: 20px;
-                line-height: 28px;
-            }
-
-        .mjModal .modal-dialog {
-            width: 800px;
-        }
-
-        .mjModal .modal-body {
-            background: #f0f0f0;
-        }
-
-            .mjModal .modal-body table {
-                background: #fff;
-            }
-
-                .mjModal .modal-body table th {
-                    background: #dfdfdf;
-                    text-align: center;
-                }
-
-        .mjModal .modal-footer {
-            background: #f0f0f0;
-            border-top: none;
-        }
-
-        .purple_Label {
-            background-color: #7c80fd;
+        .modal-header-mj .close {
             color: #fff;
-            display: block;
-            text-align: center;
-            padding: 5px 0px 5px 0px;
-            font-size: 14px;
+            font-size: 20px;
+            line-height: 28px;
         }
 
-        .noresize {
-            resize: none;
+    .mjModal .modal-dialog {
+        width: 950px;
+    }
+
+    .mjModal .modal-body {
+        background: #f0f0f0;
+    }
+
+        .mjModal .modal-body table {
+            background: #fff;
         }
 
-        .datepicker {
-            z-index: 1151 !important;
-        }
-
-        #journalTable tbody tr td:nth-child(1) {
-            cursor: text;
-        }
-
-        #journalTable tbody tr td:nth-child(4), #journalTable tbody tr td:nth-child(5), #journalTable tbody tr td:nth-child(6) {
-            padding: 0;
-        }
-
-            #journalTable tbody tr td:nth-child(5) input[type="text"], #journalTable tbody tr td:nth-child(6) input[type="text"] {
-                text-align: right;
-                border: none;
+            .mjModal .modal-body table th {
+                background: #dfdfdf;
+                text-align: center;
             }
 
-        #balance, #debit, #credit {
+    .mjModal .modal-footer {
+        background: #f0f0f0;
+        border-top: none;
+    }
+
+    .purple_Label {
+        background-color: #7c80fd;
+        color: #fff;
+        display: block;
+        text-align: center;
+        padding: 5px 0px 5px 0px;
+        font-size: 14px;
+    }
+
+    .noresize {
+        resize: none;
+    }
+
+    .datepicker {
+        z-index: 1151 !important;
+    }
+
+    #journalTable tbody tr td:nth-child(1), #journalTable tbody tr td:nth-child(2) {
+        cursor: text;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    #journalTable tbody tr td:nth-child(4), #journalTable tbody tr td:nth-child(5), #journalTable tbody tr td:nth-child(6) {
+        padding: 0;
+    }
+
+        #journalTable tbody tr td:nth-child(5) input[type="text"], #journalTable tbody tr td:nth-child(6) input[type="text"] {
             text-align: right;
-        }
-
-        #journalTable tbody tr td:nth-child(4) input[type="text"] {
             border: none;
         }
 
-        #dp1 {
-            text-align: center;
+    #balance, #debit, #credit {
+        text-align: right;
+    }
+
+    #journalTable tbody tr td:nth-child(4) input[type="text"] {
+        border: none;
+    }
+
+    #dp1 {
+        text-align: center;
+    }
+
+    #close {
+        position: absolute;
+        top: 0;
+        right: 0px;
+        background: url(../images/close2.png) no-repeat -25px 0;
+        width: 30px;
+        height: 30px;
+        text-indent: -9999px;
+        padding: 0 10px 0 0;
+        cursor: pointer;
+        margin: -8px 0 0 0;
+    }
+</style>
+@if (ViewBag.Page != null)
+{
+    <style type="text/css">
+        body .modal-dialog {
+            margin-top: 6px !important;
         }
 
-        #close {
-            position: absolute;
-            top: 0;
-            right: 0px;
-            background: url(../images/close2.png) no-repeat -25px 0;
-            width: 30px;
-            height: 30px;
-            text-indent: -9999px;
-            padding: 0 10px 0 0;
-            cursor: pointer;
-            margin: -8px 0 0 0;
+        body #close {
+            display: none;
+        }
+
+        body .modal-backdrop.in {
+            display: none;
+        }
+
+        .modal.in {
+            overflow: hidden !important;
+            margin-left: 0px !important;
+            padding-left: 0px !important;
         }
     </style>
 }
 <div class="container">
     <!-- Modal -->
-    <div class="modal mjModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal mjModal" id="success" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="margin-left: 65px;">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header modal-header-mj">
@@ -148,67 +177,67 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-12  table-responsive">
+                        <div class="col-sm-12 table-responsive">
                             <table class="table table-condensed table-bordered" id="journalTable">
                                 <thead>
                                     <tr>
                                         <th style="width: 10%">N/C</th>
-                                        <th style="width: 30%;">Acc Name</th>
-                                        <th style="width: 17%;">Current&nbsp;Balance</th>
-                                        <th style="width: 17%;">Description</th>
-                                        <th style="width: 13%;">Debt</th>
-                                        <th style="width: 13%;">Credit</th>
+                                        <th style="width: 25%;">Acc Name</th>
+                                        <th style="width: 10%;">Current&nbsp;Balance</th>
+                                        <th style="width: 35%;">Description</th>
+                                        <th style="width: 10%;">Debt</th>
+                                        <th style="width: 10%;">Credit</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td style="display: none;">1</td>
+                                        <td class="first"></td>
+                                        <td class="second"></td>
+                                        <td class="third"></td>
+                                        <td><input class="des" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="debt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="crdt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td class="last" style="display: none;">1</td>
                                     </tr>
                                     <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td class="first"></td>
+                                        <td class="second"></td>
+                                        <td class="third"></td>
+                                        <td><input class="des" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="debt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="crdt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
                                     </tr>
                                     <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td class="first"></td>
+                                        <td class="second"></td>
+                                        <td class="third"></td>
+                                        <td><input class="des" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="debt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="crdt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
                                     </tr>
                                     <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td class="first"></td>
+                                        <td class="second"></td>
+                                        <td class="third"></td>
+                                        <td><input class="des" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="debt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="crdt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
                                     </tr>
                                     <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td class="first"></td>
+                                        <td class="second"></td>
+                                        <td class="third"></td>
+                                        <td><input class="des" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="debt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="crdt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
                                     </tr>
                                     <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
-                                        <td><input type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td class="first"></td>
+                                        <td class="second"></td>
+                                        <td class="third"></td>
+                                        <td><input class="des" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="debt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
+                                        <td><input class="crdt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -259,16 +288,18 @@
     <!-- Modal -->
 </div>
 <!-- Modal -->
+@if (ViewBag.Page == null)
+{
 @section scripts
 {
     <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
     <script src="~/Scripts/js/jquery.colorbox.js"></script>
     <script src="~/Scripts/js/messi.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $(window).on('load', function () {
+        $(document).ready(function() {
+            $(window).on('load', function() {
                 $("#success").modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
                 });
             });
@@ -289,7 +320,7 @@
                 return str.length < max ? pad("0" + str, max) : str;
             }
 
-            $("#close, #exit").on('click', function () {
+            $("#close, #exit").on('click', function() {
                 $("#success").modal('hide');
             });
 
@@ -298,11 +329,12 @@
                 var $dialog = $('.modal').find(".modal-dialog");
                 var offset = ($(window).height() - $dialog.height()) / 2;
                 // Center modal vertically in window
-                if (offset >= 0)
-                    $dialog.css("margin-top", offset);
+                //if (offset >= 0)
+                //    $dialog.css("margin-top", offset);
+                $dialog.css("margin-top", "10px");
             }
 
-            $(window).on("resize", function () {
+            $(window).on("resize", function() {
                 centerSuccess();
             });
             //$(document).click(function () {
@@ -318,11 +350,11 @@
                 changeYear: true
             });
             var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
-            $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+            $.fn.modal.Constructor.prototype.enforceFocus = function() {};
             var tr;
-            $('#journalTable tbody tr td:nth-child(1)').on('click', function () {
+            $(document).on('click', 'td.first', function() {
                 var button = $(this);
-                if (button.parent('tr').prev('tr').children('td:nth-child(5)').find('input:text').val() > 0 || button.parent('tr').prev('tr').children('td:nth-child(6)').find('input:text').val() > 0 || button.parent('tr').children('td:nth-child(7)').html() == '1' || button.parent('tr').children('td:nth-child(1)').html() != "") {
+                if (button.parent('tr').prev('tr').find('.debt').val() > 0 || button.parent('tr').prev('tr').find('.crdt').val() > 0 || button.parent('tr').find(".last").html() == '1' || button.html() != "") {
                     $('#ledgers option[value="' + parseInt(button.html()) + '"]').prop('selected', true);
                     $("#ok").prop('disabled', false);
                     if (button.html() == "") {
@@ -338,21 +370,21 @@
                     tr = button.parent('tr');
                 }
             });
-            $('#cancel').on('click', function () {
+            $('#cancel').on('click', function() {
                 $("#view").hide();
             });
 
-            $('#ledgers').on('change', function () {
+            $('#ledgers').on('change', function() {
                 $("#ok").prop('disabled', false);
             });
-            $('#ledgers').on('dblclick', function () {
+            $('#ledgers').on('dblclick', function() {
                 fillTable();
             });
-            $("#ledgers").on('keydown', function (e) {
+            $("#ledgers").on('keydown', function(e) {
                 if (e.keyCode == 13)
                     fillTable();
             });
-            $("#ok").on('click', function () {
+            $("#ok").on('click', function() {
                 fillTable();
             });
             $("#balance, #debit, #credit").val('0.00');
@@ -363,51 +395,63 @@
                     url: '@Url.Action("GetLedgersWithBalance", "Journal")',
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    success: function (data) {
+                    success: function(data) {
                         $("#ledgers").html('');
-                        $.each(data, function (key, value) {
+                        $.each(data, function(key, value) {
                             $("#ledgers").append('<option value="' + value.Id + '" data-balance="' + value.Account + '">' + value.GroupName + '</option>');
                         });
                     },
                 });
             }
+
             getLedgers();
+
             function fillTable() {
                 var selected = $('#ledgers option:selected');
-                tr.children('td:nth-child(1)').html(pad(selected.val(), 5));
-                tr.children('td:nth-child(2)').html(selected.text());
-                tr.children('td:nth-child(3)').html(selected.data('balance'));
-                tr.find('input:text').prop('disabled', false).css('cursor', 'text');
-                tr.children('td:nth-child(4)').find('input:text').focus();
-                tr.children('td:nth-child(5), td:nth-child(6)').find('input:text').val('0.00');
+                tr.find(".first").html(pad(selected.val(), 5));
+                tr.find(".second").html(selected.text());
+                tr.find(".third").html(selected.data('balance'));
+                tr.find('.debt,.crdt').val('');
+                tr.find('.debt,.crdt,.des').prop('disabled', false).css('cursor', 'text');
+                tr.find('.des').focus();
                 $("#view").hide();
                 calculateDebitCredit();
             }
 
-            $('#journalTable tbody tr td:nth-child(5) input:text, #journalTable tbody tr td:nth-child(6) input:text').on('keydown', function (e) {
+            $(document).on('keydown', '.debt,.crdt', function(e) {
                 var kCode = (e.which || e.keyCode);
                 if (kCode == 190 || kCode == 110) {
                     if ($(this).val().indexOf(".") > -1)
                         e.preventDefault();
-                } else if (e.which === 86 && (e.ctrlKey || e.metaKey))
-                    e.preventDefault();
-                else if (e.keyCode < 96 || e.keyCode > 105) {
-                    if (e.keyCode != 8 && e.keyCode != 46) {
+                } else if (e.ctrlKey || e.metaKey || e.shiftKey) {
+                    if (e.shiftKey) {
+                        var arrCodes = [35, 36, 37, 39];
+                        if ($.inArray(e.keyCode, arrCodes) == -1) {
+                            e.preventDefault();
+                        }
+                    }
+                } else if (e.keyCode < 96 || e.keyCode > 105) {
+                    var arrCode = [8, 9, 37, 39, 46];
+                    if ($.inArray(e.keyCode, arrCode) == -1) {
                         if (!$.isNumeric(String.fromCharCode(e.which)))
                             e.preventDefault();
                     }
                 }
             });
 
-            $('#journalTable tbody tr td:nth-child(5) input:text').on('focusout', function () {
+            $(document).on('focusout', '.debt', function() {
                 if (!$(this).prop('readonly')) {
                     var value = $(this).val();
                     if (value != '0.00') {
                         if (value == "" || value == ".") {
                             $(this).val('0.00');
                         } else {
-                            $(this).val(parseFloat(value).toFixed(2));
-                            $(this).parent('td').parent('tr').children('td:nth-child(6)').find('input:text').val('0.00');
+                            if (!isNaN(value)) {
+                                $(this).val(parseFloat(value).toFixed(2));
+                                $(this).parent('td').parent('tr').find('.crdt').val('0.00');
+                            } else {
+                                $(this).val('0.00');
+                            }
                         }
                     }
                     calculateDebitCredit();
@@ -418,10 +462,10 @@
                 var bln = "";
                 var debit = 0.00;
                 var credit = 0.00;
-                $.each($('#journalTable tbody tr'), function () {
-                    if ($(this).children('td:nth-child(5)').find('input:text').val() != "" && $(this).children('td:nth-child(6)').find('input:text').val()) {
-                        debit += parseFloat($(this).children('td:nth-child(5)').find('input:text').val());
-                        credit += parseFloat($(this).children('td:nth-child(6)').find('input:text').val());
+                $.each($('#journalTable tbody tr'), function() {
+                    if ($(this).find('.debt').val() != "" && $(this).find('.crdt').val()) {
+                        debit += parseFloat($(this).find('.debt').val());
+                        credit += parseFloat($(this).find('.crdt').val());
                     }
                 });
                 if (debit > credit) {
@@ -438,40 +482,51 @@
                 $("#balance").val(bln);
             }
 
-            $('#journalTable tbody tr td:nth-child(6) input:text').on('focusout', function () {
+            $(document).on('focusout', '.crdt', function() {
                 if (!$(this).prop('readonly')) {
                     var value = $(this).val();
                     if (value != '0.00') {
                         if (value == "" || value == ".") {
                             $(this).val('0.00');
                         } else {
-                            $(this).val(parseFloat(value).toFixed(2));
-                            $(this).parent('td').parent('tr').children('td:nth-child(5)').find('input:text').val('0.00');
+                            if (!isNaN(value)) {
+                                $(this).val(parseFloat(value).toFixed(2));
+                                $(this).parent('td').parent('tr').find('.debt').val('0.00');
+                            } else {
+                                $(this).val('0.00');
+                            }
                         }
                     }
                     calculateDebitCredit();
                 }
             });
 
-            $('#journalTable input:text').on('keydown', function (e) {
+            $(document).on('keydown', '#journalTable input:text', function(e) {
                 if (e.keyCode == 13) {
                     var inp = $(this).parent('td').next('td').find('input:text');
                     if (inp.length > 0)
                         inp.focus();
-                    else
-                        $(this).parent('td').parent('tr').next('tr').find('td:nth-child(1)').trigger('click');
+                    else {
+                        var nextRow = $(this).parent('td').parent('tr').next('tr');
+                        if (nextRow.length > 0)
+                            nextRow.find('.first').trigger('click');
+                        else {
+                            $("#journalTable tbody").append('<tr><td class="first"></td><td class="second"></td><td class="third"></td><td><input class="des" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td><td><input class="debt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td><td><input class="crdt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td></tr>');
+                            $(this).parent('td').parent('tr').next('tr').find('.first').trigger('click');
+                        }
+                    }
                 }
             });
 
             var gTNO_Notify = "@ViewBag.Info";
-            $("#save").on('click', function () {
+            $("#save").on('click', function() {
                 if ('@accessRights.Contains("1")' != 'True') {
                     var m1 = new Messi('Sorry, You have no permission to save a journal.',
                     {
                         title: 'Access Denied',
                         modal: true,
                         buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                            { id: 0, label: 'OK', val: 'X' }
                         ]
                     });
                     $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -484,7 +539,7 @@
                             title: 'Invalid Date',
                             modal: true,
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -494,7 +549,7 @@
                             title: 'Empty Record',
                             modal: true,
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -504,7 +559,7 @@
                             title: 'Empty Record',
                             modal: true,
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -514,7 +569,7 @@
                             title: 'Not Balanced',
                             modal: true,
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -528,7 +583,7 @@
                                 { id: 0, label: 'Yes', val: 'Y' },
                                 { id: 1, label: 'No', val: 'N' }
                             ],
-                            callback: function (val) {
+                            callback: function(val) {
                                 if (c == 1)
                                     return false;
                                 if (val == 'Y') {
@@ -537,25 +592,25 @@
                                         url: '@Url.Action("GetMaxJournalId", "Journal")',
                                         contentType: "application/json; charset=utf-8",
                                         dataType: "json",
-                                        success: function (data) {
+                                        success: function(data) {
                                             var jid = parseInt(data) + 1;
                                             var journals = [];
                                             var ledgers = [];
-                                            $.each($("#journalTable tbody tr"), function () {
-                                                if ($(this).children('td:nth-child(1)').html() != "") {
-                                                    var balance = $(this).children('td:nth-child(3)').html().split(' ');
-                                                    var accName = $(this).children('td:nth-child(2)').html();
-                                                    var description = $(this).children('td:nth-child(4)').find('input:text').val();
+                                            $.each($("#journalTable tbody tr"), function() {
+                                                if ($(this).find("td.first").html() != "") {
+                                                    var balance = $(this).find('.third').html().split(' ');
+                                                    var accName = $(this).find('.second').html();
+                                                    var description = $(this).find('.des').val();
                                                     var debit = 0;
                                                     var credit = 0;
                                                     var jDate = $("#dp1").val();
                                                     var userId = '@user.UserId';
                                                     var lAmount = 0;
                                                     var lAcc = "";
-                                                    var sid = $(this).children('td:nth-child(1)').html();
+                                                    var sid = $(this).find("td.first").html();
                                                     var found = true;
-                                                    if ($(this).children('td:nth-child(5)').find('input:text').val() != '0.00') {
-                                                        debit = parseFloat($(this).children('td:nth-child(5)').find('input:text').val()); //currBalance: balance[0], currStatus: balance[1],
+                                                    if ($(this).find('.debt').val() != '0.00') {
+                                                        debit = parseFloat($(this).find('.debt').val()); //currBalance: balance[0], currStatus: balance[1],
                                                         if (balance[1] == 'Dr') {
                                                             lAmount = parseFloat(balance[0]) + debit;
                                                             lAcc = 'Dr';
@@ -572,8 +627,8 @@
                                                             lAmount = debit;
                                                             lAcc = 'Dr';
                                                         }
-                                                    } else if ($(this).children('td:nth-child(6)').find('input:text').val() != '0.00') {
-                                                        credit = parseFloat($(this).children('td:nth-child(6)').find('input:text').val()); //currBalance: balance[0], currStatus: balance[1],
+                                                    } else if ($(this).find('.crdt').val() != '0.00') {
+                                                        credit = parseFloat($(this).find('.crdt').val()); //currBalance: balance[0], currStatus: balance[1],
                                                         if (balance[1] == 'Cr') {
                                                             lAmount = parseFloat(balance[0]) + credit;
                                                             lAcc = 'Cr';
@@ -616,7 +671,7 @@
                                                     contentType: "application/json; charset=utf-8",
                                                     data: JSON.stringify({ journals: journals, ledgers: ledgers }),
                                                     dataType: "json",
-                                                    success: function (returnData) {
+                                                    success: function(returnData) {
                                                         if (returnData == true) {
                                                             if (gTNO_Notify == "") {
                                                                 var c1 = 0;
@@ -628,7 +683,7 @@
                                                                         { id: 0, label: 'Yes', val: 'Y' },
                                                                         { id: 1, label: 'No', val: 'N' }
                                                                     ],
-                                                                    callback: function (v) {
+                                                                    callback: function(v) {
                                                                         if (c1 == 1)
                                                                             return false;
                                                                         if (v == 'Y') {
@@ -648,7 +703,7 @@
                                                                         { id: 0, label: 'Yes', val: 'Y' },
                                                                         { id: 1, label: 'No', val: 'N' }
                                                                     ],
-                                                                    callback: function (v1) {
+                                                                    callback: function(v1) {
                                                                         if (c2 == 1)
                                                                             return false;
                                                                         if (v1 == 'Y') {
@@ -665,7 +720,532 @@
                                                                                     { id: 0, label: 'Yes', val: 'Y' },
                                                                                     { id: 1, label: 'No', val: 'N' }
                                                                                 ],
-                                                                                callback: function (vl) {
+                                                                                callback: function(vl) {
+                                                                                    if (cc == 1)
+                                                                                        return false;
+                                                                                    if (vl == 'Y') {
+                                                                                        showVoucherReport(jid);
+                                                                                        cc = 1;
+                                                                                    }
+                                                                                    return true;
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                        return true;
+                                                                    }
+                                                                });
+                                                            }
+
+                                                        } else {
+                                                            var m1123 = new Messi('Journal not created. try again.',
+                                                            {
+                                                                title: 'Error',
+                                                                modal: true,
+                                                                buttons: [
+                                                                    { id: 0, label: 'OK', val: 'X' }
+                                                                ]
+                                                            });
+                                                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                                        }
+                                                    },
+                                                });
+                                            }
+                                        },
+                                    });
+                                    c = 1;
+                                }
+                                return true;
+                            }
+                        });
+                    }
+                }
+            });
+            $("#clear").on('click', function() {
+                clearJournal();
+            });
+
+            function clearJournal() {
+                $("#dp1").val(toDate);
+                $("#balance, #debit, #credit").val('0.00');
+                $('.first, .second, .third').html('');
+                $('.des, .debt, .crdt').val('');
+                if ($("#journalTable tbody tr").length > 6) {
+                    while ($("#journalTable tbody tr").length>6) {
+                        $("#journalTable tbody tr:last-child").remove();
+                    }
+                }
+                $("#save").prop('disabled', true);
+            }
+
+            function showVoucherReport(jid) {
+                var jsonData = { voucherId: jid };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetVoucherReport", "Journal")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function(data) {
+                        if (data == true)
+                            window.open('/Accounting/Report/Show');
+                    },
+                });
+            }
+
+            $(document).mouseup(function(e) {
+                var container = $("#view, .first");
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
+                    $('#view').hide();
+                }
+            });
+            $('.sub_window_new').on('click', function() {
+                $.colorbox({
+                    iframe: true,
+                    width: $(this).attr('width'),
+                    height: $(this).attr('height'),
+                    href: $(this).attr('path'),
+                    scrolling: true,
+                    innerWidth: '545px'
+                });
+            });
+            $("#refresh").on('click', function() {
+                getLedgers();
+            });
+        });
+    </script>
+}
+}
+else
+{
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/jquery.colorbox.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(window).on('load', function() {
+                $("#success").modal({
+                    backdrop: false,
+                    keyboard: false
+                });
+            });
+            //$(document).click(function () {
+            //    $('#success').modal('show');
+            //});
+            //$(document).on('keydown', function (e) {
+            //    if (e.keyCode == 27)
+            //        $('#success').modal('show');
+            //});
+            var closingDate = '@ViewBag.ClosingDate';
+            var today = new Date();
+            var toDate = pad((today.getMonth() + 1), 2) + "/" + pad(today.getDate(), 2) + "/" + today.getFullYear();
+            $("#dp1").val(toDate);
+
+            function pad(str, max) {
+                str = str.toString();
+                return str.length < max ? pad("0" + str, max) : str;
+            }
+
+            $("#close, #exit").on('click', function() {
+                parent.$.colorbox.close();
+            });
+
+            function centerSuccess() {
+                $(".modal").css('display', 'block');
+                var $dialog = $('.modal').find(".modal-dialog");
+                var offset = ($(window).height() - $dialog.height()) / 2;
+                // Center modal vertically in window
+                //if (offset >= 0)
+                //    $dialog.css("margin-top", offset);
+                $dialog.css("margin-top", "10px");
+            }
+
+            $(window).on("resize", function() {
+                centerSuccess();
+            });
+            //$(document).click(function () {
+            //    $('#success').modal('show');
+            //});
+            //$(document).on('keydown', function (e) {
+            //    if (e.keyCode == 27)
+            //        $('#success').modal('show');
+            //});
+            centerSuccess();
+            $("#dp1").datepicker({
+                changeMonth: true,
+                changeYear: true
+            });
+            var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+            $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+            var tr;
+            $(document).on('click','.first', function() {
+                var button = $(this);
+                if (button.parent('tr').prev('tr').find('.debt').val() > 0 || button.parent('tr').prev('tr').find('.crdt').val() > 0 || button.parent('tr').find('.last').html() == '1' || button.html() != "") {
+                    $('#ledgers option[value="' + parseInt(button.html()) + '"]').prop('selected', true);
+                    $("#ok").prop('disabled', false);
+                    if (button.html() == "") {
+                        $("#ledgers").val('');
+                        $("#ok").prop('disabled', true);
+                    }
+                    $("#view").css({
+                        'top': (button.position().top + 120) + 'px',
+                        'left': button.position().left + 'px',
+                        'position': 'absolute'
+                    }).show();
+                    $("#ledgers").focus();
+                    tr = button.parent('tr');
+                }
+            });
+            $('#cancel').on('click', function() {
+                $("#view").hide();
+            });
+
+            $('#ledgers').on('change', function() {
+                $("#ok").prop('disabled', false);
+            });
+            $('#ledgers').on('dblclick', function() {
+                fillTable();
+            });
+            $("#ledgers").on('keydown', function(e) {
+                if (e.keyCode == 13)
+                    fillTable();
+            });
+            $("#ok").on('click', function() {
+                fillTable();
+            });
+            $("#balance, #debit, #credit").val('0.00');
+
+            function getLedgers() {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetLedgersWithBalance", "Journal")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function(data) {
+                        $("#ledgers").html('');
+                        $.each(data, function(key, value) {
+                            $("#ledgers").append('<option value="' + value.Id + '" data-balance="' + value.Account + '">' + value.GroupName + '</option>');
+                        });
+                    },
+                });
+            }
+
+            getLedgers();
+
+            function fillTable() {
+                var selected = $('#ledgers option:selected');
+                tr.find('.first').html(pad(selected.val(), 5));
+                tr.find('.second').html(selected.text());
+                tr.find('.third').html(selected.data('balance'));
+                tr.find('.debt,.crdt').val('');
+                tr.find('.debt,.crdt,.des').prop('disabled', false).css('cursor', 'text');
+                tr.find('.des').focus();
+                $("#view").hide();
+                calculateDebitCredit();
+            }
+
+            $(document).on('keydown','.debt, .crdt', function(e) {
+                var kCode = (e.which || e.keyCode);
+                if (kCode == 190 || kCode == 110) {
+                    if ($(this).val().indexOf(".") > -1)
+                        e.preventDefault();
+                } else if (e.ctrlKey || e.metaKey || e.shiftKey) {
+                    if (e.shiftKey) {
+                        var arrCodes = [35, 36, 37, 39];
+                        if ($.inArray(e.keyCode, arrCodes) == -1) {
+                            e.preventDefault();
+                        }
+                    }
+                } else if (e.keyCode < 96 || e.keyCode > 105) {
+                    var arrCode = [8, 9, 37, 39, 46];
+                    if ($.inArray(e.keyCode, arrCode) == -1) {
+                        if (!$.isNumeric(String.fromCharCode(e.which)))
+                            e.preventDefault();
+                    }
+                }
+            });
+
+            $(document).on('focusout','.debt', function() {
+                if (!$(this).prop('readonly')) {
+                    var value = $(this).val();
+                    if (value != '0.00') {
+                        if (value == "" || value == ".") {
+                            $(this).val('0.00');
+                        } else {
+                            if (!isNaN(value)) {
+                                $(this).val(parseFloat(value).toFixed(2));
+                                $(this).parent('td').parent('tr').find('.crdt').val('0.00');
+                            } else {
+                                $(this).val('0.00');
+                            }
+                        }
+                    }
+                    calculateDebitCredit();
+                }
+            });
+
+            function calculateDebitCredit() {
+                var bln = "";
+                var debit = 0.00;
+                var credit = 0.00;
+                $.each($('#journalTable tbody tr'), function() {
+                    if ($(this).find('.debt').val() != "" && $(this).find('.crdt').val()) {
+                        debit += parseFloat($(this).find('.debt').val());
+                        credit += parseFloat($(this).find('.crdt').val());
+                    }
+                });
+                if (debit > credit) {
+                    var diff = parseFloat(debit - credit).toFixed(2);
+                    bln = diff + " Dr";
+                } else if (debit < credit) {
+                    var dif = parseFloat(credit - debit).toFixed(2);
+                    bln = dif + " Cr";
+                } else {
+                    bln = '0.00';
+                }
+                $('#debit').val(parseFloat(debit).toFixed(2));
+                $("#credit").val(parseFloat(credit).toFixed(2));
+                $("#balance").val(bln);
+            }
+
+            $(document).on('focusout','.crdt', function() {
+                if (!$(this).prop('readonly')) {
+                    var value = $(this).val();
+                    if (value != '0.00') {
+                        if (value == "" || value == ".") {
+                            $(this).val('0.00');
+                        } else {
+                            if (!isNaN(value)) {
+                                $(this).val(parseFloat(value).toFixed(2));
+                                $(this).parent('td').parent('tr').find('.debt').val('0.00');
+                            } else {
+                                $(this).val('0.00');
+                            }
+                        }
+                    }
+                    calculateDebitCredit();
+                }
+            });
+
+            $(document).on('keydown', '#journalTable input:text', function (e) {
+                if (e.keyCode == 13) {
+                    var inp = $(this).parent('td').next('td').find('input:text');
+                    if (inp.length > 0)
+                        inp.focus();
+                    else {
+                        var nextRow = $(this).parent('td').parent('tr').next('tr');
+                        if (nextRow.length > 0)
+                            nextRow.find('.first').trigger('click');
+                        else {
+                            $("#journalTable tbody").append('<tr><td class="first"></td><td class="second"></td><td class="third"></td><td><input class="des" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td><td><input class="debt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td><td><input class="crdt" type="text" style="width: 100%; height: 30px; padding: 0; background: white; cursor: default;" disabled /></td></tr>');
+                            $(this).parent('td').parent('tr').next('tr').find('.first').trigger('click');
+                        }
+                    }
+                }
+            });
+
+            var gTNO_Notify = "@ViewBag.Info";
+            $("#save").on('click', function() {
+                if ('@accessRights.Contains("1")' != 'True') {
+                    var m1 = new Messi('Sorry, You have no permission to save a journal.',
+                    {
+                        title: 'Access Denied',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var date1 = new Date(closingDate);
+                    var date2 = new Date($("#dp1").val());
+                    if (date2 <= date1) {
+                        var m2 = new Messi('You can not add a journal on or before the closing date ' + closingDate + '.',
+                        {
+                            title: 'Invalid Date',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else if ($("#debit").val() == "" && $("#credit").val() == "") {
+                        var m4 = new Messi('There is no record for make a journal.',
+                        {
+                            title: 'Empty Record',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else if (parseFloat($("#debit").val()) == 0 && parseFloat($("#credit").val()) == 0) {
+                        var m5 = new Messi('There is no record for make a journal.',
+                        {
+                            title: 'Empty Record',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else if ($('#balance').val() != '0.00') {
+                        var m3 = new Messi('Journals not balanced.<br/>Total Debts must be same as total Credits.',
+                        {
+                            title: 'Not Balanced',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else {
+                        var c = 0;
+                        var msg = new Messi('Are you sure you want to save this Journal entry?',
+                        {
+                            title: 'Confirm',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'Yes', val: 'Y' },
+                                { id: 1, label: 'No', val: 'N' }
+                            ],
+                            callback: function(val) {
+                                if (c == 1)
+                                    return false;
+                                if (val == 'Y') {
+                                    $.ajax({
+                                        type: "Post",
+                                        url: '@Url.Action("GetMaxJournalId", "Journal")',
+                                        contentType: "application/json; charset=utf-8",
+                                        dataType: "json",
+                                        success: function(data) {
+                                            var jid = parseInt(data) + 1;
+                                            var journals = [];
+                                            var ledgers = [];
+                                            $.each($("#journalTable tbody tr"), function() {
+                                                if ($(this).find('.first').html() != "") {
+                                                    var balance = $(this).find('.third').html().split(' ');
+                                                    var accName = $(this).find('.second').html();
+                                                    var description = $(this).find('.des').val();
+                                                    var debit = 0;
+                                                    var credit = 0;
+                                                    var jDate = $("#dp1").val();
+                                                    var userId = '@user.UserId';
+                                                    var lAmount = 0;
+                                                    var lAcc = "";
+                                                    var sid = $(this).find('.first').html();
+                                                    var found = true;
+                                                    if ($(this).find('.debt').val() != '0.00') {
+                                                        debit = parseFloat($(this).find('.debt').val()); //currBalance: balance[0], currStatus: balance[1],
+                                                        if (balance[1] == 'Dr') {
+                                                            lAmount = parseFloat(balance[0]) + debit;
+                                                            lAcc = 'Dr';
+                                                        } else if (balance[1] == 'Cr') {
+                                                            lAmount = parseFloat(balance[0]) - debit;
+                                                            if (lAmount > 0)
+                                                                lAcc = 'Dr';
+                                                            else if (lAmount < 0) {
+                                                                lAcc = 'Cr';
+                                                                lAmount = -lAmount;
+                                                            } else
+                                                                lAcc = "";
+                                                        } else {
+                                                            lAmount = debit;
+                                                            lAcc = 'Dr';
+                                                        }
+                                                    } else if ($(this).find('.crdt').val() != '0.00') {
+                                                        credit = parseFloat($(this).find('.crdt').val()); //currBalance: balance[0], currStatus: balance[1],
+                                                        if (balance[1] == 'Cr') {
+                                                            lAmount = parseFloat(balance[0]) + credit;
+                                                            lAcc = 'Cr';
+                                                        } else if (balance[1] == 'Dr') {
+                                                            lAmount = parseFloat(balance[0]) - credit;
+                                                            if (lAmount > 0)
+                                                                lAcc = 'Dr';
+                                                            else if (lAmount < 0) {
+                                                                lAcc = 'Cr';
+                                                                lAmount = -lAmount;
+                                                            } else
+                                                                lAcc = "";
+                                                        } else {
+                                                            lAmount = credit;
+                                                            lAcc = 'Cr';
+                                                        }
+                                                    } else {
+                                                        found = false;
+                                                    }
+                                                    if (found) {
+                                                        if (gTNO_Notify == "")
+                                                            journals.push({ JId: jid, SId: sid, Description: description, Debt: debit, Credit: credit, PostDate: toDate, JDate: jDate, UserId: userId });
+                                                        else {
+                                                            var part = gTNO_Notify.split(';');
+                                                            if (accName.indexOf('Account Receivable') > -1) {
+                                                                accName = 'AR';
+                                                            } else {
+                                                                accName = part[1];
+                                                            }
+                                                            journals.push({ JId: jid, SId: sid, Description: description, Debt: debit, Credit: credit, PostDate: toDate, JDate: jDate, UserId: userId, Notify: accName, Tno: part[0] });
+                                                        }
+                                                        ledgers.push({ Balance: lAmount, Account: lAcc, Id: sid });
+                                                    }
+                                                }
+                                            });
+                                            if (journals.length > 0 && ledgers.length > 0) {
+                                                $.ajax({
+                                                    type: "Post",
+                                                    url: '@Url.Action("SaveJournalUpdateLedgerMakeVoucher", "Journal")',
+                                                    contentType: "application/json; charset=utf-8",
+                                                    data: JSON.stringify({ journals: journals, ledgers: ledgers }),
+                                                    dataType: "json",
+                                                    success: function(returnData) {
+                                                        if (returnData == true) {
+                                                            if (gTNO_Notify == "") {
+                                                                var c1 = 0;
+                                                                var msg1 = new Messi('Journals have been saved successfully.<br/>Do you want to view this journal voucher?',
+                                                                {
+                                                                    title: 'Confirm',
+                                                                    modal: true,
+                                                                    buttons: [
+                                                                        { id: 0, label: 'Yes', val: 'Y' },
+                                                                        { id: 1, label: 'No', val: 'N' }
+                                                                    ],
+                                                                    callback: function(v) {
+                                                                        if (c1 == 1)
+                                                                            return false;
+                                                                        if (v == 'Y') {
+                                                                            showVoucherReport(jid);
+                                                                            c1 = 1;
+                                                                        }
+                                                                        return true;
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                var c2 = 0;
+                                                                var msg2 = new Messi('Journals have been saved successfully.<br/>Do you want to add/adjust another journal entry corresponding<br/>to the previous journal?',
+                                                                {
+                                                                    title: 'Confirm',
+                                                                    modal: true,
+                                                                    buttons: [
+                                                                        { id: 0, label: 'Yes', val: 'Y' },
+                                                                        { id: 1, label: 'No', val: 'N' }
+                                                                    ],
+                                                                    callback: function(v1) {
+                                                                        if (c2 == 1)
+                                                                            return false;
+                                                                        if (v1 == 'Y') {
+                                                                            clearJournal();
+                                                                            c2 = 1;
+                                                                        } else {
+                                                                            gTNO_Notify = "";
+                                                                            var cc = 0;
+                                                                            var ms = new Messi('Do you want to view this journal voucher?',
+                                                                            {
+                                                                                title: 'Confirm',
+                                                                                modal: true,
+                                                                                buttons: [
+                                                                                    { id: 0, label: 'Yes', val: 'Y' },
+                                                                                    { id: 1, label: 'No', val: 'N' }
+                                                                                ],
+                                                                                callback: function(vl) {
                                                                                     if (cc == 1)
                                                                                         return false;
                                                                                     if (vl == 'Y') {
@@ -695,17 +1275,20 @@
                     }
                 }
             });
-            $("#clear").on('click', function () {
+            $("#clear").on('click', function() {
                 clearJournal();
             });
 
             function clearJournal() {
                 $("#dp1").val(toDate);
                 $("#balance, #debit, #credit").val('0.00');
-                $.each($("#journalTable tbody tr"), function () {
-                    $(this).children('td:nth-child(1), td:nth-child(2), td:nth-child(3)').html('');
-                    $(this).children('td:nth-child(4), td:nth-child(5), td:nth-child(6)').find('input:text').val('');
-                });
+                $('.first, .second, .third').html('');
+                $('.des, .debt, .crdt').val('');
+                if ($("#journalTable tbody tr").length > 6) {
+                    while ($("#journalTable tbody tr").length > 6) {
+                        $("#journalTable tbody tr:last-child").remove();
+                    }
+                }
                 $("#save").prop('disabled', true);
             }
 
@@ -717,17 +1300,20 @@
                     contentType: "application/json; charset=utf-8",
                     data: JSON.stringify(jsonData),
                     dataType: "json",
-                    success: function (data) {
+                    success: function(data) {
                         if (data == true)
-                            window.open('.././ReportingForms/CRViewer.aspx');
+                            window.open('/Accounting/Report/Show');
                     },
                 });
             }
 
-            $("#journalTable tbody tr td:not(td:nth-child(1))").on('click', function () {
-                $("#view").hide();
+            $(document).mouseup(function (e) {
+                var container = $("#view,.first");
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
+                    $('#view').hide();
+                }
             });
-            $('.sub_window_new').on('click', function () {
+            $('.sub_window_new').on('click', function() {
                 $.colorbox({
                     iframe: true,
                     width: $(this).attr('width'),
@@ -737,7 +1323,7 @@
                     innerWidth: '545px'
                 });
             });
-            $("#refresh").on('click', function () {
+            $("#refresh").on('click', function() {
                 getLedgers();
             });
         });

@@ -12,7 +12,8 @@
     <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
     <link href="~/Content/css/messi.min.css" rel="stylesheet" />
     <link href="~/Content/css/colorbox.css" rel="stylesheet" />
-    <style>
+    <link href="~/Content/css/common.css" rel="stylesheet" />
+    <style type="text/css">
         legend.legendStyle {
             padding: 0px 5px 0px 5px;
             margin: 1px 0px 0px 0px;
@@ -124,195 +125,233 @@
         textarea {
             padding: 0;
         }
+
+        #pagingBottom .pagination {
+            margin-top: 0px;
+        }
+
+        #option-one {
+            margin-top: -216px;
+        }
     </style>
+
 }
-<div class="row no-gutter" style="margin:15px -15px 0px -15px; padding:0px 0px 5px 0px;" id="loj">
-    <div class="form-group">
-        <div class="col-sm-12" style="margin-top: -12px;">
-            <div class="col-sm-12" style="background-color: #6A6C6F;">
-                <center><h3 style="padding-top: 0; margin-top: 0; padding-bottom: 0; margin-bottom: 0; color: white;">List Of Journals<img alt="cross_img" src="~/images/cross-button.jpg" height="20" width="20" class="pull-right" style="padding: 0; margin: 3px -2px 0 0; cursor: pointer;" id="cross" /></h3></center>
+<div class="col-sm-12">
+    <div class="row no-gutter" style="margin:15px -15px 0px -15px; padding:0px 0px 5px 0px;" id="loj">
+        <div class="form-group">
+            <div class="col-sm-12" style="margin-top: -12px;">
+                <div class="col-sm-12" style="background-color: #6A6C6F;">
+                    <center><h3 style="padding-top: 0; margin-top: 0; padding-bottom: 0; margin-bottom: 0; color: white;">List Of Journals<img alt="cross_img" src="~/images/cross-button.jpg" height="20" width="20" class="pull-right" style="padding: 0; margin: 3px -2px 0 0; cursor: pointer;" id="cross" /></h3></center>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-sm-3">
-        <div class="row" style="margin:0px 0px 0px 0px;">
-            <div class="col-sm-12">
-                <label class="lblnorm">Ledger</label>
-                <select class="form-control input-sm" id="ledgerList"></select>
-            </div>
-            <div class="col-sm-12">
-                <label class="lblnorm">Companies</label>
-                <input type="text" id="companies" class="form-control input-sm select" value="All" style="height: 30px; padding-right: 17.5px;" />
-                <select hidden size="10" id="CompanyList" style="border: 1px solid gray; font-size: 12px; z-index: 9999999999999; height: 200px; position: absolute; overflow-y: auto; overflow-x: hidden; background: white;">
-                    <option value="0">All</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-3">
-        <div class="row" style="margin:0px 0px 0px 0px;">
-            <div class="col-sm-12">
-                <label class="lblnorm">Approved by</label>
-                <select class="form-control input-sm" id="approvedBy">
-                    <option value="0">All</option>
-                </select>
-            </div>
-            <div class="col-sm-12">
-                <label class="lblnorm">Posted by</label>
-                <select class="form-control input-sm" id="postedBy">
-                    <option value="0">All</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-sm-2">
-        <fieldset class="fsStyle">
-            <legend class="legendStyle">
-                Journal Category
-            </legend>
+        <div class="col-sm-3">
             <div class="row" style="margin:0px 0px 0px 0px;">
                 <div class="col-sm-12">
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="approval" id="approved" value="1"> Approved
-                        </label>
-                    </div>
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="approval" id="nonapproved" value="0" checked> Non Approved
-                        </label>
-                    </div>
+                    <label class="lblnorm">Ledger</label>
+                    <select class="form-control input-sm" id="ledgerList"></select>
+                </div>
+                <div class="col-sm-12">
+                    <label class="lblnorm">Companies</label>
+                    <input type="text" id="companies" class="form-control input-sm select" value="All" style="height: 30px; padding-right: 17.5px;" />
+                    <select hidden size="10" id="CompanyList" style="border: 1px solid gray; font-size: 12px; z-index: 9999999999999; height: 200px; position: absolute; overflow-y: auto; overflow-x: scroll; background: white; width: 350px;">
+                        <option selected="selected" value="0">All</option>
+                    </select>
                 </div>
             </div>
-        </fieldset>
-    </div>
+        </div>
 
-    <div class="col-sm-4">
-        <fieldset class="fsStyle">
-            <legend class="legendStyle">
-                Within Dates by
-            </legend>
+        <div class="col-sm-3">
             <div class="row" style="margin:0px 0px 0px 0px;">
                 <div class="col-sm-12">
-                    <label class="col-sm-4">
-                        <input type="radio" name="radio" id="posting" value="PostDate" checked> Posting
-                    </label>
-                    <label class="col-sm-4">
-                        <input type="radio" name="radio" id="value" value="JDate"> Value
-                    </label>
-                    <label class="col-sm-4">
-                        <input type="radio" name="radio" id="approval" value="ApprovalDate"> Approval
-                    </label>
+                    <label class="lblnorm">Approved by</label>
+                    <select class="form-control input-sm" id="approvedBy">
+                        <option value="0">All</option>
+                    </select>
+                </div>
+                <div class="col-sm-12">
+                    <label class="lblnorm">Posted by</label>
+                    <select class="form-control input-sm" id="postedBy">
+                        <option value="0">All</option>
+                    </select>
                 </div>
             </div>
-            <div class="row" style="margin:0px 0px 0px 0px;">
-                <div class="col-sm-6">
-                    <label>From</label>
-                    <input name="from" type="text" class="form-control input-sm select" id="dp1" style="padding: 0 0 0 5px;">
+        </div>
+
+        <div class="col-sm-2">
+            <fieldset class="fsStyle">
+                <legend class="legendStyle">
+                    Journal Category
+                </legend>
+                <div class="row" style="margin:0px 0px 0px 0px;">
+                    <div class="col-sm-12">
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="approval" id="approved" value="1"> Approved
+                            </label>
+                        </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="approval" id="nonapproved" value="0" checked> Non Approved
+                            </label>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-sm-6">
-                    <label>To</label>
-                    <input name="from" type="text" class="form-control input-sm select" id="dp2" style="padding: 0 0 0 5px;">
+            </fieldset>
+        </div>
+
+        <div class="col-sm-4">
+            <fieldset class="fsStyle">
+                <legend class="legendStyle">
+                    Within Dates by
+                </legend>
+                <div class="row" style="margin:0px 0px 0px 0px;">
+                    <div class="col-sm-12">
+                        <label class="col-sm-4">
+                            <input type="radio" name="radio" id="posting" value="PostDate" checked> Posting
+                        </label>
+                        <label class="col-sm-4">
+                            <input type="radio" name="radio" id="value" value="JDate"> Value
+                        </label>
+                        <label class="col-sm-4">
+                            <input type="radio" name="radio" id="approval" value="ApprovalDate"> Approval
+                        </label>
+                    </div>
                 </div>
+                <div class="row" style="margin:0px 0px 0px 0px;">
+                    <div class="col-sm-6">
+                        <label>From</label>
+                        <input name="from" type="text" class="form-control input-sm select" id="dp1" style="padding: 0 0 0 5px;">
+                    </div>
+                    <div class="col-sm-6">
+                        <label>To</label>
+                        <input name="from" type="text" class="form-control input-sm select" id="dp2" style="padding: 0 0 0 5px;">
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+    </div>
+
+
+    <div class="row" style="margin:0px -15px 0px -15px; padding:0px 0px 0px 0px;">
+        <div class="col-sm-12">
+            <strong>Journal List:</strong> ( <span id="noofjournals"></span> journals found )
+        </div>
+        <div class="col-sm-12">
+            <div class="col-sm-5 pull-left text-left" style="margin-left:-15px;">
+                Show
+                <select id="pagesize">
+                    <option value="20">20</option>
+                    <option value="40">40</option>
+                    <option value="50">50</option>
+                    <option value="60">60</option>
+                    <option value="80">80</option>
+                    <option value="100">100</option>
+                    <option value="0">All</option>
+                </select>
+                entries per page
             </div>
-        </fieldset>
+            <div class="col-sm-7 pull-right text-right" id="paging" style="margin-top: -20px; margin-bottom: -10px;">
+
+            </div>
+        </div>
+        <div class="col-sm-12" style="padding-bottom: 0; margin-bottom: 0; margin-top: -10px;">
+            <div style="margin: 0px 0px 0px 0px; padding-right: 17.5px; background: #d1f1cc; border-radius: 0px 0px 0px 0px; width: 100%">
+                <table class="table table-condensed" id="header" style="margin-bottom: 0px; width: 100%; border-right: none;">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">Sl#</th>
+                            <th style="width: 7%;">Id</th>
+                            <th style="width: 25%;">Ledger name</th>
+                            <th style="width: 42%;">Description</th>
+                            <th style="width: 7%;">Debt</th>
+                            <th style="width: 7%;">Credit</th>
+                            <th style="width: 7%; border-right: none;">Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="div-table-content">
+                <table class="table table-condensed table-bordered" id="table">
+                    <tbody data-toggle="context" data-target="#context-menu">
+                        @for (var i = 1; i <= 20; i++)
+                        {
+                            <tr >
+                                <td style="width: 5%">&nbsp;</td>
+                                <td style="width: 7%">&nbsp;</td>
+                                <td style="width: 25%">&nbsp;</td>
+                                <td style="width: 42%">
+                                    <input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled />
+                                </td>
+                                <td style="width: 7%">
+                                    <input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled />
+                                </td>
+                                <td style="width: 7%">
+                                    <input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled />
+                                </td>
+                                <td style="width: 7%">
+                                    <input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <div class="col-sm-7 pull-right text-right" id="pagingBottom" style="margin-top: 5px;">
+
+            </div>
+        </div>
     </div>
 
+    <div class="row no-gutter" style="margin: 0px -15px 0px -15px;" id="footerBottom">
+        <div class="col-sm-12" style="margin: -20px 0px -20px 0px;">
+            <div class="col-sm-2"><button type="button" class="btn btn-primary btn-block btn-sm" id="update">Update</button></div>
+            <div class="col-sm-1"><button type="button" class="btn btn-primary btn-block btn-sm" id="delete">Delete</button></div>
+            <div class="col-sm-2 list-container">
+                <button type="button" class="btn btn-primary btn-block btn-sm" id="show">Show Preview</button>
+                <ul class="export-container" id="option-one">
+                    <li data-type="Pdf">Pdf</li>
+                    <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                    <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                    <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                    <li data-type="Word">Microsoft Word (97-2003)</li>
+                    <li data-type="XML">XML</li>
+                </ul>
+            </div>
+            <div class="col-sm-2"><button type="button" class="btn btn-primary btn-block btn-sm" id="approveAll">Approve All</button></div>
+            <div class="col-sm-2"><a role="button" class="btn btn-primary btn-block btn-sm sub_window_new" width='1000px' height='570px' path='@Url.Action("TrialBalance","Home")'>Test by sale</a></div>
+            <div class="col-sm-1 pull-right"><button type="button" class="btn btn-primary btn-block btn-sm" id="exit">Exit</button></div>
+        </div>
+    </div>
+
+    <div class="form-horizontal" id="view" style="width: 200px; height: 120px; z-index: 999; background: #BFC1FE; border: 1px solid gray;">
+        <div class="form-group">
+            <div class="col-sm-12" style="text-align: center; margin-bottom: 0px;padding-bottom: 0;">Ledger Account</div>
+            <div class="col-sm-12" style="margin-top: 0px; padding-top: 0px;">
+                <select id="ledgers" size="6" style="height: 94px;width: 190px; border: 1px solid gray; margin-left: 4px; margin-top: 0px;"></select>
+            </div>
+        </div>
+    </div>
+
+    <div id="context-menu">
+        <ul class="dropdown-menu" role="menu">
+            <li data-value="1"><a>Add New Journal</a></li>
+            <li data-value="2"><a>Adjust selected Journal</a></li>
+            <li data-value="3"><a>Delete this Row</a></li>
+            <li data-value="4"><a>Delete this Journal</a></li>
+            <li class="divider"></li>
+            <li data-value="5"><a>View Journal Voucher</a></li>
+        </ul>
+    </div>
+    <center>
+        <div id="spinner" hidden>
+            <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+    </center>
 </div>
-
-
-<div class="row" style="margin:0px -15px 0px -15px; padding:0px 0px 0px 0px;">
-    <div class="col-sm-12">
-        <strong>Journal List:</strong> ( <span id="noofjournals"></span> journals found )
-    </div>
-    <div class="col-sm-12">
-        <div class="col-sm-5 pull-left text-left" style="margin-left:-15px;">
-            Show
-            <select id="pagesize">
-                <option value="20">20</option>
-                <option value="40">40</option>
-                <option value="50">50</option>
-                <option value="60">60</option>
-                <option value="80">80</option>
-                <option value="100">100</option>
-            </select>
-            entries per page
-        </div>
-        <div class="col-sm-7 pull-right text-right" id="paging" style="margin-top: -20px; margin-bottom: -10px;">
-
-        </div>
-    </div>
-    <div class="col-sm-12" style="padding-bottom: 0; margin-bottom: 0; margin-top: -10px;">
-        <div style="margin: 0px 0px 0px 0px; padding-right: 17.5px; background: #d1f1cc; border-radius: 0px 0px 0px 0px; width: 100%">
-            <table class="table table-condensed" id="header" style="margin-bottom: 0px; width: 100%; border-right: none;">
-                <thead>
-                    <tr>
-                        <th style="width: 5%;">Sl#</th>
-                        <th style="width: 7%;">Id</th>
-                        <th style="width: 25%;">Ledger name</th>
-                        <th style="width: 42%;">Description</th>
-                        <th style="width: 7%;">Debt</th>
-                        <th style="width: 7%;">Credit</th>
-                        <th style="width: 7%; border-right: none;">Date</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-        <div class="div-table-content">
-            <table class="table table-condensed table-bordered" id="table">
-                <tbody data-toggle="context" data-target="#context-menu">
-                    @for (var i = 1; i <= 20; i++)
-                    {
-                        <tr onclick="$(document).viewhide();"><td style="width: 5%">&nbsp;</td><td style="width: 7%">&nbsp;</td><td style="width: 25%">&nbsp;</td><td style="width: 42%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled /></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled /></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled /></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled /></td></tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="col-sm-12">
-        <div class="col-sm-7 pull-right text-right" id="pagingBottom" style="margin-top: -15px;">
-
-        </div>
-    </div>
-</div>
-
-<div class="row no-gutter" style="margin: 0px -15px 0px -15px;" id="footerBottom">
-    <div class="col-sm-12" style="margin: -20px 0px -20px 0px;">
-        <div class="col-sm-2"><button type="button" class="btn btn-primary btn-block btn-sm" id="update">Update</button></div>
-        <div class="col-sm-1"><button type="button" class="btn btn-primary btn-block btn-sm" id="delete">Delete</button></div>
-        <div class="col-sm-2"><button type="button" class="btn btn-primary btn-block btn-sm" id="show">Show Preview</button></div>
-        <div class="col-sm-2"><button type="button" class="btn btn-primary btn-block btn-sm" id="approveAll">Approve All</button></div>
-        <div class="col-sm-2"><a role="button" class="btn btn-primary btn-block btn-sm sub_window_new" width='1000px' height='570px' path='@Url.Action("TrialBalance","Home")'>Test by sale</a></div>
-        <div class="col-sm-1 pull-right"><button type="button" class="btn btn-primary btn-block btn-sm" id="exit">Exit</button></div>
-    </div>
-</div>
-
-<div class="form-horizontal" id="view" style="width: 200px; height: 120px; z-index: 99999999999999; background: #BFC1FE; border: 1px solid gray;">
-    <div class="form-group">
-        <div class="col-sm-12" style="text-align: center; margin-bottom: 0px;padding-bottom: 0;">Ledger Account</div>
-        <div class="col-sm-12" style="margin-top: 0px; padding-top: 0px;">
-            <select id="ledgers" size="6" style="height: 94px;width: 190px; border: 1px solid gray; margin-left: 4px; margin-top: 0px;"></select>
-        </div>
-    </div>
-</div>
-
-<div id="context-menu">
-    <ul class="dropdown-menu" role="menu">
-        <li data-value="1"><a tabindex="-1">Add New Journal</a></li>
-        <li data-value="2"><a tabindex="-1">Adjust selected Journal</a></li>
-        <li data-value="3"><a tabindex="-1">Delete this Row</a></li>
-        <li data-value="4"><a tabindex="-1">Delete this Journal</a></li>
-        <li class="divider"></li>
-        <li data-value="5"><a tabindex="-1">View Journal Voucher</a></li>
-    </ul>
-</div>
-<center>
-    <div id="spinner" hidden>
-        <i class="fa fa-spinner fa-pulse fa-5x"></i>
-    </div>
-</center>
 @section scripts
 {
     <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
@@ -322,18 +361,25 @@
     <script src="~/Scripts/js/bootstrap-contextmenu.js"></script>
     <script>
         $(document).ready(function () {
+            var exportOption = "Pdf";
             $('#dp1').datepicker({
                 changeMonth: true,
                 changeYear: true,
                 onSelect: function (text, event) {
-                    getJournals(1, $("#pagesize").val(), 0, $('input:radio[name="radio"]:checked').val(), text, $("#dp2").val(), $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), $("#companyList option:selected").val(), $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
+                    var cid = $("#CompanyList").val();
+                    if (cid == null)
+                        cid = 0;
+                    getJournals(1, $("#pagesize").val(), 0, $('input:radio[name="radio"]:checked').val(), text, $("#dp2").val(), $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), cid, $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
                 }
             });
             $('#dp2').datepicker({
                 changeMonth: true,
                 changeYear: true,
                 onSelect: function (text, event) {
-                    getJournals(1, $("#pagesize").val(), 0, $('input:radio[name="radio"]:checked').val(), $("#dp1").val(), text, $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), $("#companyList option:selected").val(), $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
+                    var cid = $("#CompanyList").val();
+                    if (cid == null)
+                        cid = 0;
+                    getJournals(1, $("#pagesize").val(), 0, $('input:radio[name="radio"]:checked').val(), $("#dp1").val(), text, $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), cid, $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
                 }
             });
             var page = 0;
@@ -349,8 +395,7 @@
             });
             $(window).on('load', function () {
                 $("#delete, #update").prop('disabled', true);
-                $('.div-table-content').css('height', ($(window).height() - $('.div-table-content').offset().top - $("#footerBottom").height() - $("#pagingBottom").height() - 27) + 'px');
-                $('#CompanyList').css('width', ($('#companies').width() + 22) + 'px');
+                $('.div-table-content').css('height', ($(window).height() - $('.div-table-content').offset().top - $("#footerBottom").height() - $("#pagingBottom").height() - 20) + 'px');
                 getLedgers();
                 getInformations();
             });
@@ -370,65 +415,69 @@
                 return false;
             });
 
-
-            $(document).on('click', function () {
-                if (!$('#companies').is(':focus') && !$('#CompanyList').is(':focus') && $('#CompanyList').is(':visible'))
-                    $('#CompanyList').hide();
-            });
-
-
-            $('#CompanyList').on('click', function () {
+            $(document).on('click', '#CompanyList option', function () {
                 $('#companies').val($('#CompanyList option:selected').text());
                 $('#CompanyList').hide();
                 $('#companies').focus();
+                setOptions();
+            });
+            $("#CompanyList").on('keydown', function (e) {
+                var kcode = e.which || e.keyCode;
+                console.log(kcode);
+                if (kcode == 13) {
+                    $('#companies').val($('#CompanyList option:selected').text());
+                    $('#CompanyList').hide();
+                    $('#companies').focus();
+                    setOptions();
+                }
             });
 
             function setOptions() {
-                $('#companies').val($('#CompanyList option:selected').text());
                 if ($('input:radio[name="approval"]:checked').val() == '1') {
                     $("#approveAll").prop('disabled', true);
                 } else if ($('input:radio[name="approval"]:checked').val() == '0') {
                     $("#approveAll").prop('disabled', false);
                 }
-                getJournals(1, $("#pagesize").val(), 0, $('input:radio[name="radio"]:checked').val(), $("#dp1").val(), $("#dp2").val(), $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), $("#CompanyList option:selected").val(), $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
+                var cid = $('#CompanyList').val();
+                if (cid == null) {
+                    cid = 0;
+                }
+                getJournals(1, $("#pagesize").val(), 0, $('input:radio[name="radio"]:checked').val(), $("#dp1").val(), $("#dp2").val(), $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), cid, $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
             }
 
-            $("#CompanyList").on('change', function () {
-                setOptions();
+            $('#companies').on("focus", function () {
+                $(this).select();
             });
-            $("#CompanyList").on('keydown', function (e) {
-                if (e.keyCode == 13 || e.keyCode == 27) {
-                    $('#companies').val($('#CompanyList option:selected').text());
-                    $('#CompanyList').hide();
-                    $('#companies').focus();
-                }
-            });
-            $('#companies').on('click', function () {
-                var str = $(this).val();
-                $.each($('#CompanyList option'), function () {
-                    if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) == 0) {
-                        $(this).prop('selected', true);
-                        return false;
-                    }
-                    return true;
-                });
 
-                if ($('#CompanyList').is(':visible'))
-                    $('#CompanyList').hide();
-                else
-                    $('#CompanyList').show().focus();
-            });
-            $('#companies').on('keyup', function (e) {
+            $('#companies').on('keyup click', function (e) {
                 if (e.keyCode != 13 && e.keyCode != 27) {
                     var str = $(this).val();
-                    $.each($('#CompanyList option'), function () {
-                        if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) == 0) {
-                            $(this).prop('selected', true);
-                            return false;
-                        }
-                        return true;
-                    });
-                    $('#CompanyList').show();
+                    str = str.trim();
+                    if (str != "") {
+                        var jsonData = { startingKey: str };
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("GetCompanyListByKey", "Company")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(jsonData),
+                            dataType: "json",
+                            success: function (data) {
+                                if (data.length > 0) {
+                                    var strHtml = "<option value='0'>All</option>";
+                                    $.each(data, function (i, d) {
+                                        strHtml += "<option " + (d.Name.toLowerCase() == str.toLowerCase() ? "selected='selected'" : "") + " value='" + d.Id + "' data-blacklisted='" + d.BlackListed + "'>" + d.Name + "</option>";
+                                    });
+                                    if (strHtml != "")
+                                        $('#CompanyList').html(strHtml).show();
+                                    else
+                                        $('#CompanyList').html("").hide();
+                                }
+                            },
+                        });
+
+                    } else {
+                        $('#CompanyList').html("").hide();
+                    }
                 }
             });
 
@@ -442,9 +491,7 @@
                         $.each(data.Ledgers, function (key, value) {
                             $("#ledgerList").append('<option value="' + value.Id + '" >' + value.GroupName + '</option>');
                         });
-                        $.each(data.Companies, function (key1, value1) {
-                            $("#CompanyList").append('<option value="' + value1.Id + '" >' + value1.Name + '</option>');
-                        });
+
                         $.each(data.Approvers, function (key2, value2) {
                             $("#approvedBy").append('<option value="' + value2.UserId + '" >' + value2.Name + '</option>');
                         });
@@ -452,7 +499,7 @@
                             $("#postedBy").append('<option value="' + value3.UserId + '" >' + value3.Name + '</option>');
                         });
 
-                        $("#spinner").css('top', ($(".div-table-content").offset().top - $('.sidebar2').offset().top + (($(window).height() - $('.div-table-content').offset().top - $("#footerBottom").height() - $("#pagingBottom").height() - 27) / 2) - 35) + 'px').css('left', ($(".div-table-content").offset().left - $('.sidebar2').offset().left + ($('.div-table-content').width() / 2)) + 'px').css('position', 'absolute').show();
+                        $("#spinner").css('top', ($(".div-table-content").offset().top - $('.sidebar2').offset().top + (($(window).height() - $('.div-table-content').offset().top - $("#footerBottom").height() - $("#pagingBottom").height()) / 2) - 35) + 'px').css('left', ($(".div-table-content").offset().left - $('.sidebar2').offset().left + ($('.div-table-content').width() / 2)) + 'px').css('position', 'absolute').show();
                         getJournals(1, 20, 0, 'PostDate', toDate, toDate, 0, 'All', 0, 0, 0, 0);
                         $("#spinner").hide();
                     },
@@ -460,6 +507,7 @@
             }
 
             function getJournals(pageNo, pageSize, isPreview, dateType, startDate, endDate, ledgerId, ledgerName, companyId, approvedBy, postedBy, isApproved) {
+                //console.log("CP_ID: " + companyId);
                 page = pageNo;
                 var jsonData = { pageNo: pageNo, pageSize: pageSize, isPreview: isPreview, dateType: dateType, startDate: startDate, endDate: endDate, ledgerId: ledgerId, ledgerName: ledgerName, companyId: companyId, approvedBy: approvedBy, postedBy: postedBy, isApproved: isApproved };
                 $.ajax({
@@ -473,83 +521,94 @@
                             var total = 0;
                             var cnt = ((pageNo - 1) * pageSize) + 1;
                             $("#table tbody").html('');
+                            var strHtml = "";
                             $.each(data, function (key, value) {
+                                var input = "";
                                 if (value.Description.length >= 60)
-                                    $("#table tbody").append('<tr onmousedown="$(document).setColor($(this));"><td style="width: 5%; text-align: center;" onclick="$(document).viewhide();">' + cnt + '</td><td style="width: 7%; text-align: center;" onclick="$(document).viewhide();">' + value.Id + '</td><td style="width: 25%; text-align: left;" class="view"  onclick="$(document).viewLedger($(this));">' + value.AccType + '</td><td style="width: 42%"><textarea class="input-disable" row="2" style="width: 100%; height: 40px; padding: 0; margin: 0; cursor: default;  text-align: left;" onclick="$(document).viewhide();" >' + value.Description + '</textarea></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 40px; padding: 0; cursor: default; text-align: right;" value="' + parseFloat(value.Debt).toFixed(2) + '" onclick="$(document).viewhide();"/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 40px; padding: 0; cursor: default;  text-align: right;" value="' + parseFloat(value.Credit).toFixed(2) + '" onclick="$(document).viewhide();"/></td><td style="width: 7%"><input type="text" class="input-disable datepick" style="width: 100%; height: 40px; padding: 0; cursor: default; text-align: center;" value="' + value.Journaldate + '" onclick="$(document).viewhide();"/></td><td hidden>' + value.SId + '</td><td hidden>' + value.JId + '</td><td hidden>' + value.UserId + '</td><td hidden>' + value.ApprovedBy + '</td><td hidden>' + value.Notify + '</td><td hidden>' + value.Tno + '</td><td hidden>' + value.UpdatedBy + '</td><td hidden>' + value.ApprovalDate + '</td><td hidden>' + value.UpdatedDate + '</td></tr>');
+                                    input = '<textarea class="input-disable des" row="2" style="width: 100%; height: 40px; padding: 0; margin: 0; cursor: default;  text-align: left;"  >' + value.Description + '</textarea>';
                                 else
-                                    $("#table tbody").append('<tr onmousedown="$(document).setColor($(this));"><td style="width: 5%; text-align: center;" onclick="$(document).viewhide();">' + cnt + '</td><td style="width: 7%; text-align: center;" onclick="$(document).viewhide();">' + value.Id + '</td><td style="width: 25%; text-align: left;" class="view"  onclick="$(document).viewLedger($(this));">' + value.AccType + '</td><td style="width: 42%"><input type="text" class="input-disable" row="2" style="width: 100%; height: 30px; padding: 0; cursor: default;  text-align: left;" value="' + value.Description + '" onclick="$(document).viewhide();"></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default; text-align: right;" value="' + parseFloat(value.Debt).toFixed(2) + '" onclick="$(document).viewhide();"/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;  text-align: right;" value="' + parseFloat(value.Credit).toFixed(2) + '" onclick="$(document).viewhide();"/></td><td style="width: 7%"><input type="text" class="input-disable datepick" style="width: 100%; height: 30px; padding: 0; cursor: default; text-align: center;" value="' + value.Journaldate + '" onclick="$(document).viewhide();"/></td><td hidden>' + value.SId + '</td><td hidden>' + value.JId + '</td><td hidden>' + value.UserId + '</td><td hidden>' + value.ApprovedBy + '</td><td hidden>' + value.Notify + '</td><td hidden>' + value.Tno + '</td><td hidden>' + value.UpdatedBy + '</td><td hidden>' + value.ApprovalDate + '</td><td hidden>' + value.UpdatedDate + '</td></tr>');
+                                    input = '<input type="text" class="input-disable des" row="2" style="width: 100%; height: 30px; padding: 0; cursor: default;  text-align: left;" value="' + value.Description + '" />';
+                            
+                                strHtml += '<tr class="colored context"><td style="width: 5%; text-align: center;" >' + cnt + '</td><td style="width: 7%; text-align: center;" >' + value.Id + '</td><td style="width: 25%; text-align: left;" class="view">' + value.AccType + '</td><td style="width: 42%">'+input+'</td><td style="width: 7%"><input type="text" class="debt input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default; text-align: right;" value="' + value.Debt + '" /></td><td style="width: 7%"><input type="text" class="crdt input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;  text-align: right;" value="' + value.Credit + '" /></td><td style="width: 7%"><input type="text" class="input-disable datepick" style="width: 100%; height: 30px; padding: 0; cursor: default; text-align: center;" value="' + value.Journaldate + '" /></td><td hidden>' + value.SId + '</td><td hidden>' + value.JId + '</td><td hidden>' + value.UserId + '</td><td hidden>' + value.ApprovedBy + '</td><td hidden>' + value.Notify + '</td><td hidden>' + value.Tno + '</td><td hidden>' + value.UpdatedBy + '</td><td hidden>' + value.ApprovalDate + '</td><td hidden>' + value.UpdatedDate + '</td></tr>';
                                 total = value.TotalRecord;
                                 cnt++;
                             });
+                            $("#table tbody").html(strHtml);
                             $("#noofjournals").html(total);
                             var pager = total / pageSize;
                             pager = pager | 0;
                             if (total % pageSize != 0)
                                 pager = pager + 1;
-
+                            pager = pager == 0 ? 1 : pager;
                             $('#paging, #pagingBottom').bootpag({
                                 total: pager,
-                                page: pageNo,
-                                maxVisible: 6,
-                                firstLastUse: true,
-                                first: 'start',
-                                last: 'end',
-                                leaps: true,
-                                wrapClass: 'pagination',
-                                activeClass: 'active',
-                                disabledClass: 'disabled',
-                                nextClass: 'next',
-                                prevClass: 'prev',
-                                lastClass: 'last',
-                                firstClass: 'first'
+                                page: pageNo
                             });
                             if (data.length < 20) {
                                 for (var i = 1; i <= 20 - data.length; i++) {
-                                    $("#table tbody").append('<tr onclick="$(document).viewhide();"><td style="width: 5%">&nbsp;</td><td style="width: 7%">&nbsp;</td><td style="width: 25%">&nbsp;</td><td style="width: 42%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;"  disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td></tr>');
+                                    $("#table tbody").append('<tr ><td style="width: 5%">&nbsp;</td><td style="width: 7%">&nbsp;</td><td style="width: 25%">&nbsp;</td><td style="width: 42%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;"  disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td></tr>');
                                 }
                             }
-                            if (data.length > 0) {
-                                $('.datepick').datepicker({
-                                    changeMonth: true,
-                                    changeYear: true
-                                });
-                            }
-                            $('.div-table-content').css('height', ($(window).height() - $('.div-table-content').offset().top - $("#footerBottom").height() - $("#pagingBottom").height() - 27) + 'px');
                             $("#delete, #update").prop('disabled', true);
-                        } else {
-                            window.open('.././ReportingForms/CRViewer.aspx');
-                        }
-                        $('#table tbody tr td:nth-child(5) input:text, #table tbody tr td:nth-child(6) input:text').on('focusout', function () {
-                            var value = $(this).val();
-                            if (value == "" || value == ".") {
-                                $(this).val('0.00');
-                            } else
-                                $(this).val(parseFloat(value).toFixed(2));
-                        });
-                        $('#table tbody tr td:nth-child(5) input:text, #table tbody tr td:nth-child(6) input:text').on('keydown', function (e) {
-                            var kCode = (e.which || e.keyCode);
-                            if (kCode == 190 || kCode == 110) {
-                                if ($(this).val().indexOf(".") > -1)
-                                    e.preventDefault();
-                            } else if (e.which === 86 && (e.ctrlKey || e.metaKey))
-                                e.preventDefault();
-                            else if (e.keyCode < 96 || e.keyCode > 105) {
-                                if (e.keyCode != 8 && e.keyCode != 46) {
-                                    if (!$.isNumeric(String.fromCharCode(e.which)))
-                                        e.preventDefault();
-                                }
+                            if (parseInt(isApproved) == 1) {
+                                $("#context-menu [data-value=3], #context-menu [data-value=4],#table .debt,#table .crdt,#table .datepick").css("pointer-events", "none").find("a").css("color", "GrayText");
+                                $("#table .des").attr("readonly", "readonly");
+                            } else {
+                                $("#context-menu [data-value=3], #context-menu [data-value=4],#table .debt,#table .crdt,#table .datepick").css("pointer-events", "").find("a").css("color", "");
+                                $("#table .des").removeAttr("readonly");
                             }
-                        });
-                        $("#table tbody tr").on('contextmenu', function () {
-                            if ($(this).find('td:first').html() == '&nbsp;')
-                                return false;
-                            return true;
-                        });
+                        } else {
+                            window.open('/Accounting/Report/Show?type=' + exportOption);
+                        }
+
                     },
                 });
             }
 
-            $('#paging').bootpag({
+            $(document).on('click', '.datepick', function () {
+                $(this).on("keydown", function () {
+                    return false;
+                }).datepicker({
+                    changeMonth: true,
+                    changeYear: true
+                }).focus();
+            });
+
+            $(document).on('focusout', '.debt, .crdt', function () {
+                var value = $(this).val();
+                if (value == "" || isNaN(value)) {
+                    $(this).val('0');
+                } else
+                    $(this).val(value);
+            });
+            $(document).on('keydown', '.debt, .crdt', function (e) {
+                var kCode = (e.which || e.keyCode);
+                if (kCode == 190 || kCode == 110) {
+                    if ($(this).val().indexOf(".") > -1)
+                        e.preventDefault();
+                } else if (e.ctrlKey || e.metaKey || e.shiftKey) {
+                    if (e.shiftKey) {
+                        if (isNaN(String.fromCharCode(e.which)))
+                            e.preventDefault();
+                    }
+                } else if (e.keyCode < 96 || e.keyCode > 105) {
+                    if (e.keyCode != 8 && e.keyCode != 46) {
+                        if (isNaN(String.fromCharCode(e.which)))
+                            e.preventDefault();
+                    }
+                }
+            });
+            $(document).on('contextmenu', ".context", function () {
+                if ($(this).find('td').eq(0).html() == '&nbsp;')
+                    return false;
+                else {
+                    return true;
+                }
+            });
+            $(document).on("mousedown", ".colored", function () {
+                setColor($(this));
+            });
+            $('#paging,#pagingBottom').bootpag({
                 total: 1,
                 page: 1,
                 maxVisible: 6,
@@ -564,46 +623,64 @@
                 prevClass: 'prev',
                 lastClass: 'last',
                 firstClass: 'first'
-            }).on("page", function (event, num) {
-                getJournals(num, $("#pagesize").val(), 0, $('input:radio[name="radio"]:checked').val(), $("#dp1").val(), $("#dp2").val(), $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), $("#companyList option:selected").val(), $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
             });
-            $('#pagingBottom').bootpag({
-                total: 1,
-                page: 1,
-                maxVisible: 6,
-                firstLastUse: true,
-                first: 'start',
-                last: 'end',
-                leaps: true,
-                wrapClass: 'pagination',
-                activeClass: 'active',
-                disabledClass: 'disabled',
-                nextClass: 'next',
-                prevClass: 'prev',
-                lastClass: 'last',
-                firstClass: 'first'
+            $('#paging').on("page", function (event, num) {
+                var cid = $('#CompanyList').val();
+                if (cid == null) {
+                    cid = 0;
+                }
+                getJournals(num, $("#pagesize").val(), 0, $('input:radio[name="radio"]:checked').val(), $("#dp1").val(), $("#dp2").val(), $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), cid, $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
             });
+
+            $(document).on("click", ".view", function () {
+                if ($("#nonapproved").is(":checked"))
+                    viewLedger($(this));
+            });
+            
+            $(document).mousedown(function (e) {
+                var container = $("#view,.view");
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
+                    $('#view').hide();
+                }
+                container = $("#CompanyList,#companies");
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
+                    $('#CompanyList').hide();
+                }
+            });
+
             $("select:not(#ledgers):not(#CompanyList), input:radio").on('change', function () {
                 if ($('input:radio[name="approval"]:checked').val() == '1') {
                     $("#approveAll").prop('disabled', true);
                 } else if ($('input:radio[name="approval"]:checked').val() == '0') {
                     $("#approveAll").prop('disabled', false);
                 }
-                getJournals(1, $("#pagesize").val(), 0, $('input:radio[name="radio"]:checked').val(), $("#dp1").val(), $("#dp2").val(), $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), $("#companyList option:selected").val(), $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
+                var cid = $('#CompanyList').val();
+                if (cid == null) {
+                    cid = 0;
+                }
+                getJournals(1, $("#pagesize").val(), 0, $('input:radio[name="radio"]:checked').val(), $("#dp1").val(), $("#dp2").val(), $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), cid, $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
             });
 
             $('#view').hide();
-            $.fn.viewhide = function () {
-                $("#view").hide();
-            };
-            $.fn.setColor = function (row) {
+
+            function setColor(row) {
                 $("#table tbody tr").removeClass('row-selected');
                 $("#table tbody tr").find('input:text, textarea').removeClass('row-selected').addClass('input-disable');
                 row.addClass('row-selected');
                 row.find('input:text, textarea').removeClass('input-disable').addClass('row-selected');
-                $("#delete, #update").prop('disabled', false);
+                $("#delete, #update").prop('disabled', $("#approved").is(":checked"));
                 if (selectedJournal != "" && selectedJournal != null) {
-                    var journal = { Sl: selectedRow.find('td:nth-child(1)').html(), Id: selectedRow.find('td:nth-child(2)').html(), LedgerName: selectedRow.find('td:nth-child(3)').html(), Description: selectedRow.find('td:nth-child(4)').find('input:text, textarea').val(), Debit: selectedRow.find('td:nth-child(5)').find('input:text').val(), Credit: selectedRow.find('td:nth-child(6)').find('input:text').val(), Journaldate: selectedRow.find('td:nth-child(7)').find('input:text').val(), Sid: selectedRow.find('td:nth-child(8)').html(), Notify: selectedRow.find('td:nth-child(12)').html() };
+                    var journal = {
+                        Sl: selectedRow.find('td:nth-child(1)').html(),
+                        Id: selectedRow.find('td:nth-child(2)').html(),
+                        LedgerName: selectedRow.find('.view').html(),
+                        Description: selectedRow.find('.des').val(),
+                        Debit: selectedRow.find('.debt').val(),
+                        Credit: selectedRow.find('.crdt').val(),
+                        Journaldate: selectedRow.find('.datepick').val(),
+                        Sid: selectedRow.find('td:nth-child(8)').html(),
+                        Notify: selectedRow.find('td:nth-child(12)').html()
+                    };
                     if (journal.Sl != row.find('td:nth-child(1)').html()) {
                         if (journal.LedgerName != selectedJournal.LedgerName || journal.Description != selectedJournal.Description || journal.Debit != selectedJournal.Debit || journal.Credit != selectedJournal.Credit || journal.Journaldate != selectedJournal.Journaldate || journal.Sid != selectedJournal.Sid) {
                             var c = 0;
@@ -630,11 +707,11 @@
                                                 ]
                                             });
                                             $('.messi-actions').css('float', 'left').css('margin-left', '205px');
-                                            selectedRow.find('td:nth-child(3)').html(selectedJournal.LedgerName);
-                                            selectedRow.find('td:nth-child(4)').find('input:text, textarea').val(selectedJournal.Description);
-                                            selectedRow.find('td:nth-child(5)').find('input:text').val(selectedJournal.Debit);
-                                            selectedRow.find('td:nth-child(6)').find('input:text').val(selectedJournal.Credit);
-                                            selectedRow.find('td:nth-child(7)').find('input:text').val(selectedJournal.Journaldate);
+                                            selectedRow.find('.view').html(selectedJournal.LedgerName);
+                                            selectedRow.find('.des').val(selectedJournal.Description);
+                                            selectedRow.find('.debt').val(selectedJournal.Debit);
+                                            selectedRow.find('.crdt').val(selectedJournal.Credit);
+                                            selectedRow.find('.datepick').val(selectedJournal.Journaldate);
                                             selectedRow.find('td:nth-child(8)').html(selectedJournal.Sid);
                                             selectedRow.find('td:nth-child(12)').html(selectedJournal.Notify);
                                         } else {
@@ -642,26 +719,56 @@
                                         }
                                     } else {
                                         c = 1;
-                                        selectedRow.find('td:nth-child(3)').html(selectedJournal.LedgerName);
-                                        selectedRow.find('td:nth-child(4)').find('input:text, textarea').val(selectedJournal.Description);
-                                        selectedRow.find('td:nth-child(5)').find('input:text').val(selectedJournal.Debit);
-                                        selectedRow.find('td:nth-child(6)').find('input:text').val(selectedJournal.Credit);
-                                        selectedRow.find('td:nth-child(7)').find('input:text').val(selectedJournal.Journaldate);
+                                        selectedRow.find('.view').html(selectedJournal.LedgerName);
+                                        selectedRow.find('.des').val(selectedJournal.Description);
+                                        selectedRow.find('.debt').val(selectedJournal.Debit);
+                                        selectedRow.find('.crdt').val(selectedJournal.Credit);
+                                        selectedRow.find('.datepick').val(selectedJournal.Journaldate);
                                         selectedRow.find('td:nth-child(8)').html(selectedJournal.Sid);
                                         selectedRow.find('td:nth-child(12)').html(selectedJournal.Notify);
                                     }
-                                    selectedJournal = { Sl: row.find('td:nth-child(1)').html(), Id: row.find('td:nth-child(2)').html(), LedgerName: row.find('td:nth-child(3)').html(), Description: row.find('td:nth-child(4)').find('input:text, textarea').val(), Debit: row.find('td:nth-child(5)').find('input:text').val(), Credit: row.find('td:nth-child(6)').find('input:text').val(), Journaldate: row.find('td:nth-child(7)').find('input:text').val(), Sid: row.find('td:nth-child(8)').html(), Notify: row.find('td:nth-child(12)').html() };
+                                    selectedJournal = {
+                                        Sl: row.find('td:nth-child(1)').html(),
+                                        Id: row.find('td:nth-child(2)').html(),
+                                        LedgerName: row.find('.view').html(),
+                                        Description: row.find('.des').val(),
+                                        Debit: row.find('.debt').val(),
+                                        Credit: row.find('.crdt').val(),
+                                        Journaldate: row.find('.datepick').val(),
+                                        Sid: row.find('td:nth-child(8)').html(),
+                                        Notify: row.find('td:nth-child(12)').html()
+                                    };
                                     selectedRow = row;
                                     return true;
                                 }
                             });
                         } else {
-                            selectedJournal = { Sl: row.find('td:nth-child(1)').html(), Id: row.find('td:nth-child(2)').html(), LedgerName: row.find('td:nth-child(3)').html(), Description: row.find('td:nth-child(4)').find('input:text, textarea').val(), Debit: row.find('td:nth-child(5)').find('input:text').val(), Credit: row.find('td:nth-child(6)').find('input:text').val(), Journaldate: row.find('td:nth-child(7)').find('input:text').val(), Sid: row.find('td:nth-child(8)').html(), Notify: row.find('td:nth-child(12)').html() };
+                            selectedJournal = {
+                                Sl: row.find('td:nth-child(1)').html(),
+                                Id: row.find('td:nth-child(2)').html(),
+                                LedgerName: row.find('.view').html(),
+                                Description: row.find('.des').val(),
+                                Debit: row.find('.debt').val(),
+                                Credit: row.find('.crdt').val(),
+                                Journaldate: row.find('.datepick').val(),
+                                Sid: row.find('td:nth-child(8)').html(),
+                                Notify: row.find('td:nth-child(12)').html()
+                            };
                             selectedRow = row;
                         }
                     }
                 } else {
-                    selectedJournal = { Sl: row.find('td:nth-child(1)').html(), Id: row.find('td:nth-child(2)').html(), LedgerName: row.find('td:nth-child(3)').html(), Description: row.find('td:nth-child(4)').find('input:text, textarea').val(), Debit: row.find('td:nth-child(5)').find('input:text').val(), Credit: row.find('td:nth-child(6)').find('input:text').val(), Journaldate: row.find('td:nth-child(7)').find('input:text').val(), Sid: row.find('td:nth-child(8)').html(), Notify: row.find('td:nth-child(12)').html() };
+                    selectedJournal = {
+                        Sl: row.find('td:nth-child(1)').html(),
+                        Id: row.find('td:nth-child(2)').html(),
+                        LedgerName: row.find('.view').html(),
+                        Description: row.find('.des').val(),
+                        Debit: row.find('.debt').val(),
+                        Credit: row.find('.crdt').val(),
+                        Journaldate: row.find('.datepick').val(),
+                        Sid: row.find('td:nth-child(8)').html(),
+                        Notify: row.find('td:nth-child(12)').html()
+                    };
                     selectedRow = row;
                 }
             };
@@ -690,7 +797,7 @@
                 });
             }
 
-            $.fn.viewLedger = function (element) {
+            function viewLedger(element) {
                 var button = element;
                 $("#view").css('width', button.width());
                 $("#ledgers").css('width', button.width() - 10);
@@ -723,7 +830,7 @@
 
             function setLedger() {
                 $("#view").hide();
-                tr.find('td:nth-child(3)').html($('#ledgers').find('option:selected').text());
+                tr.find('.view').html($('#ledgers').find('option:selected').text());
                 tr.find('td:nth-child(8)').html($('#ledgers').find('option:selected').val());
                 var st = tr.find('td:nth-child(12)').html();
                 if ($('#ledgers').find('option:selected').text() == "Account Receivables")
@@ -741,12 +848,11 @@
                 }
             });
             $('.div-table-content').bind('scroll', function () {
-                $("#view").hide();
                 $('body').trigger('click');
             });
 
             $("#show").on('click', function () {
-                if ($('#companies').val() == "") {
+                if ($('#companies').val().trim() == "") {
                     new Messi("You must select a company first.",
                     {
                         title: 'Alert',
@@ -757,17 +863,8 @@
                     });
                     $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                 } else {
-                    var str = $('#companies').val();
-                    var isExist = false;
-                    $.each($('#CompanyList option'), function () {
-                        if ($(this).text().toLowerCase() == str.toLowerCase()) {
-                            $(this).prop('selected', true);
-                            isExist = true;
-                            return false;
-                        }
-                        return true;
-                    });
-                    if (isExist == false) {
+                    var str = $('#companies').val().trim();
+                    if (str != $("#CompanyList option:selected").html()) {
                         new Messi("The Entered Company doesn't exist.",
                         {
                             title: 'Not exist',
@@ -780,7 +877,15 @@
                         return false;
                     }
                 }
-                getJournals(page, $("#pagesize").val(), 1, $('input:radio[name="radio"]:checked').val(), $("#dp1").val(), $("#dp2").val(), $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), $("#CompanyList option:selected").val(), $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
+                $(".export-container").toggleClass("active");
+                return true;
+            });
+            $("#option-one li").on("click", function () {
+                exportOption = $(this).attr("data-type");
+                $("#option-one").removeClass('active');
+                var cid = $("#companyList").val();
+                cid = cid == null ? 0 : cid;
+                getJournals(page, $("#pagesize").val(), 1, $('input:radio[name="radio"]:checked').val(), $("#dp1").val(), $("#dp2").val(), $("#ledgerList option:selected").val(), $("#ledgerList option:selected").text(), cid, $("#approvedBy option:selected").val(), $("#postedBy option:selected").val(), $('input:radio[name="approval"]:checked').val());
             });
             $('ul.dropdown-menu').on('click', 'li', function () {
                 if ($(this).data('value') == "1") {
@@ -815,7 +920,15 @@
                     } else
                         info = "";
                 }
-                window.location = '.././Journal/Make?info=' + info;
+                $.colorbox({
+                    iframe: true,
+                    width: "950px",
+                    height: "440px",
+                    href: '/Accounting/Journal/Make?page=new&info=' + info,
+                    scrolling: true,
+                    innerWidth: '545px'
+                });
+                //window.location = ;
             }
 
             function showVoucherReport(jid) {
@@ -828,25 +941,21 @@
                     dataType: "json",
                     success: function (data) {
                         if (data == true)
-                            window.open('.././ReportingForms/CRViewer.aspx');
+                            window.open('/Accounting/Report/Show');
                     },
                 });
             }
-
-            $('.datepick').on('keydown keypress keyup', function () {
-                return false;
-            });
-            $('.datepick').on('mousedown', function (e) {
+            
+            $(document).on('mousedown','.datepick', function (e) {
                 if (e.which == 3)
                     return false;
                 return true;
             });
             $(window).on('resize', function () {
                 $('#CompanyList').css('width', ($('#companies').width() + 22) + 'px');
-                var height = ($(window).height() - $('.div-table-content').offset().top - $("#footerBottom").height() - $("#pagingBottom").height() - 30);
+                var height = ($(window).height() - $('.div-table-content').offset().top - $("#footerBottom").height() - $("#pagingBottom").height() - 20);
                 if (height > 40)
                     $('.div-table-content').css('height', height + 'px');
-                $("#view").hide();
             });
             $("#approveAll").on('click', function () {
                 var approveRight = '@user.ApproveRight';
@@ -866,14 +975,14 @@
                     if (parseInt($("#ledgerList option:selected").val()) > 0) {
                         message += " of '" + $('#ledgerList option:selected').text() + "'";
                     }
-                    if (parseInt($("#CompanyList option:selected").val()) > 0) {
+                    if (parseInt($("#CompanyList").val()) > 0) {
                         message += "<br/>     ---> For the company '" + $("#companyList option:selected").text() + "'";
                     }
                     if (parseInt($("#postedBy option:selected").val()) > 0) {
                         message += "<br/>     ---> Posted by '" + $("#postedBy option:selected").text() + "'";
                     }
-                    if (parseInt($("#approvedByn option:selected").val()) > 0) {
-                        message += "<br/>     ---> Previously approved by '" + $("#approvedByn option:selected").text() + "'";
+                    if (parseInt($("#approvedBy option:selected").val()) > 0) {
+                        message += "<br/>     ---> Previously approved by '" + $("#approvedBy option:selected").text() + "'";
                     }
                     if ($('input:radio[name="radio"]:checked').val() == 'PostDate') {
                         message += "<br/>     ---> Posted";
@@ -911,10 +1020,10 @@
                                     $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                                     return false;
                                 } else {
-                                    var str = $('#companies').val();
+                                    var str = $('#companies').val().trim();
                                     var isExist = false;
                                     $.each($('#CompanyList option'), function () {
-                                        if ($(this).text().toLowerCase() == str.toLowerCase()) {
+                                        if ($(this).text().toLowerCase().trim() == str.toLowerCase()) {
                                             $(this).prop('selected', true);
                                             isExist = true;
                                             return false;
@@ -933,7 +1042,12 @@
                                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                                         return false;
                                     }
-                                    var jsonData = { userId: '@user.UserId', dateType: $('input:radio[name="radio"]:checked').val(), startDate: $("#dp1").val(), endDate: newdate, ledgerId: $("#ledgerList option:selected").val(), ledgerName: $("#ledgerList option:selected").text(), companyId: $("#CompanyList option:selected").val(), approvedBy: $("#approvedBy option:selected").val(), postedBy: $("#postedBy option:selected").val(), approved: $('input:radio[name="approval"]:checked').val() };
+                                    var cid = $('#CompanyList').val();
+                                    if (cid == null) {
+                                        cid = 0;
+                                    }
+
+                                    var jsonData = { userId: '@user.UserId', dateType: $('input:radio[name="radio"]:checked').val(), startDate: $("#dp1").val(), endDate: newdate, ledgerId: $("#ledgerList option:selected").val(), ledgerName: $("#ledgerList option:selected").text(), companyId: cid, approvedBy: $("#approvedBy option:selected").val(), postedBy: $("#postedBy option:selected").val(), approved: $('input:radio[name="approval"]:checked').val() };
                                     $.ajax({
                                         type: "Post",
                                         url: '@Url.Action("ApprovedJournals", "Journal")',
@@ -969,11 +1083,21 @@
                     });
                 }
             });
-            $("#exit,#cross").on('click', function () {
+            $("#exit, #cross").on('click', function () {
                 $('.sidebar2').remove();
             });
             $("#update").on('click', function () {
-                var journal = { Sl: selectedRow.find('td:nth-child(1)').html(), Id: selectedRow.find('td:nth-child(2)').html(), LedgerName: selectedRow.find('td:nth-child(3)').html(), Description: selectedRow.find('td:nth-child(4)').find('input:text, textarea').val(), Debit: selectedRow.find('td:nth-child(5)').find('input:text').val(), Credit: selectedRow.find('td:nth-child(6)').find('input:text').val(), Journaldate: selectedRow.find('td:nth-child(7)').find('input:text').val(), Sid: selectedRow.find('td:nth-child(8)').html(), Notify: selectedRow.find('td:nth-child(12)').html() };
+                var journal = {
+                    Sl: selectedRow.find('td:nth-child(1)').html(),
+                    Id: selectedRow.find('td:nth-child(2)').html(),
+                    LedgerName: selectedRow.find('.view').html(),
+                    Description: selectedRow.find('.des').val(),
+                    Debit: selectedRow.find('.debt').val(),
+                    Credit: selectedRow.find('.crdt').val(),
+                    Journaldate: selectedRow.find('.datepick').val(),
+                    Sid: selectedRow.find('td:nth-child(8)').html(),
+                    Notify: selectedRow.find('td:nth-child(12)').html()
+                };
                 if (journal.LedgerName != selectedJournal.LedgerName || journal.Description != selectedJournal.Description || journal.Debit != selectedJournal.Debit || journal.Credit != selectedJournal.Credit || journal.Journaldate != selectedJournal.Journaldate || journal.Sid != selectedJournal.Sid) {
                     var d = 0;
                     var msg2 = new Messi('You have changed some information of Journal No. ' + journal.Id + ".<br/>Do you want to save changed information?",
@@ -999,11 +1123,11 @@
                                         ]
                                     });
                                     $('.messi-actions').css('float', 'left').css('margin-left', '205px');
-                                    selectedRow.find('td:nth-child(3)').html(selectedJournal.LedgerName);
-                                    selectedRow.find('td:nth-child(4)').find('input:text, textarea').val(selectedJournal.Description);
-                                    selectedRow.find('td:nth-child(5)').find('input:text').val(selectedJournal.Debit);
-                                    selectedRow.find('td:nth-child(6)').find('input:text').val(selectedJournal.Credit);
-                                    selectedRow.find('td:nth-child(7)').find('input:text').val(selectedJournal.Journaldate);
+                                    selectedRow.find('.view').html(selectedJournal.LedgerName);
+                                    selectedRow.find('.des').val(selectedJournal.Description);
+                                    selectedRow.find('.debt').val(selectedJournal.Debit);
+                                    selectedRow.find('.crdt').val(selectedJournal.Credit);
+                                    selectedRow.find('.datepick').val(selectedJournal.Journaldate);
                                     selectedRow.find('td:nth-child(8)').html(selectedJournal.Sid);
                                     selectedRow.find('td:nth-child(12)').html(selectedJournal.Notify);
                                 } else {
@@ -1011,22 +1135,42 @@
                                 }
                             } else {
                                 d = 1;
-                                selectedRow.find('td:nth-child(3)').html(selectedJournal.LedgerName);
-                                selectedRow.find('td:nth-child(4)').find('input:text, textarea').val(selectedJournal.Description);
-                                selectedRow.find('td:nth-child(5)').find('input:text').val(selectedJournal.Debit);
-                                selectedRow.find('td:nth-child(6)').find('input:text').val(selectedJournal.Credit);
-                                selectedRow.find('td:nth-child(7)').find('input:text').val(selectedJournal.Journaldate);
+                                selectedRow.find('.view').html(selectedJournal.LedgerName);
+                                selectedRow.find('.des').val(selectedJournal.Description);
+                                selectedRow.find('.debt').val(selectedJournal.Debit);
+                                selectedRow.find('.crdt').val(selectedJournal.Credit);
+                                selectedRow.find('.datepick').val(selectedJournal.Journaldate);
                                 selectedRow.find('td:nth-child(8)').html(selectedJournal.Sid);
                                 selectedRow.find('td:nth-child(12)').html(selectedJournal.Notify);
                             }
-                            selectedJournal = { Sl: $('#table tbody tr.row-selected').find('td:nth-child(1)').html(), Id: $('#table tbody tr.row-selected').find('td:nth-child(2)').html(), LedgerName: $('#table tbody tr.row-selected').find('td:nth-child(3)').html(), Description: $('#table tbody tr.row-selected').find('td:nth-child(4)').find('input:text, textarea').val(), Debit: $('#table tbody tr.row-selected').find('td:nth-child(5)').find('input:text').val(), Credit: $('#table tbody tr.row-selected').find('td:nth-child(6)').find('input:text').val(), Journaldate: $('#table tbody tr.row-selected').find('td:nth-child(7)').find('input:text').val(), Sid: $('#table tbody tr.row-selected').find('td:nth-child(8)').html(), Notify: $('#table tbody tr.row-selected').find('td:nth-child(12)').html() };
-                            selectedRow = $('#table tbody tr.row-selected');
+                            selectedJournal = {
+                                Sl: $('tr.row-selected').find('td:nth-child(1)').html(),
+                                Id: $('tr.row-selected').find('td:nth-child(2)').html(),
+                                LedgerName: $('tr.row-selected').find('.view').html(),
+                                Description: $('tr.row-selected').find('.des').val(),
+                                Debit: $('tr.row-selected').find('.debt').val(),
+                                Credit: $('tr.row-selected').find('.crdt').val(),
+                                Journaldate: $('tr.row-selected').find('.datepick').val(),
+                                Sid: $('tr.row-selected').find('td:nth-child(8)').html(),
+                                Notify: $('tr.row-selected').find('td:nth-child(12)').html()
+                            };
+                            selectedRow = $('tr.row-selected');
                             return true;
                         }
                     });
                 } else {
-                    selectedJournal = { Sl: $('#table tbody tr.row-selected').find('td:nth-child(1)').html(), Id: $('#table tbody tr.row-selected').find('td:nth-child(2)').html(), LedgerName: $('#table tbody tr.row-selected').find('td:nth-child(3)').html(), Description: $('#table tbody tr.row-selected').find('td:nth-child(4)').find('input:text, textarea').val(), Debit: $('#table tbody tr.row-selected').find('td:nth-child(5)').find('input:text').val(), Credit: $('#table tbody tr.row-selected').find('td:nth-child(6)').find('input:text').val(), Journaldate: $('#table tbody tr.row-selected').find('td:nth-child(7)').find('input:text').val(), Sid: $('#table tbody tr.row-selected').find('td:nth-child(8)').html(), Notify: $('#table tbody tr.row-selected').find('td:nth-child(12)').html() };
-                    selectedRow = $('#table tbody tr.row-selected');
+                    selectedJournal = {
+                        Sl: $('tr.row-selected').find('td:nth-child(1)').html(),
+                        Id: $('tr.row-selected').find('td:nth-child(2)').html(),
+                        LedgerName: $('tr.row-selected').find('.view').html(),
+                        Description: $('tr.row-selected').find('.des').val(),
+                        Debit: $('tr.row-selected').find('.debt').val(),
+                        Credit: $('tr.row-selected').find('.crdt').val(),
+                        Journaldate: $('tr.row-selected').find('.datepick').val(),
+                        Sid: $('tr.row-selected').find('td:nth-child(8)').html(),
+                        Notify: $('tr.row-selected').find('td:nth-child(12)').html()
+                    };
+                    selectedRow = $('tr.row-selected');
                     var m01 = new Messi('<p style="text-align: justify;">There are no change made by you. So, you need not to update this journal</p>',
                     {
                         title: 'Alert',
@@ -1101,7 +1245,7 @@
                                             $("#noofjournals").html(co);
                                             if ($("#table tbody tr").length < 20) {
                                                 for (var i = 1; i <= 20 - $("#table tbody tr").length; i++) {
-                                                    $("#table tbody").append('<tr onclick="$(document).viewhide();"><td style="width: 5%">&nbsp;</td><td style="width: 7%">&nbsp;</td><td style="width: 25%">&nbsp;</td><td style="width: 42%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;"  disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td></tr>');
+                                                    $("#table tbody").append('<tr ><td style="width: 5%">&nbsp;</td><td style="width: 7%">&nbsp;</td><td style="width: 25%">&nbsp;</td><td style="width: 42%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;"  disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td><td style="width: 7%"><input type="text" class="input-disable" style="width: 100%; height: 30px; padding: 0; cursor: default;" disabled/></td></tr>');
                                                 }
                                             }
                                             selectedJournal = null;
@@ -1128,7 +1272,8 @@
             $("#delete").on('click', function () {
                 deleteJournal($("#table tbody tr.row-selected").find('td:nth-child(2)').html(), -1);
             });
-            //parent.$.colorbox.resize({width:x, height:y});
+            $("body").css("overflow", "hidden");
         });
     </script>
+    <script type="text/javascript" src="~/Scripts/js/common.js"></script>
 }

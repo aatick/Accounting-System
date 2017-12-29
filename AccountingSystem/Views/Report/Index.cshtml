@@ -1,0 +1,1118 @@
+﻿@using AccountingSystem.Models
+
+@{
+    ViewBag.Title = "Reports";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+    var accessReports = user.AccessReports.Split(',').ToList();
+    var districts = (List<District>)ViewBag.District;
+}
+@section styles
+{
+    <link type="text/css" href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link type="text/css" href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <style type="text/css">
+        .light_pink {
+            background: #f2e4e4;
+            border: 1px solid #676362;
+            color: #7a3f15;
+            font-size: 16px;
+        }
+
+        .light_green {
+            background: #dfffef;
+            border: 1px solid #646361;
+            color: #bf8a46;
+            font-size: 16px;
+        }
+
+        select[size] {
+            height: 265px;
+        }
+
+        select option[disabled=disabled] {
+            pointer-events: none;
+        }
+
+        .modal-header-lor {
+            color: #fff;
+            border-bottom: 1px solid #eee;
+            background-color: #005BF1;
+            -webkit-border-radius: 5px 5px 0px 0px;
+            -moz-border-radius: 5px 5px 0px 0px;
+            border-radius: 5px 5px 0px 0px;
+            padding: 0px 5px 0px 5px;
+            margin: -10px 0px 0px 0px;
+        }
+
+            .modal-header-lor h4 {
+                color: #fff;
+                line-height: 28px;
+                font-size: 15px;
+                margin: 2px 0px 0px 0px;
+            }
+
+            .modal-header-lor .close {
+                color: #fff;
+                font-size: 20px;
+                line-height: 28px;
+            }
+
+        .lorModal .modal-dialog {
+            width: 500px;
+        }
+
+        .lorModal .modal-body {
+            background: #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+            .lorModal .modal-body label {
+                font-weight: normal;
+            }
+
+        legend.legendStyle {
+            padding: 0px 5px 0px 5px;
+            margin: 1px 0px 0px 0px;
+            font-size: 100%;
+            background-color: transparent;
+            color: #0b0350;
+        }
+
+        legend.legendStyle_b {
+            padding: 0px 5px 0px 5px;
+            margin: 1px 0px 0px 0px;
+            font-size: 100%;
+            background-color: transparent;
+            color: #634d1c;
+        }
+
+        fieldset.fsStyle {
+            border: 1px solid #999999;
+            padding: 4px;
+            margin: 10px 0px 5px 0px;
+        }
+
+        legend {
+            border-bottom: 0px;
+            width: auto;
+        }
+
+        fieldset label {
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        #close, #lclose {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            background: url(/Accounting/images/close2.png) no-repeat -25px 0;
+            width: 30px;
+            height: 30px;
+            text-indent: -9999px;
+            padding: 0 10px 0 0;
+            cursor: pointer;
+            margin: -8px 0 0 0;
+        }
+    </style>
+    <link href="~/Content/css/common.css" rel="stylesheet" type="text/css" />
+}
+<div class="col-sm-12">
+    <div class="row" style="margin:-18px -15px 5px -15px; padding:0px 0px 5px 0px;" id="reportDiv">
+        <div class="text-center" style="margin: 0px 5px 5px 5px; background: #6A6C6F; padding: 0 0 0 0; color: white;">
+            <h3>List of Reports</h3>
+        </div>
+        <div class="col-sm-offset-1 col-sm-10" style="margin-top: 10px;">
+            <div class="col-sm-6 col-md-6">
+                <div class="col-sm-12 col-md-12" style="font-size: 25px; font-weight: bold; text-align: center; margin-bottom: 10px;">Main group</div>
+                <div class="col-sm-12"><select id="reports" size="13" class="form-control light_pink"></select></div>
+                <div class="col-sm-offset-4 col-sm-4 list-container" style="margin-top: 40px;">
+                    <button type="button" class="btn btn-info btn-block" id="show">Show</button>
+                    <ul class="export-container" id="option-two" style="margin-top: -220px;">
+                        <li data-type="Pdf">Pdf</li>
+                        <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                        <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                        <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                        <li data-type="Word">Microsoft Word (97-2003)</li>
+                        <li data-type="XML">XML</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-6">
+                <div class="col-sm-12 col-md-12" style="font-size: 25px; font-weight: bold; text-align: center; margin-bottom: 10px;">Sub group</div>
+                <div class="col-sm-12"><select id="subreports" size="13" class="form-control light_green"></select></div>
+                <div class="col-sm-offset-4 col-sm-4" style="margin-top: 40px;">
+                    <button type="button" class="btn btn-info btn-block" id="back">Exit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal lorModal" id="success" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="height: 500px;">
+        <div class="modal-content">
+            <div class="modal-header modal-header-lor">
+                <div id="close"></div>
+                <h4 class="nstitle"> <img src="~/image/Reports.png" width="20" height="20">&nbsp;&nbsp;<span style="margin: 0; padding: 0;" id="title"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12" style="margin:-20px 0px 0px 0px;">
+                        <fieldset class="fsStyle">
+                            <legend class="legendStyle">
+                                Show the report by
+                            </legend>
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="radio" style="margin:15px 0px 0px 0px;">
+                                        <label>
+                                            <input type="radio" name="radio" value="0"> a given range
+                                        </label>
+                                    </div>
+                                    <div class="radio" style="margin:5px 0px 0px 0px;">
+                                        <label>
+                                            <input type="radio" name="radio" value="1">a given month
+                                        </label>
+                                    </div>
+                                    <div class="radio" style="margin:5px 0px 0px 0px;">
+                                        <label>
+                                            <input type="radio" name="radio" value="2">a given year
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-5">
+                                    <div class="row">
+                                        <div class="col-sm-4" id="from"><br>From</div>
+                                        <div class="col-sm-8">
+                                            <label id="name1">Month</label>
+                                            <input type="text" class="form-control input-sm select" id="dp1" style="background: white; width: 105px; padding: 0 0 0 15px; cursor: default;" />
+                                            <select class="form-control input-sm" id="fromMonth">
+                                                <option value="1">January</option>
+                                                <option value="2">February</option>
+                                                <option value="3">March</option>
+                                                <option value="4">April</option>
+                                                <option value="5">May</option>
+                                                <option value="6">June</option>
+                                                <option value="7">July</option>
+                                                <option value="8">August</option>
+                                                <option value="9">September</option>
+                                                <option value="10">October</option>
+                                                <option value="11">November</option>
+                                                <option value="12">December</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-4" id="to">To</div>
+                                        <div class="col-sm-8">
+                                            <select class="form-control input-sm" style="margin:5px 0px 0px 0px;" id="toMonth">
+                                                <option value="1">January</option>
+                                                <option value="2">February</option>
+                                                <option value="3">March</option>
+                                                <option value="4">April</option>
+                                                <option value="5">May</option>
+                                                <option value="6">June</option>
+                                                <option value="7">July</option>
+                                                <option value="8">August</option>
+                                                <option value="9">September</option>
+                                                <option value="10">October</option>
+                                                <option value="11">November</option>
+                                                <option value="12">December</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-3">
+                                    <label id="name2">Year</label>
+                                    <input type="text" class="form-control input-sm select" id="dp2" style="background: white; width: 92px; padding: 0 0 0 5px; cursor: default;" />
+                                    <select class="form-control input-sm" id="fromYear">
+                                        @for (int i = DateTime.Now.Year; i >= 2000; i--)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                    <select class="form-control input-sm" style="margin:5px 0px 0px 0px;" id="toYear">
+                                        @for (int i = DateTime.Now.Year; i >= 2000; i--)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <table style="width: 100%;" id="tblOptions">
+                                    <tr>
+                                        <td style="vertical-align: middle; text-align: center; width: 100%;">
+                                            <div class="l-hidden" style="display: inline-block;padding-right: 0px;width: 80px;"><label>District</label></div>
+                                            <div class="l-hidden" style="display: inline-block; padding: 0px; width: 80px;">
+                                                <select id="district" class="form-control input-sm" name="DistrictId">
+                                                    <option value="">Select</option>
+                                                    @foreach (var aDistrict in districts)
+                                                    {
+                                                        <option value="@aDistrict.Id">@aDistrict.Name</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="" style="display: inline-block; padding-right: 0px; width: 120px;"><input type="checkbox" id="chkApproved" /><label for="chkApproved" style="padding-left: 5px;">Approved</label></div>
+                                        </td>
+                                    </tr>
+                                </table>
+
+
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12" style="margin:-10px 0px 0px 0px;">
+                        <fieldset class="fsStyle">
+                            <legend class="legendStyle">
+                                Show in
+                            </legend>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="radio pull-right">
+                                        <label>
+                                            <input type="radio" name="radio2" value="0"> Summary
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="radio2" value="1"> Detailed
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row" style="margin:5px 0px 0px 0px;">
+                    <div class="col-sm-offset-3 col-sm-4 list-container" style="position: relative;">
+                        <button type="button" class="btn btn-block btn-info btn-sm" id="showReport">View Report</button>
+                        <ul class="export-container" id="option-one">
+                            <li data-type="Pdf">Pdf</li>
+                            <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                            <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                            <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                            <li data-type="Word">Microsoft Word (97-2003)</li>
+                            <li data-type="XML">XML</li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-3">
+                        <button type="button" class="btn btn-block btn-info btn-sm" id="cancel">Exit</button>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- Modal -->
+<!-- Modal -->
+
+<div class="modal lorModal" id="success2" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="height: 550px;">
+        <div class="modal-content">
+            <div class="modal-header modal-header-lor">
+                <div id="lclose"></div>
+                <h4 class="nstitle"> <img src="~/image/Reports.png" width="20" height="20">  General Ledger <span style="margin: 0; padding: 0;" id="title"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding: 0px 10px 0px 10px; margin-top: -20px;">
+                    <fieldset class="fsStyle col-sm-12">
+                        <div class="col-sm-12">Main Group</div>
+                        <div class="col-sm-8">
+                            <select id="mainGroup" class="form-control input-sm">
+                                <option></option>
+                                <option>Asset</option>
+                                <option>Capital</option>
+                                <option>Expense</option>
+                                <option>Liability</option>
+                                <option>Revenue</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-12">Company List</div>
+                        <div class="col-sm-8">
+                            <input type="text" id="companies" class="form-control select input-sm" />
+                            <select id="companyList" size="10" class="form-control input-sm" style="display: none; border: 1px solid gray; font-size: 12px; z-index: 9999999999999; height: 200px; position: absolute; overflow-y: auto; overflow-x: hidden; background: white;"></select>
+                        </div>
+                        <div class="col-sm-12">List Of Ledger</div>
+                        <div class="col-sm-8">
+                            <select id="ledgerList" size="10" style="height: 220px;" class="form-control input-sm"></select>
+                        </div>
+                        <div class="col-sm-4">
+                            <fieldset class="fsStyle col-sm-12" style="height: 170px;">
+                                <div class="col-sm-12">From</div>
+                                <div class="col-sm-12">
+                                    <input type="text" id="fromDate" class="form-control input-sm select" style="padding: 0 0 0 5px; cursor: default;" value="@DateTime.Now.AddDays(1 - DateTime.Now.Day).ToString("MM/dd/yyyy")" />
+                                </div>
+                                <div class="col-sm-12" style="margin-top: 30px;">To</div>
+                                <div class="col-sm-12">
+                                    <input type="text" id="toDate" class="form-control input-sm select" style="padding: 0 0 0 5px; cursor: default;" value="@DateTime.Now.ToString("MM/dd/yyyy")" />
+                                </div>
+                            </fieldset>
+                            <div class="col-sm-6 list-container" style="margin: 0;padding: 0 2px 0 0;">
+                                <button type="button" class="btn btn-block btn-info btn-sm" id="ledgerShow">Show</button>
+                                <ul class="export-container" id="option-three">
+                                    <li data-type="Pdf">Pdf</li>
+                                    <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                                    <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                                    <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                                    <li data-type="Word">Microsoft Word (97-2003)</li>
+                                    <li data-type="XML">XML</li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-6" style="padding: 0 0 0 2px;margin: 0;">
+                                <button type="button" class="btn btn-block btn-info btn-sm" data-dismiss="modal" aria-hidden="true">Exit</button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- Modal -->
+<div class="modal-backdrop in" id="backdrop" style="display: none; height: 100%; z-index: 9999; background: #DDDDDD;"></div>
+<img src='/Accounting/image/ajax_loader.gif' style="position: absolute; top: 45%; left: 45%; z-index: 9999; display: none;" width='100' height='100' align='center' valign='middle' id="loader" />
+@section scripts
+{
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+            $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+            var reports = [];
+            var subreports = [];
+            var selected = null;
+            var today = new Date();
+            var toDate = pad((today.getMonth() + 1), 2) + "/" + pad(today.getDate(), 2) + "/" + today.getFullYear();
+            var idList = [46];
+            $("#success, #success2").modal({
+                backdrop: false,
+                keyboard: false
+            });
+            $('#success, #success2').modal('hide');
+            $('#close, #lclose').on('click', function () {
+                $('.modal').modal('hide');
+            });
+
+            function pad(str, max) {
+                str = str.toString();
+                return str.length < max ? pad("0" + str, max) : str;
+            }
+
+            function centerSuccess1() {
+                $("#success").css('display', 'block');
+                var $dialog = $('#success').find(".modal-dialog");
+                $dialog.css("margin-top", "10px");
+            }
+
+            function centerSuccess2() {
+                $("#success2").css('display', 'block');
+                var $dialog = $("#success2").find(".modal-dialog");
+                $dialog.css("margin-top", "10px");
+            }
+
+            var access = [@Html.Raw(String.Join(",", accessReports.Select(i => "'" + i + "'")))];
+
+            $('#fromDate, #toDate').datepicker({ changeMonth: true, changeYear: true });
+            reports.push(
+                { Id: 13, Index: 0, Name: "Trial Balance" },
+                { Id: 1, Index: 1, Name: "Income Statement" },
+                { Id: 2, Index: 2, Name: "Cash Flow" },
+                { Id: 3, Index: 3, Name: "Balance Sheet" },
+                { Id: 4, Index: 4, Name: "Expense" },
+                { Id: 5, Index: 5, Name: "Revenue" },
+                { Id: 6, Index: 6, Name: "Account Receivables" },
+                { Id: 7, Index: 7, Name: "Cash collection" },
+                { Id: 8, Index: 8, Name: "Profit & Loss statement" },
+                { Id: 9, Index: 9, Name: "Share Capital" },
+                { Id: 10, Index: 10, Name: "Fixed Asset Schedule" },
+                { Id: 11, Index: 11, Name: "Bank/ Cash Book" },
+                { Id: 12, Index: 12, Name: "General Ledger" }
+            );
+            $.each(reports, function () {
+                if ($.inArray(this.Index.toString(), access) > -1 || access[0] == "All")
+                    $("#reports").append('<option value="' + this.Id + '">' + this.Name + '</option>');
+                else
+                    $("#reports").append('<option disabled="disabled" value="' + this.Id + '">' + this.Name + '</option>');
+            });
+            $("#dp1, #dp2").datepicker({
+                changeMonth: true,
+                changeYear: true
+            });
+            $("#close, #cancel").on('click', function () {
+                $('#success').modal('hide');
+            });
+            subreports.push(
+                { Id: 1, Reportid: 1, Name: "For a given month", AccId: 0 },
+                { Id: 2, Reportid: 1, Name: "Monthly", AccId: 0 },
+                { Id: 1, Reportid: 2, Name: "Monthly Cash Flow", AccId: 0 },
+                { Id: 2, Reportid: 2, Name: "Cash & Bank Details", AccId: 0 },
+                { Id: 3, Reportid: 2, Name: "Cash Book", AccId: 46 },
+                { Id: 1, Reportid: 3, Name: "Monthly Balance Sheet", AccId: "MB" },
+                { Id: 2, Reportid: 3, Name: "Monthly Current Assets", AccId: "CA" },
+                { Id: 3, Reportid: 3, Name: "Monthly Fixed Assets", AccId: "FA" },
+                { Id: 4, Reportid: 3, Name: "Monthly Other Assets", AccId: "OA" },
+                { Id: 5, Reportid: 3, Name: "Monthly Current Liabilities", AccId: "CL" },
+                { Id: 6, Reportid: 3, Name: "Monthly Other Liabilities", AccId: "OL" },
+                { Id: 7, Reportid: 3, Name: "Paid up Capital", AccId: "PC" },
+                { Id: 8, Reportid: 3, Name: "Share Deposit Money", AccId: "SD" },
+                //{ Id: 9, Reportid: 3, Name: "Monthly All Sub Headers of Balance Sheet", AccId: 0 },
+                //{ Id: 10, Reportid: 3, Name: "All Sub Headers of Balance Sheet in a year", AccId: 0 },
+                { Id: 1, Reportid: 4, Name: "Monthly Expense", AccId: 0 },
+                { Id: 1, Reportid: 5, Name: "Product wise (for a month)", AccId: 0 },
+                { Id: 2, Reportid: 5, Name: "Company wise (for a month)", AccId: 0 },
+                { Id: 3, Reportid: 5, Name: "Product wise (monthly)", AccId: 0 },
+                { Id: 4, Reportid: 5, Name: "Company wise (monthly)", AccId: 0 },
+                { Id: 5, Reportid: 5, Name: "District wise Product (monthly)", AccId: 0 },
+                { Id: 6, Reportid: 5, Name: "District wise Company (monthly)", AccId: 0 },
+                { Id: 7, Reportid: 5, Name: "District wise (monthly)", AccId: 0 },
+                { Id: 1, Reportid: 6, Name: "Product wise on Today", AccId: 0 },
+                { Id: 2, Reportid: 6, Name: "Company wise on Today", AccId: 0 },
+                { Id: 3, Reportid: 6, Name: "Product wise(Monthly)", AccId: 0 },
+                { Id: 4, Reportid: 6, Name: "Company wise Total(Monthly)", AccId: 0 },
+                { Id: 1, Reportid: 7, Name: "Product wise", AccId: 0 },
+                { Id: 2, Reportid: 7, Name: "Company wise", AccId: 0 },
+                { Id: 1, Reportid: 8, Name: "For a given month", AccId: 0 },
+                { Id: 2, Reportid: 8, Name: "Monthly", AccId: 0 },
+                { Id: 1, Reportid: 9, Name: "Share Deposit Money", AccId: "SD" },
+                { Id: 2, Reportid: 9, Name: "Paid up Capital", AccId: "PC" },
+                { Id: 3, Reportid: 9, Name: "Total Share Money", AccId: "SDPC" },
+                { Id: 1, Reportid: 10, Name: "Fixed Asset Schedule", AccId: 0 },
+                { Id: 1, Reportid: 11, Name: "Bank Book", AccId: 0 },
+                { Id: 2, Reportid: 11, Name: "Cash Book", AccId: 0 },
+                { Id: 1, Reportid: 12, Name: "General Ledger Preview", AccId: 0 },
+                { Id: 1, Reportid: 13, Name: "Trial Balance Preview", AccId: 0 }
+            );
+
+            function get() {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetSubreports", "Report")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        var count = 3;
+                        $.each(data, function (key, value) {
+                            count++;
+                            subreports.push({ Id: count, Reportid: 2, Name: value.GroupName, AccId: value.Id });
+                            idList.push(value.Id);
+                        });
+                        fill();
+                    },
+                });
+            }
+
+            get();
+            $("#reports").on('change', function () {
+                selected = null;
+                fillSubReports();
+            });
+
+            $("#subreports").on('click', function () {
+                if ($("#subreports option:selected").val() != null && $("#subreports option:selected").val() != "") {
+                    selected = { Id: $("#reports option:selected").val(), SubId: $("#subreports option:selected").val() };
+                }
+            });
+            centerSuccess1();
+            $('#success').modal('show');
+            $('#success').modal('hide');
+            $("#show").on('click', function () {
+                $("#fromMonth, #toMonth").val('@DateTime.Now.Month');
+                $("#fromYear, #toYear").val('@DateTime.Now.Year');
+                if (selected != null) {
+                    if (selected.Id == 5 || selected.Id == 6) {
+                        $("#tblOptions").show();
+                        if (selected.Id == 5 && (selected.SubId == 5 || selected.SubId == 6)) {
+                            $(".l-hidden").show();
+                        }else {
+                            $(".l-hidden").hide();
+                        }
+                        $("#chkApproved").prop("checked", true);
+                    } else {
+                        $("#tblOptions").hide();
+                    }
+                    $("#district").val("");
+                    if (selected.Id == 13) {
+                        if (selected.SubId == 1) {
+                            trialBalance();
+                        }
+                    } else if (selected.Id == 6) {
+                        if (selected.SubId == 1 || selected.SubId == 2) {
+                            $("#option-two").toggleClass('active');
+                            //accounts();
+                        } else if (selected.SubId == 3 || selected.SubId == 4) {
+                            accReceivable();
+                        }
+                    } else if (selected.Id == 12) {
+                        if (selected.SubId == 1) {
+                            centerSuccess2();
+                            $("#success2").modal('show');
+                        }
+                    } else if (selected.Id == 5) {
+                        if (selected.SubId == 1 || selected.SubId == 2) {
+                            revenue();
+                        } else {
+                            accReceivable();
+                            if (selected.SubId == 7) {
+                                $('input:radio[name="radio2"][value="1"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                            }
+                        }
+                    } else if (selected.Id == 4) {
+                        if (selected.SubId == 1) {
+                            accReceivable();
+                        }
+                    } else if (selected.Id == 7) {
+                        if (selected.SubId == 1) {
+                            accReceivable();
+                        } else if (selected.SubId == 2) {
+                            accReceivable();
+                        }
+                    } else if (selected.Id == 1) {
+                        if (selected.SubId == 1) {
+                            trialBalance();
+                            $('input:radio[name="radio"][value="1"], input:radio[name="radio2"]').prop('disabled', false).parent('label').css('color', '');
+                            $('input:radio[name="radio"][value="0"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                            $('input:radio[name="radio2"][value="0"]').prop('checked', true);
+                        } else if (selected.SubId == 2) {
+                            accReceivable();
+                        }
+                    } else if (selected.Id == 8) {
+                        if (selected.SubId == 1) {
+                            trialBalance();
+                            $('input:radio[name="radio"][value="1"], input:radio[name="radio2"]').prop('disabled', false).parent('label').css('color', '');
+                            $('input:radio[name="radio"][value="0"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                            $('input:radio[name="radio2"][value="0"]').prop('checked', true);
+                        } else if (selected.SubId == 2) {
+                            accReceivable();
+                        }
+                    } else if (selected.Id == 2) {
+                        if (selected.SubId == 1) {
+
+                        } else if (selected.SubId == 2) {
+                            accReceivable();
+                            $('input:radio[name="radio2"][value="1"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                        } else {
+                            givenRange();
+                            $('input:radio[name="radio"][value="1"], input:radio[name="radio"][value="2"], input:radio[name="radio2"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                            $('input:radio[name="radio"][value="0"]').prop('disabled', false).parent('label').css('color', '');
+                            $('input:radio[name="radio"][value="0"], input:radio[name="radio2"][value="0"]').prop('checked', true);
+                            $("#success").modal('show');
+                        }
+                    } else if (selected.Id == 3) {
+                        if (selected.SubId != 9 && selected.SubId != 10) {
+                            accReceivable();
+                            $('input:radio[name="radio2"][value="1"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                        }
+                    } else if (selected.Id == 9) {
+                        accReceivable();
+                        $('input:radio[name="radio2"][value="0"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                        $('input:radio[name="radio2"][value="1"]').prop('checked', true);
+                    } else if (selected.Id == 11) {
+                        if (selected.SubId == 1) {
+                            accReceivable();
+                            $('input:radio[name="radio2"][value="1"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                        } else {
+                            givenRange();
+                            $('input:radio[name="radio"][value="1"], input:radio[name="radio"][value="2"], input:radio[name="radio2"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                            $('input:radio[name="radio"][value="0"]').prop('disabled', false).parent('label').css('color', '');
+                            $('input:radio[name="radio"][value="0"], input:radio[name="radio2"][value="0"]').prop('checked', true);
+                            $("#title").html($("#subreports option:selected").text());
+                            $("#success").modal('show');
+                        }
+                    } else if (selected.Id == 10) {
+                        givenRange();
+                        $('input:radio[name="radio"][value="1"], input:radio[name="radio"][value="2"], input:radio[name="radio2"][value="0"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                        $('input:radio[name="radio"][value="0"], input:radio[name="radio2"][value="1"]').prop('disabled', false).prop('checked', true).parent('label').css('color', '');
+                        $("#title").html($("#subreports option:selected").text());
+                        $("#name1").html('Select a Date');
+                        $("#name2").html('&nbsp;');
+                        $("#dp2").hide();
+                        $("#success").modal('show');
+                    }
+                    $("#title").html($("#reports option:selected").html() + " (" + $("#subreports option:selected").html() + ")");
+                } else {
+                    var m66 = new Messi("No Sub Group Selected. Please Selct a Subgroup.",
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                }
+                return true;
+            });
+
+            function accReceivable() {
+                $("#title").html('Monthly Account Receivables');
+                $('input:radio[name="radio"][value="0"], input:radio[name="radio"][value="1"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                $('input:radio[name="radio2"], input:radio[name="radio"][value="2"]').prop('disabled', false).parent('label').css('color', '');
+                $('input:radio[name="radio"][value="2"], input:radio[name="radio2"][value="0"]').prop('checked', true);
+                $("#name1").html('Month');
+                $("#name2").html('Year');
+                $("#from").html('<br/>From').show();
+                $("#to").html('To').show();
+                $("#dp1").hide();
+                $("#dp2").hide();
+                $('#fromMonth option[value="1"]').prop('selected', true);
+                $('#fromYear option[value="@DateTime.Now.Year"]').prop('selected', true);
+                $('#toMonth option[value="@DateTime.Now.Month"]').prop('selected', true);
+                $('#toYear option[value="@DateTime.Now.Year"]').prop('selected', true);
+                $("#fromMonth, #fromYear, #toMonth, #toYear").show();
+                $("#success").modal('show');
+            }
+
+            function revenue() {
+                $('input:radio[name="radio"][value="0"], input:radio[name="radio"][value="2"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                $('input:radio[name="radio"][value="1"], input:radio[name="radio2"]').prop('disabled', false).parent('label').css('color', '');
+                $('input:radio[name="radio"][value="1"], input:radio[name="radio2"][value="0"]').prop('checked', true);
+                $("#name1").html('Select a Month');
+                $("#name2").html('Select a Year');
+                $("#from, #to").html('&nbsp;');
+                $("#dp1").hide();
+                $("#dp2").hide();
+                $("#toMonth, #toYear").hide();
+                $('#fromMonth option[value="@DateTime.Now.Month"]').prop('selected', true).show();
+                $('#fromYear option[value="@DateTime.Now.Year"]').prop('selected', true).show();
+                $("#success").modal('show');
+            }
+
+            $('input:radio[name="radio"]').on('change', function () {
+                $("#fromMonth, #toMonth").val('@DateTime.Now.Month');
+                $("#fromYear, #toYear").val('@DateTime.Now.Year');
+                if (selected.Id == 13) {
+                    if (selected.SubId == 1) {
+                        if ($(this).val() == 0) {
+                            givenRange();
+                        } else if ($(this).val() == 1) {
+                            $("#name1").html('Select a Month');
+                            $("#name2").html('Select a Year');
+                            $("#from, #to").html('&nbsp;');
+                            $("#fromMonth, #fromYear").show();
+                            $("#toMonth, #toYear").hide();
+                            $("#dp1").hide();
+                            $("#dp2").hide();
+                        }
+                    }
+                }
+            });
+
+            function givenRange() {
+                $("#name1").html('From');
+                $("#name2").html('To');
+                $("#from, #to").html('&nbsp;');
+                $("#fromMonth, #toMonth, #fromYear, #toYear").hide();
+                $("#dp1").val(pad((today.getMonth() + 1), 2) + "/" + pad(1, 2) + "/" + today.getFullYear());
+                $("#dp2").val(toDate);
+                $("#dp1").show();
+                $("#dp2").show();
+            }
+
+            function trialBalance() {
+                $('input:radio[name="radio"][value="2"], input:radio[name="radio2"][value="0"]').prop('disabled', true).parent('label').css('color', 'lightgray');
+                $('input:radio[name="radio"][value="0"], input:radio[name="radio"][value="1"], input:radio[name="radio2"][value="1"]').prop('disabled', false).parent('label').css('color', '');
+                $('input:radio[name="radio"][value="1"], input:radio[name="radio2"][value="1"]').prop('checked', true);
+                $("#name1").html('Select a Month');
+                $("#name2").html('Select a Year');
+                $("#from, #to").html('&nbsp;');
+                $("#toMonth, #toYear").hide();
+                $("#dp1").hide();
+                $("#dp2").hide();
+                $("#fromMonth, #fromYear").show();
+                $("#success").modal('show');
+            }
+
+            function fillSubReports() {
+                var id = $("#reports").val();
+                $("#subreports").html('');
+                $.each(subreports, function () {
+                    if (this.Reportid == id)
+                        $("#subreports").append('<option value="' + this.Id + '" data-accid="' + this.AccId + '">' + this.Name + '</option>');
+                });
+            }
+
+            $("#dp1, #dp2").on('keydown keypress keyup', function () {
+                return false;
+            });
+            $("#showReport").on("click", function () {
+                $("#option-one").toggleClass('active');
+            });
+
+            $("#option-three li").on("click", function () {
+                exportOption = $(this).attr("data-type");
+                $("#option-three").toggleClass('active');
+                var comId = $("#companyList").val();
+                comId = comId == null ? 0 : comId;
+                if (comId == 0)
+                    showReport('GetType2Report', { startingdate: $("#fromDate").val(), endDate: $("#toDate").val(), type: $('#ledgerList option:selected').val(), info: $('#ledgerList option:selected').text(), num: 6, mainGroup: $('#mainGroup option:selected').text() });
+                else
+                    showReport('GetType2Report', { startingdate: $("#fromDate").val(), endDate: $("#toDate").val(), type: $('#ledgerList option:selected').val(), info: $('#ledgerList option:selected').text() + "#" + comId, num: 8, mainGroup: $('#mainGroup option:selected').text() });
+            });
+
+            $("#option-two li").on("click", function() {
+                exportOption = $(this).attr("data-type");
+                $("#option-two").toggleClass('active');
+                if (selected.SubId == 1) {
+                    showReport('GetAccountReceivableReport', { type: 'PRO' });
+                } else if (selected.SubId == 2) {
+                    showReport('GetAccountReceivableReport', { type: 'COM' });
+                }
+            });
+
+            $("#option-one li").on('click', function () {
+                exportOption = $(this).attr("data-type");
+                $("#option-one").toggleClass('active');
+                var info;
+                if (selected.Id == 13) {
+                    if (selected.SubId == 1) {
+                        var jsonData = {};
+                        if ($('input:radio[name="radio"]:checked').val() == 0) {
+                            if (date2Validation()) {
+                                jsonData = { type: 'Range', startingDate: $("#dp1").val(), endDate: $("#dp2").val(), num: 0 };
+                                showReport('GetType2Report', jsonData);
+                            }
+                        } else if ($('input:radio[name="radio"]:checked').val() == 1) {
+                            jsonData = { type: 'Month', startingDate: $("#fromMonth").val(), endDate: $("#fromYear").val(), num: 0 };
+                            showReport('GetType2Report', jsonData);
+                        }
+                    }
+                } else if (selected.Id == 6) {
+                    if(selected.SubId==3 || selected.SubId==4) {
+                        if (dateValidation()) {
+                            var json = { startingdate: $("#fromMonth").val() + "," + $("#fromYear").val(), endDate: $("#toMonth option:selected").val() + "," + $("#toYear option:selected").val(), type: "", info: $('input:radio[name="radio2"]:checked').val(), num: 0, approved: ($("#chkApproved").is(":checked") ? 1 : 0) };
+                            json.type = selected.SubId == 4 ? 'COM' : 'PRO';
+                            showReport('GetReportType1', json);
+                        }
+                    }
+                } else if (selected.Id == 5) {
+                    if (selected.SubId == 1) {
+                        if (parseInt($("#fromMonth").val()) == 1) {
+                            showReport('GetReportType1', { startingdate: parseInt(12) + "," + parseInt($("#fromYear").val() - 1), enddate: parseInt(parseInt($("#fromMonth").val())) + "," + parseInt($("#fromYear").val()), type: "PRO", info: $('input:radio[name="radio2"]:checked').val(), num: 1, approved: ($("#chkApproved").is(":checked") ? 1 : 0) });
+                        } else {
+                            showReport('GetReportType1', { startingdate: parseInt($("#fromMonth").val() - 1) + "," + parseInt($("#fromYear").val()), enddate: parseInt($("#fromMonth").val()) + "," + parseInt($("#fromYear").val()), type: "PRO", info: $('input:radio[name="radio2"]:checked').val(), num: 1, approved: ($("#chkApproved").is(":checked") ? 1 : 0) });
+                        }
+                    } else if (selected.SubId == 2) {
+                        if (parseInt($("#fromMonth").val()) == 1) {
+                            showReport('GetReportType1', { startingdate: parseInt(12) + "," + parseInt($("#fromYear").val() - 1), enddate: parseInt(parseInt($("#fromMonth").val())) + "," + parseInt($("#fromYear").val()), type: "COM", info: $('input:radio[name="radio2"]:checked').val(), num: 1, approved: $("#chkApproved").is(":checked") ? 1 : 0 });
+                        } else {
+                            showReport('GetReportType1', { startingdate: parseInt($("#fromMonth").val() - 1) + "," + parseInt($("#fromYear").val()), enddate: parseInt($("#fromMonth").val()) + "," + parseInt($("#fromYear").val()), type: "COM", info: $('input:radio[name="radio2"]:checked').val(), num: 1, approved: $("#chkApproved").is(":checked") ? 1 : 0 });
+                        }
+                    } else {
+                        if (dateValidation()) {
+                            var reportType = "";
+                            var isDistrictWise = 0;
+                            var districtWiseSummary = 0;
+                            if (selected.SubId == 3) {
+                                reportType = "PRO";
+                            } else if (selected.SubId == 4) {
+                                reportType = "COM";
+                            } else if (selected.SubId == 5) {
+                                reportType = "PRO";
+                                isDistrictWise = 1;
+                            }else if (selected.SubId == 6) {
+                                reportType = "COM";
+                                isDistrictWise = 1;
+                            } else if (selected.SubId == 7) {
+                                reportType = "PRO";
+                                districtWiseSummary = 1;
+                                isDistrictWise = 1;
+                            }
+                            showReport('GetReportType1', { startingdate: $("#fromMonth").val() + "," + $("#fromYear").val(), endDate: $("#toMonth option:selected").val() + "," + $("#toYear option:selected").val(), type: reportType, info: $('input:radio[name="radio2"]:checked').val(), num: 1, districtId: $("#district").val(), districtName: $("#district option:selected").text(), districtWise: isDistrictWise, approved: ($("#chkApproved").is(":checked") ? 1 : 0), districtSummary: districtWiseSummary });
+                        }
+                    }
+                } else if (selected.Id == 4) {
+                    if (selected.SubId == 1) {
+                        if (dateValidation()) {
+                            showReport('GetReportType1', { startingdate: $("#fromMonth").val() + "," + $("#fromYear").val(), endDate: $("#toMonth option:selected").val() + "," + $("#toYear option:selected").val(), type: "", info: $('input:radio[name="radio2"]:checked').val(), num: 2 });
+                        }
+                    }
+                } else if (selected.Id == 7) {
+                    if (dateValidation()) {
+                        if (selected.SubId == 1) {
+                            showReport('GetReportType1', { startingdate: $("#fromMonth").val() + "," + $("#fromYear").val(), endDate: $("#toMonth option:selected").val() + "," + $("#toYear option:selected").val(), type: "PRO", info: $('input:radio[name="radio2"]:checked').val(), num: 3 });
+                        } else if (selected.SubId == 2) {
+                            showReport('GetReportType1', { startingdate: $("#fromMonth").val() + "," + $("#fromYear").val(), endDate: $("#toMonth option:selected").val() + "," + $("#toYear option:selected").val(), type: "COM", info: $('input:radio[name="radio2"]:checked').val(), num: 3 });
+                        }
+                    }
+                } else if (selected.Id == 1) {
+                    if (selected.SubId == 1) {
+                        if (parseInt($("#fromMonth").val()) == 1) {
+                            showReport('GetReportType1', { startingdate: parseInt(12) + "," + parseInt($("#fromYear").val() - 1), enddate: parseInt(parseInt($("#fromMonth").val())) + "," + parseInt($("#fromYear").val()), type: "IS", info: $('input:radio[name="radio2"]:checked').val(), num: 4 });
+                        } else {
+                            showReport('GetReportType1', { startingdate: parseInt(parseInt($("#fromMonth").val()) - 1) + "," + parseInt($("#fromYear").val()), enddate: parseInt($("#fromMonth").val()) + "," + parseInt($("#fromYear").val()), type: "IS", info: $('input:radio[name="radio2"]:checked').val(), num: 4 });
+                        }
+                        //showReport('GetReportType1', { startingdate: parseInt(parseInt($("#fromMonth").val()) - 1) + "," + parseInt($("#fromYear").val()), enddate: parseInt($("#fromMonth").val()) + "," + parseInt($("#fromYear").val()), type: "IS", info: $('input:radio[name="radio2"]:checked').val(), num: 4 });
+                    } else if (selected.SubId == 2) {
+                        if (dateValidation()) {
+                            showReport('GetReportType1', { startingdate: $("#fromMonth").val() + "," + $("#fromYear").val(), endDate: $("#toMonth option:selected").val() + "," + $("#toYear option:selected").val(), type: "IS", info: $('input:radio[name="radio2"]:checked').val(), num: 4 });
+                        }
+                    }
+                } else if (selected.Id == 8) {
+                    if (selected.SubId == 1) {
+                        if (parseInt($("#fromMonth").val()) == 1) {
+                            showReport('GetReportType1', { startingdate: parseInt(12) + "," + parseInt($("#fromYear").val() - 1), enddate: parseInt(parseInt($("#fromMonth").val())) + "," + parseInt($("#fromYear").val()), type: "IS", info: $('input:radio[name="radio2"]:checked').val(), num: 4 });
+                        } else {
+                            showReport('GetReportType1', { startingdate: parseInt(parseInt($("#fromMonth").val()) - 1) + "," + parseInt($("#fromYear").val()), enddate: parseInt($("#fromMonth").val()) + "," + parseInt($("#fromYear").val()), type: "IS", info: $('input:radio[name="radio2"]:checked').val(), num: 4 });
+                        }
+                        //showReport('GetReportType1', { startingdate: parseInt(parseInt($("#fromMonth").val()) - 1) + "," + parseInt($("#fromYear").val()), enddate: parseInt($("#fromMonth").val()) + "," + parseInt($("#fromYear").val()), type: "PL", info: $('input:radio[name="radio2"]:checked').val(), num: 4 });
+                    } else if (selected.SubId == 2) {
+                        if (dateValidation()) {
+                            showReport('GetReportType1', { startingdate: $("#fromMonth").val() + "," + $("#fromYear").val(), endDate: $("#toMonth option:selected").val() + "," + $("#toYear option:selected").val(), type: "PL", info: $('input:radio[name="radio2"]:checked').val(), num: 4 });
+                        }
+                    }
+                } else if (selected.Id == 2) {
+                    if (selected.SubId == 1) {
+
+                    } else if (selected.SubId == 2) {
+                        if (dateValidation()) {
+                            showReport('GetReportType1', { startingdate: $("#fromMonth").val() + "," + $("#fromYear").val(), endDate: $("#toMonth option:selected").val() + "," + $("#toYear option:selected").val(), type: idList.join(','), info: $('input:radio[name="radio2"]:checked').val(), num: 5 });
+                        }
+                    } else {
+                        if (date2Validation()) {
+                            showReport('GetType2Report', { startingdate: $("#dp1").val(), endDate: $("#dp2").val(), type: $('#subreports option:selected').data('accid'), info: $('#subreports option:selected').text(), num: 6 });
+                        }
+                    }
+                } else if (selected.Id == 3) {
+                    if (selected.SubId <= 6)
+                        info = $("#subreports option:selected").text().substring(8, $("#subreports option:selected").text().length);
+                    else
+                        info = $("#subreports option:selected").text();
+                    if (dateValidation())
+                        showReport('GetReportType1', { startingdate: $("#fromMonth").val() + "," + $("#fromYear").val(), endDate: $("#toMonth option:selected").val() + "," + $("#toYear option:selected").val(), type: $('#subreports option:selected').data('accid'), info: info, num: 7 });
+                } else if (selected.Id == 9) {
+                    info = $("#subreports option:selected").text();
+                    if (dateValidation())
+                        showReport('GetReportType1', { startingdate: $("#fromMonth").val() + "," + $("#fromYear").val(), endDate: $("#toMonth option:selected").val() + "," + $("#toYear option:selected").val(), type: $('#subreports option:selected').data('accid'), info: info, num: 7 });
+                } else if (selected.Id == 11) {
+                    if (selected.SubId == 1) {
+                        if (dateValidation())
+                            showReport('GetReportType1', { startingdate: $("#fromMonth").val() + "," + $("#fromYear").val(), endDate: $("#toMonth option:selected").val() + "," + $("#toYear option:selected").val(), type: idList.join(',').substring(3), info: $('input:radio[name="radio2"]:checked').val(), num: 5 });
+                    } else {
+                        if (date2Validation())
+                            showReport('GetType2Report', { startingdate: $("#dp1").val(), endDate: $("#dp2").val(), type: 46, info: $('#subreports option:selected').text(), num: 6 });
+                    }
+                } else if (selected.Id == 10) {
+                    showReport('GetType2Report', { startingdate: $("#dp1").val(), endDate: '', type: '', info: $('#subreports option:selected').text(), num: 9 });
+                }
+
+            });
+
+            function accounts() {
+                $("#success .modal-body > .row:nth-child(2), #success .modal-body > .row:nth-child(1) fieldset .row > div").hide();
+                $("#tblOptions, #success .modal-body > .row:last-child").show();
+                $(".l-hidden").hide();
+                $("#success").modal('show');
+            }
+            function accounts_reverse() {
+                $("#success .modal-body > .row:nth-child(2), #success .modal-body > .row:nth-child(1) fieldset .row > div").show();
+                $("#tblOptions, #success .modal-body > .row:last-child").show();
+                $(".l-hidden").show();
+            }
+
+            function date2Validation() {
+                var date1 = new Date($("#dp1").val());
+                var date2 = new Date($("#dp2").val());
+                if (date1 > date2) {
+                    var m66 = new Messi("From date must be less than or equal to To Date.",
+                    {
+                        modal: true,
+                        title: 'Invalid Date',
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    return false;
+                }
+                return true;
+            }
+
+            function dateValidation() {
+                var b1 = new Date($("#fromMonth").val() + "/" + 1 + "/" + $("#fromYear").val());
+                var b2 = new Date($("#toMonth").val() + "/" + 1 + "/" + $("#toYear").val());
+                var differ = 0;
+                if ($("#fromYear").val() == $("#toYear").val()) {
+                    differ = $("#toMonth").val() - $("#fromMonth").val();
+                } else {
+                    differ = (parseInt($("#toYear").val()) - parseInt($("#fromYear").val())) * 12 - (parseInt($("#fromMonth").val()) - parseInt($("#toMonth").val())) + 1;
+                }
+                if (b1 > b2) {
+                    var b07 = new Messi("From date must be less than or equal to To Date.",
+                    {
+                        modal: true,
+                        title: 'Invalid Date',
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    return false;
+                } else if (differ > 12) {
+                    var b01 = new Messi("You select duration to view report is greater than 12 months.<br/>Please select less than or equal to 12 months.",
+                    {
+                        modal: true,
+                        title: 'Invalid Date',
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    return false;
+                }
+                return true;
+            }
+
+            var exportOption = "";
+
+            function showReport(actionName, json) {
+                $("#backdrop, #loader").toggle();
+                $("*").css("cursor", "wait");
+                $.ajax({
+                    type: "POST",
+                    url: '/Accounting/Report/' + actionName,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: JSON.stringify(json),
+                    success: function (data) {
+                        if (data == true) {
+                            $("*").css("cursor", "");
+                            $("#backdrop, #loader").toggle();
+                            window.open('/Accounting/Report/Show?type=' + exportOption);
+                        }
+                    },
+                });
+            }
+
+            function fill() {
+                if ('@ViewBag.ReportId' != 'null' && '@ViewBag.ReportId' != 'Null' && '@ViewBag.ReportId' != 'NULL') {
+                    $('#reports option[value="@ViewBag.ReportId"]').prop('selected', true);
+                    $("#reports").focus();
+                    var id = $("#reports").val();
+                    $("#subreports").html('');
+                    $.each(subreports, function () {
+                        if (this.Reportid == id)
+                            $("#subreports").append('<option value="' + this.Id + '" data-accid="' + this.AccId + '">' + this.Name + '</option>');
+                    });
+                }
+            }
+
+            $(document).mousedown(function (e) {
+                var container = $("#CompanyList,#companies");
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
+                    $('#CompanyList').hide();
+                }
+            });
+
+            $(document).on('change', "#mainGroup", function () {
+                commonFunc();
+            });
+            $(document).on('click', "#companyList", function () {
+                $("#companies").val($("#companyList option:selected").text());
+                commonFunc();
+            });
+
+            function commonFunc() {
+                var mainGroup = $('#mainGroup option:selected').text().trim();
+                var companyId = $("#companyList").val();
+                companyId = companyId == null ? 0 : companyId;
+                $('#companyList').hide();
+                if (mainGroup == "" && companyId == 0) {
+                    companyId = -1;
+                }
+                var jsonData = { mainGroup: $('#mainGroup option:selected').text(), companyId: companyId };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetLedgerList", "Company")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: JSON.stringify(jsonData),
+                    success: function (data) {
+                        $("#ledgerList").html('');
+                        $.each(data, function () {
+                            $("#ledgerList").append('<option value="' + this.Id + '">' + this.GroupName + '</option>');
+                        });
+                    },
+                });
+            }
+
+            $('#companies').on("focus", function () {
+                $(this).select();
+            });
+
+            $('#companies').on('keyup click', function (e) {
+                if (e.keyCode != 13 && e.keyCode != 27) {
+                    var str = $(this).val();
+                    str = str.trim();
+                    if (str != "") {
+                        var jsonData = { startingKey: str };
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("GetCompanyListByKey", "Company")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(jsonData),
+                            dataType: "json",
+                            success: function (data) {
+                                var strHtml = "";
+                                $.each(data, function (i, d) {
+                                    strHtml += "<option " + (d.Name.toLowerCase() == str.toLowerCase() ? "selected='selected'" : "") + " value='" + d.Id + "' data-blacklisted='" + d.BlackListed + "'>" + d.Name + "</option>";
+                                });
+                                if (strHtml != "")
+                                    $('#companyList').html(strHtml).show();
+                                else
+                                    $('#companyList').html("").hide();
+                            },
+                        });
+
+                    } else {
+                        $('#companyList').html("").hide();
+                        commonFunc();
+                    }
+                }
+            });
+            $("#ledgerShow").on('click', function () {
+                if ($("#ledgerList option:selected").val() != "" && $("#ledgerList option:selected").val() != null && $("#ledgerList option:selected").val() != undefined) {
+                    var date1 = new Date($("#fromDate").val());
+                    var date2 = new Date($("#toDate").val());
+                    if (date1 > date2) {
+                        var m66 = new Messi("From date must be less than or equal to To Date.",
+                        {
+                            modal: true,
+                            title: 'Invalid Date',
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else {
+                        $("#option-three").toggleClass('active');
+                    }
+                } else {
+                    var mm = new Messi("You must select a ledger.",
+                    {
+                        modal: true,
+                        title: 'Invalid Ledger',
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                }
+            });
+            $("#back").on('click', function () {
+                $("#reportDiv").remove();
+            });
+        });
+    </script>
+    <script type="text/javascript" src="~/Scripts/js/common.js"></script>
+}

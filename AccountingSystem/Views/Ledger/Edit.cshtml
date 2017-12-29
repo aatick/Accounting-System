@@ -12,6 +12,7 @@
 @section styles
 {
     <link href="~/Content/css/stylesheet.css" rel="stylesheet" />
+    <link href="~/Content/css/colorbox.css" rel="stylesheet" />
     <link href="~/Content/css/messi.min.css" rel="stylesheet" />
     <style>
         .border_red {
@@ -33,7 +34,7 @@
     </style>
 }
 
-<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal" id="myModal"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -88,7 +89,7 @@
 
                             <div class="form-group">
                                 <div class="col-sm-12">
-                                    
+
                                     <label class="control-label" style="cursor: pointer;"><input type="checkbox" class="checkbox checkbox-inline" id="IsLedger" style="margin-right: 5px;" />Ledger Account</label>
                                 </div>
                             </div>
@@ -116,14 +117,14 @@
                     <button type="button" id="viewSubgroups" class="btn btn-block btn-primary">View Subgroups</button>
                 </div>
                 <div class="col-sm-3 pull-right">
-                    <a role="button" id="save" href="@Url.Action("Create","Ledger")" class="btn btn-block btn-primary">Insert Groups / ledger</a>
+                    <a role="button" id="save" width='788px' height='422px' path='@Url.Action("Create", "Ledger", new { page = "new" })' class="btn btn-block btn-primary">Insert Groups / ledger</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal" id="viewModal"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -177,15 +178,16 @@
 
 @section scripts
 {
+    <script src="~/Scripts/js/jquery.colorbox.js"></script>
     <script src="~/Scripts/js/messi.min.js"></script>
     <script>
         $(document).ready(function () {
             $('#myModal').modal({
-                backdrop: 'static',
+                backdrop: false,
                 keyboard: false
             });
             $('#viewModal').modal({
-                backdrop: 'static',
+                backdrop: false,
                 keyboard: false
             });
             $("#viewModal").modal('hide');
@@ -207,7 +209,8 @@
                 var $dialog = $('.modal').find(".modal-dialog");
                 var offset = ($(window).height() - $dialog.height()) / 2;
                 // Center modal vertically in window
-                $dialog.css("margin-top", offset);
+                //$dialog.css("margin-top", offset);
+                $dialog.css("margin-top",  "0px");
             }
 
             $(window).on("resize", function () {
@@ -572,6 +575,16 @@
             $("#Subgroups").on('change', function () {
                 var groupId = $("#Subgroups option:selected").val();
                 getSubGroups(groupId);
+            });
+            $("#save").on("click", function() {
+                $.colorbox({
+                    iframe: true,
+                    width: $(this).attr('width'),
+                    height: $(this).attr('height'),
+                    href: $(this).attr('path'),
+                    scrolling: false,
+                    innerWidth: '545px'
+                });
             });
         });
     </script>

@@ -105,7 +105,7 @@ else
     </style>
 }
 
-<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal" id="myModal"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -179,7 +179,7 @@ else
         <script>
             $(document).ready(function () {
                 $('#myModal').modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
                 });
                 //$('#myModal').on('click', function () {
@@ -194,7 +194,8 @@ else
                     var $dialog = $('.modal').find(".modal-dialog");
                     var offset = ($(window).height() - $dialog.height()) / 2;
                     // Center modal vertically in window
-                    $dialog.css("margin-top", offset);
+                    //$dialog.css("margin-top", offset);
+                    $dialog.css("margin-top",  "0px");
                 }
 
                 $(window).on("resize", function () {
@@ -324,7 +325,7 @@ else
     <script>
         $(document).ready(function () {
             $('#myModal').modal({
-                backdrop: 'static',
+                backdrop: false,
                 keyboard: false
             });
             //$('#myModal').on('click', function () {
@@ -463,7 +464,7 @@ else
             });
         });
     </script>
-    <script>
+    <script type="text/javascript">
         var browser = ["firefox", "chrome"];
         if (navigator.userAgent.toUpperCase().indexOf(browser[1].toUpperCase()) > -1) {
             $('select:not(select[size],select.ui-datepicker-month,select.ui-datepicker-year)').css('padding', '0px 10px');

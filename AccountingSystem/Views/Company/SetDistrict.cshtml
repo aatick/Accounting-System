@@ -1,0 +1,142 @@
+﻿@using AccountingSystem.Models
+@model List<AccountingSystem.Models.Company>
+
+@{
+    ViewBag.Title = "Company";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+    var isAccountOrAdmin = user.AccountDep || user.CanModifyAdmin;
+    var districts = (List<District>)ViewBag.District;
+    var i = 0;
+}
+@section styles{
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <link href="~/Content/css/common.css" rel="stylesheet" />
+    <style type="text/css">
+        .sidebar2 table {
+            background: #fff;
+        }
+        table {
+            table-layout: fixed;
+            border-radius: 0px 0px 0px 0px;
+        }
+
+        .div-table-content {
+            overflow-y: scroll;
+            border-radius: 0px 0px 0px 0px;
+            margin: 0px 0px 0px 0px;
+        }
+        .table > thead > tr > th {
+            border-bottom: none;
+        }
+        
+    </style>
+}
+<div class="col-sm-12" id="divCompanyList">
+    <div class="row" style="margin: 0px -15px 0px -15px; padding:0px 0px 0px 0px;">
+        <div class="col-sm-12" style="background-color: #6A6C6F; margin-top: 5px;">
+            <center><h3 style="padding-top: 0; margin-top: 0; padding-bottom: 0; margin-bottom: 0; color: white;">List Of Companies Without District<img alt="cross_img" src="~/images/cross-button.jpg" height="20" width="20" class="pull-right" style="padding: 0; margin: 3px -2px 0 0; cursor: pointer;" id="cross"></h3></center>
+        </div>
+        <div class="col-sm-12">
+            <strong>Company List:</strong> ( @Model.Count Company found )
+        </div>
+
+        <div class="col-sm-12" style="padding-bottom: 0; margin-bottom: 0; margin-top: 10px;">
+            <div style="margin: 0px 0px 0px 0px; padding-right: 17.5px; background: #d1f1cc; border-radius: 0px 0px 0px 0px; width: 100%">
+                <table class="table table-condensed table-bordered" id="header" style="margin-bottom: 0px; width: 100%; border-right: none;">
+                    <thead style="background: #d1f1cc;">
+                        <tr>
+                            <th style="width: 3%;" class="text-center">Sl#</th>
+                            <th style="width: 25%;">Name</th>
+                            <th style="width: 45%;">Address</th>
+                            <th style="width: 10%;">City</th>
+                            <th style="width: 10%;" class="text-center">District</th>
+                            <th style="width: 7%; border-right: none;" class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="div-table-content">
+                <table class="table table-condensed table-bordered" id="table">
+                    <tbody>
+                        @foreach (var c in @Model)
+                        {
+                            <tr>
+                                <td style="width: 3%;" class="text-center">@(++i)</td>
+                                <td style="width: 25%;">@c.Name</td>
+                                <td style="width: 45%;">@c.Address</td>
+                                <td style="width: 10%;">@c.City</td>
+                                <td class="text-center" style="vertical-align: middle; width: 10%;">
+                                    <select class="form-control input-sm" id="cboDistrict_@c.Id">
+                                        <option value="">Select</option>
+                                        @foreach (var d in districts)
+                                        {
+                                            <option value="@d.Id">@d.Name</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td class="text-center" style="vertical-align: middle; width: 7%;">
+                                    <input type="button" value="Update" data-id="@c.Id" class="btn btn-sm btn-success update-btn" />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script type="text/javascript">
+        $("body").css("overflow", "hidden");
+        $(window).on("load resize", function() {
+            $('.div-table-content').css('height', ($(window).height() - $('.div-table-content').offset().top - 20) + 'px');
+        });
+        $(document).on("click", ".update-btn", function() {
+            var obj = $(this);
+            var id = obj.attr("data-id");
+            var districtId = $("#cboDistrict_" + id).val();
+            if (districtId.trim() != "") {
+                var jsonData = { companyId: id, districtId: districtId };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("SetCompanyDistrict", "Company")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: JSON.stringify(jsonData),
+                    success: function (data) {
+                        if (data == true) {
+                            var m0 = new Messi('District has been set successfully to the company.',
+                            {
+                                title: 'Success',
+                                modal: true,
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                            obj.prop("disabled", true).css("pointer-events", "none");
+                        }
+                    },
+                });
+            } else {
+                var m0 = new Messi('Please Select a district.',
+                {
+                    title: 'Invalid District',
+                    modal: true,
+                    buttons: [
+                        { id: 0, label: 'OK', val: 'X' }
+                    ]
+                });
+                $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+            }
+        });
+        $("#cross").on('click', function() {
+            $('#divCompanyList').remove();
+        });
+    </script>
+}
+

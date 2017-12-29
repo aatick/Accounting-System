@@ -8,129 +8,11 @@
 @section styles
 {
     <link href="~/Content/css/messi.min.css" rel="stylesheet" />
-    <style>
-        .modal-header-ac {
-            color: #fff;
-            border-bottom: 1px solid #eee;
-            background-color: #005BF1;
-            -webkit-border-radius: 5px 5px 0px 0px;
-            -moz-border-radius: 5px 5px 0px 0px;
-            border-radius: 5px 5px 0px 0px;
-            padding: 0px 5px 0px 5px;
-            margin: -10px 0px 0px 0px;
-        }
-
-            .modal-header-ac h4 {
-                color: #fff;
-                line-height: 28px;
-                font-size: 15px;
-                margin: 2px 0px 0px 0px;
-            }
-
-            .modal-header-ac .close {
-                color: #fff;
-                font-size: 20px;
-                line-height: 28px;
-            }
-
-        .acModal .modal-dialog {
-            width: 800px;
-        }
-
-        .acModal .modal-body {
-            background: #f0f0f0;
-            padding-bottom: 0px;
-        }
-
-            .acModal .modal-body label {
-                font-weight: normal;
-            }
-
-        legend.legendStyle {
-            padding: 0px 5px 0px 5px;
-            margin: 1px 0px 0px 0px;
-            font-size: 100%;
-            background-color: transparent;
-            color: #0b0350;
-        }
-
-        legend.legendStyle_b {
-            padding: 0px 5px 0px 5px;
-            margin: 1px 0px 0px 0px;
-            font-size: 100%;
-            background-color: transparent;
-            color: #634d1c;
-        }
-
-        fieldset.fsStyle {
-            border: 1px solid #999999;
-            padding: 4px 4px 4px 4px;
-            margin: 10px 0px 5px 0px;
-        }
-
-        legend {
-            border-bottom: 0px;
-            width: auto;
-        }
-
-        fieldset label {
-            font-size: 14px;
-            font-weight: normal;
-        }
-
-        .panel-body {
-            padding: 0px 10px 0px 10px;
-            border-radius: 0px;
-        }
-
-        .datepicker {
-            z-index: 1151 !important;
-        }
-
-        .label_margin_left {
-            margin-left: 10px;
-        }
-
-        .label_margin_left2 {
-            width: 200px;
-        }
-
-        .checkbox {
-            margin-top: 0;
-            margin-bottom: 2px;
-        }
-
-        .light_ash {
-            background: #f0f0f0;
-            border: 1px solid #a0a0a0;
-            border-radius: 0px;
-            margin: 5px 0px 0px 0px;
-        }
-
-        @@media only screen and (min-width: 641px) {
-            .bottomBox {
-                position: absolute;
-                bottom: 0;
-                right: 0;
-            }
-        }
-        #close {
-            position: absolute;
-            top: 0;
-            right: 0px;
-            background: url(../images/close2.png) no-repeat -25px 0;
-            width: 30px;
-            height: 30px;
-            text-indent: -9999px;
-            padding: 0 10px 0 0;
-            cursor: pointer;
-            margin: -8px 0px 0 0px;
-        }
-    </style>
+    <link href="~/Content/css/custom/adminstrator.min.css" rel="stylesheet" />
 }
 <div class="container">
     <!-- Modal -->
-    <div class="modal acModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal acModal" id="success" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header modal-header-ac">
@@ -414,7 +296,7 @@
             $(window).on('load', function () {
                 getUsersAndLedgers(true, -10);
                 $("#success").modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
                 });
             });
@@ -426,7 +308,7 @@
                 var $dialog = $('.modal').find(".modal-dialog");
                 var offset = ($(window).height() - $dialog.height()) / 2;
                 // Center modal vertically in window
-                $dialog.css("margin-top", offset);
+                $dialog.css("margin-top", "10px");
             }
 
             $(window).on("resize", function () {

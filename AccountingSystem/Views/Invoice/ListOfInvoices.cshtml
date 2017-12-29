@@ -10,6 +10,7 @@
 {
     <link href="~/Content/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <link href="~/Content/css/common.css" rel="stylesheet" />
     <style>
         legend {
             width: auto;
@@ -51,7 +52,7 @@
         #invoiceTable tbody tr:hover {
             cursor: pointer;
         }
-
+        
         table.dataTable thead .sorting_asc {
             background: none;
         }
@@ -66,10 +67,12 @@
             padding-right: 0px;
             text-align: center;
         }
+
         #invoiceTable tbody tr td {
-            padding-left: 0px;
-            padding-right: 0px;
+            padding-left: 2px;
+            padding-right: 2px;
         }
+
         #invoiceTable tbody tr:last-child td {
             border-bottom: 1px solid #111;
         }
@@ -81,11 +84,15 @@
         #invoiceTable tbody tr td:last-child {
             border-right: 1px solid #111;
         }
+
+        .export-container {
+            margin-top: -216px;
+        }
     </style>
 
 }
 <div class="form-horizontal" style="padding: 0; margin-top: 4px;" id="list">
-    <div class="form-group">
+    <div class="form-group" style="margin-bottom: 0px;">
         <div class="col-sm-12">
             <div class="col-sm-12" style="background-color: #6A6C6F;">
                 <center><h3 style="padding-top: 0; margin-top: 0; padding-bottom: 0; margin-bottom: 0; color: white;">List Of Invoices<img alt="cross_img" src="~/images/cross-button.jpg" height="20" width="20" class="pull-right" style="padding: 0; margin: 3px -12px 0 0; cursor: pointer;" id="cross" /></h3></center>
@@ -105,7 +112,7 @@
             <div class="col-sm-5" style="padding: 0; margin: 25px 0 0 0;">
                 <div class="form-group-sm" style="padding: 0; margin: 0;">
                     <div class="col-sm-7" style="padding: 0; margin: 0;">
-                        <fieldset class="col-sm-12 schedule-border" style="padding: 0; margin: 0;">
+                        <fieldset class="col-sm-12 schedule-border" style="padding: 0; margin: 0; border-right: none;border-bottom: none;">
                             <div class="col-sm-12" style="padding-right: 0px;">
                                 <label style="cursor: pointer; font-weight: normal; padding: 0; margin: 0;"><input type="radio" style="margin-right: 5px;" id="validInvoice" name="invoices" value="0" />Show all valid invoices</label>
                             </div>
@@ -115,7 +122,7 @@
                         </fieldset>
                     </div>
                     <div class="col-sm-5" style="padding: 0; margin: 0;">
-                        <fieldset class="col-sm-12 schedule-border" style="padding: 0; margin: 0;">
+                        <fieldset class="col-sm-12 schedule-border" style="padding: 0; margin: 0; border-bottom: none;">
                             <div class="col-sm-12" style="padding-right: 0;">
                                 <label style="cursor: pointer; font-weight: normal; padding: 0; margin: 0;"><input type="radio" style="margin-right: 5px;" id="ascending" name="sorting" value="ASC" /><span>Ascending</span></label>
                             </div>
@@ -128,7 +135,7 @@
 
                 <div class="form-group-sm" style="padding: 0; margin: 0;">
                     <div class="col-sm-7" style="padding: 0; margin: 0;">
-                        <fieldset class="col-sm-12 schedule-border" style="padding: 0 0 12px 0;margin:0;">
+                        <fieldset class="col-sm-12 schedule-border" style="padding: 0 0 12px 0;margin:0; border-right: none;">
                             <div class="col-sm-12">
                                 <label style="cursor: pointer; font-weight: normal; padding: 0; margin: 0;"><input type="checkbox" style="margin-right: 5px;" id="invoiceduration" />Invoice Duration</label>
                             </div>
@@ -205,8 +212,12 @@
     <div class="form-group">
         <div class="col-sm-12">
             <div style="margin-top: 5px;">
-                <div class="col-sm-4">
+                <div class="col-sm-4" style="margin-top: 5px;">
                     <label class="control-label">Invoice List: </label> ( <span id="noofinvoices"></span> invoices found )
+                </div>
+                <div class="col-sm-5" style="border: 1px solid #999999;padding-top: 2px; padding-bottom: 2px; margin-top: -8px;">
+                    <span class="pull-left" style="margin-top: 3px; margin-right: 5px;">Search by location</span>
+                    <input type="text" style="height: 25px; width: 60%;" class="input-sm form-control pull-left" id="searchByLocation" />
                 </div>
             </div>
             <div class="col-sm-12" style="margin-top: 5px;">
@@ -226,7 +237,7 @@
                 </div>
             </div>
             <div class="col-sm-12">
-                <table id="invoiceTable" class="table table-bordered table-responsive" style="font-size: 12px; width: 100%">
+                <table id="invoiceTable" class="table table-striped table-bordered" style="font-size: 12px; width: 100%">
                     <thead>
                         <tr>
                             <th style="width: 3%;">Sl#</th>
@@ -255,18 +266,45 @@
     <div class="form-group" style="margin-top: -25px;">
         <div class="col-sm-12" style="padding-left: 0; padding-right: 0;">
             <div class="col-sm-12">
-                <div class="col-sm-2">
+                <div class="col-sm-2 list-container">
                     <input type="button" id="show" class="btn btn-block btn-primary" value="Show Invoice" />
+                    <ul class="export-container" id="option-two">
+                        <li data-type="Pdf">Pdf</li>
+                        <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                        <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                        <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                        <li data-type="Word">Microsoft Word (97-2003)</li>
+                        <li data-type="XML">XML</li>
+                    </ul>
                 </div>
                 <div class="col-sm-2">
                     <input type="button" id="delete" class="btn btn-block btn-primary" value="Delete Invoice" />
                     <input type="button" id="undelete" class="btn btn-block btn-primary" style="margin-top: 0;" value="Undelete Invoice" />
                 </div>
-                <div class="col-sm-2">
+                <div class="col-sm-2 list-container">
                     <input type="button" id="showList" class="btn btn-block btn-primary" value="Show Invoice List" />
+                    <ul class="export-container" id="option-one">
+                        <li data-type="Pdf">Pdf</li>
+                        <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                        <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                        <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                        <li data-type="Word">Microsoft Word (97-2003)</li>
+                        <li data-type="XML">XML</li>
+                    </ul>
                 </div>
                 <div class="col-sm-2">
                     <a type="button" role="button" id="create" href="@Url.Action("CreateLabel","Invoice")" class="btn btn-block btn-primary">Create Labels</a>
+                </div>
+                <div class="col-sm-2 list-container">
+                    <input type="button" id="previewLabel" class="btn btn-block btn-primary" value="Preview Label" />
+                    <ul class="export-container" id="option-three">
+                        <li data-type="Pdf">Pdf</li>
+                        <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                        <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                        <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                        <li data-type="Word">Microsoft Word (97-2003)</li>
+                        <li data-type="XML">XML</li>
+                    </ul>
                 </div>
                 <div class="col-sm-2 pull-right">
                     <a role="button" id="close" class="btn btn-block btn-primary">Exit</a>
@@ -295,8 +333,8 @@
                 ]
             });
 
-            $('select[id=Products], select[id=pagesize], input:radio, input:checkbox[id=blacklisted]').on('change', function () {
-                getValues(1, 1);
+            $('select, input').on('change', function () {
+                getValues(1);
             });
             $('#deletedInvoices').on('change', function () {
                 $("#delete").hide();
@@ -306,10 +344,24 @@
                 $("#delete").show();
                 $("#undelete").hide();
             });
-            $("#close,#cross").on('click', function () {
+            $("#close, #cross").on('click', function () {
                 $("#list").remove();
             });
             $('#showList').on('click', function () {
+                $("#option-one").toggleClass("active");
+            });
+            var exportOption;
+            $("#option-one li").on("click", function () {
+                exportOption = $(this).attr("data-type");
+                $("#option-one").removeClass('active');
+                showList();
+            });
+            $("#option-two li").on("click", function () {
+                exportOption = $(this).attr("data-type");
+                $("#option-two").removeClass('active');
+                showInvoice();
+            });
+            function showList() {
                 var st = "This operation will show the Invoice list ";
                 if ($("#Products option:selected").val() == 0)
                     st = st + "of all products.";
@@ -335,7 +387,7 @@
                         return true;
                     }
                 });
-            });
+            };
 
             function showListReport() {
                 var productId = $("#Products").val();
@@ -367,13 +419,13 @@
                 else if (fullPayment == 2)
                     criteria = criteria + " paid";
                 criteria = criteria + " invoices";
-
+                var location = $("#searchByLocation").val().trim();
                 if ($("#invoiceduration").is(':checked') && $("#operator").val() != "") {
                     criteria = criteria + " which were issued";
                     var today = new Date();
                     var newdate = new Date(today.getTime() - fDuration * 24 * 60 * 60 * 1000);
                     var datestr = "'" + newdate.getDate() + "/" + (newdate.getMonth() + 1) + "/" + newdate.getFullYear() + "'";
-                    alert(newdate);
+                    
                     var str;
                     if ($("#operator").val() == "<")
                         str = "after " + datestr + " (< " + fDuration + " day(s)).";
@@ -394,7 +446,7 @@
                 } else
                     criteria = criteria + ".";
 
-                var jsonData = { productId: productId, validity: validity, Operator: Operator, fDuration: fDuration, tDuration: tDuration, fullPayment: fullPayment, blacklisted: blacklisted, order: order, company: company, criteria: criteria };
+                var jsonData = { productId: productId, validity: validity, Operator: Operator, fDuration: fDuration, tDuration: tDuration, fullPayment: fullPayment, blacklisted: blacklisted, order: order, company: company, criteria: criteria, location: location };
                 $.ajax({
                     type: "Post",
                     url: '@Url.Action("InvoiceListReport", "Invoice")',
@@ -403,13 +455,17 @@
                     dataType: "json",
                     success: function (data) {
                         if (data == true) {
-                            window.open('.././ReportingForms/CRViewer.aspx');
+                            window.open('/Accounting/Report/Show?type='+exportOption);
                         }
                     },
                 });
             }
 
             $("#show").on('click', function () {
+                $("#option-two").toggleClass("active");
+            });
+
+            function showInvoice() {
                 var jsonData = { invoiceNo: table.cell('.selected', 1).data(), isRequested: false, isColor: false };
                 $.ajax({
                     type: "Post",
@@ -419,33 +475,33 @@
                     dataType: "json",
                     success: function (data) {
                         if (data == true) {
-                            window.open('.././ReportingForms/CRViewer.aspx');
+                            window.open('@Url.Action("Show","Report")'+'?type='+exportOption);
                         }
                     },
                 });
-            });
+            }
 
             $('#invoiceduration').on('change', function () {
                 if ($(this).is(':checked'))
                     $('#operator').prop('disabled', false);
                 else {
                     $('#operator option[value=""]').prop('selected', true);
-                    $('#operator, input[type=text]').prop('disabled', true);
-                    $('input[type=text]').val('');
+                    $('#operator, .schedule-border input[type=text]').prop('disabled', true);
+                    $('.schedule-border input[type=text]').val('');
                 }
             });
 
-            $('input[type=text]').on('focusout', function () {
+            $('.schedule-border input[type=text]').on('focusout', function () {
                 if ($(this).val() == "")
                     $(this).val(0);
             });
 
             $("#operator").on('change', function () {
                 if ($(this).val() == 'range') {
-                    $('input[type=text]').prop('disabled', false);
-                    $('input[type=text]').val(0);
+                    $('.schedule-border input[type=text]').prop('disabled', false);
+                    $('.schedule-border input[type=text]').val(0);
                 } else if ($(this).val() == '')
-                    $('input[type=text]').prop('disabled', true);
+                    $('.schedule-border input[type=text]').prop('disabled', true);
                 else
                     $('input[id=rangeFrom]').prop('disabled', false);
             });
@@ -529,7 +585,7 @@
                     dataType: "json",
                     success: function (data) {
                         if (data == true) {
-                            getValues(1, 1);
+                            getValues(1);
                             var msg;
                             if (inv == true)
                                 msg = 'Deleted';
@@ -552,38 +608,32 @@
 
 
             $('#invoiceTable tbody').on('click', 'tr', function () {
-                if (table.cell(0, 10).data() != undefined) {
+                if (table.row().length) {
                     if ($(this).hasClass('selected')) {
                         $(this).removeClass('selected');
-                        $('#delete').prop('disabled', true);
-                        $('#undelete').prop('disabled', true);
-                        $('#show').prop('disabled', true);
+                        $('#show,#previewLabel,#delete,#undelete').prop('disabled', true);
                     } else {
                         table.$('tr.selected').removeClass('selected');
                         $(this).addClass('selected');
-                        $('#delete').prop('disabled', false);
-                        $('#undelete').prop('disabled', false);
-                        $('#show').prop('disabled', false);
+                        $('#show,#previewLabel,#delete,#undelete').prop('disabled', false);
                     }
                 }
             });
-            $('#delete').prop('disabled', true);
-            $('#undelete').prop('disabled', true);
-            $('#show').prop('disabled', true);
+            $('#show,#previewLabel,#delete,#undelete').prop('disabled', true);
             $("#undelete").hide();
             $('#operator').prop('disabled', true);
             $("#Products option[value='0']").prop('selected', true);
             $("#validInvoice").prop('checked', true);
             $("#ascending").prop('checked', true);
             $("#allinvoices").prop('checked', true);
-            $('input[type=text]').prop('disabled', true);
-            $('input[type=text]').on('keypress', function (e) {
+            $('.schedule-border input[type=text]').prop('disabled', true);
+            $('.schedule-border input[type=text]').on('keypress', function (e) {
                 if (!$.isNumeric(String.fromCharCode(e.which)))
                     return false;
                 return true;
             });
 
-            function doPagination(pageNo, pageSize, productId, validity, Operator, fDuration, tDuration, fullPayment, blacklisted, order) {
+            function doPagination(pageNo, pageSize, productId, validity, Operator, fDuration, tDuration, fullPayment, blacklisted, order, location) {
                 var jsonData = {
                     pageNo: pageNo,
                     pageSize: pageSize,
@@ -594,7 +644,8 @@
                     tDuration: tDuration,
                     fullPayment: fullPayment,
                     blacklisted: blacklisted,
-                    order: order
+                    order: order,
+                    location: location
                 }
                 $.ajax({
                     type: "Post",
@@ -639,8 +690,8 @@
                             $("#showList").prop('disabled', true);
                         else
                             $("#showList").prop('disabled', false);
-                        $('.footer').css('margin-bottom', '-15px');
-                        $('.sidebar1').css('height', ($('.footer').offset().top - $('.sidebar1').offset().top) + 'px');
+
+                        $(window).trigger('resize');
                     },
                 });
             }
@@ -652,7 +703,35 @@
                 //getValues(num);
             });
 
+            $("#option-three li").on("click", function () {
+                exportOption = $(this).attr("data-type");
+                $("#option-three").removeClass('active');
+                showLabel();
+            });
+
+            $("#previewLabel").on("click", function () {
+                $("#option-three").toggleClass("active");
+            });
+
+            function showLabel() {
+                var jsonData = { type: 0, list: table.cell('.selected', 10).data(), companyBold: false, contactBold: false, fontSize: "12" };
+                $.ajax({
+                    type: "Post",
+                    url: '/Accounting/Invoice/PreviewLabelReport',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        if (data == true) {
+                            window.open('@Url.Action("Show","Report")' + '?type=' + exportOption);
+                        }
+                    },
+                });
+            }
+
+
             function getValues(pagenumber) {
+                $("#show,#delete,#previewLabel,#undelete").prop("disabled", true);
                 var pageNo = pagenumber;
                 var pageSize = $("#pagesize").val();
                 var productId = $("#Products").val();
@@ -670,15 +749,13 @@
                     blacklisted = 1;
                 else
                     blacklisted = 0;
+                var location = $("#searchByLocation").val().trim();
                 var order = $('input:radio[name=sorting]:checked').val();
-                doPagination(pageNo, pageSize, productId, validity, Operator, fDuration, tDuration, fullPayment, blacklisted, order);
+                doPagination(pageNo, pageSize, productId, validity, Operator, fDuration, tDuration, fullPayment, blacklisted, order, location);
             }
 
-            doPagination(1, 10, 0, 0, '', 0, 0, 0, 0, 'ASC');
-            $(window).on('resize', function () {
-                $('.footer').css('margin-bottom', '-15px');
-                $('.sidebar1').css('height', ($('.footer').offset().top - $('.sidebar1').offset().top) + 'px');
-            });
+            doPagination(1, 10, 0, 0, '', 0, 0, 0, 0, 'ASC','');
         });
     </script>
+    <script type="text/javascript" src="~/Scripts/js/common.js"></script>
 }

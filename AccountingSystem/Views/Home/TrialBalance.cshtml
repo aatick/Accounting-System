@@ -18,6 +18,7 @@
     <link href="~/Content/css/colorbox.css" rel="stylesheet" />
     <link href="~/Content/css/messi.min.css" rel="stylesheet" />
     <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/common.css" rel="stylesheet" />
     <style type="text/css">
         select{
             -moz-appearance: none;
@@ -156,6 +157,9 @@
 
         .row-selected {
             background: rgb(74, 185, 218);
+        }
+        #option-one {
+            margin-top: -216px;
         }
     </style>
 </head>
@@ -354,8 +358,16 @@
         </div>
 
         <div class="row" style="margin-top:5px;">
-            <div class="col-sm-2 pull-left">
+            <div class="col-sm-2 pull-left list-container">
                 <button type="button" class="btn btn-primary btn-sm btn-block" id="preview"><strong>Show Preview</strong></button>
+                <ul class="export-container" id="option-one">
+                    <li data-type="Pdf">Pdf</li>
+                    <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                    <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                    <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                    <li data-type="Word">Microsoft Word (97-2003)</li>
+                    <li data-type="XML">XML</li>
+                </ul>
             </div>
             <div class="col-sm-2 pull-right">
                 <button type="button" class="btn btn-primary btn-sm btn-block" id="exit"><strong>Exit</strong></button>
@@ -371,6 +383,7 @@
     <script src="~/Scripts/js/jquery.bootpag.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
+            var exportOption;
             $('#dp1').datepicker({
                 changeMonth: true,
                 changeYear: true,
@@ -389,6 +402,7 @@
                 getSales(1, 10, '@ViewBag.Tno');
                 getLedgers();
             });
+            
             function pad(str, max) {
                 str = str.toString();
                 return str.length < max ? pad("0" + str, max) : str;
@@ -738,7 +752,15 @@
                 }
                 $("#sales tbody tr, #sales tbody tr td input:text").css('background', '');
             });
-            $("#preview").on('click', function () {
+            $("#option-one li").on("click", function () {
+                exportOption = $(this).attr("data-type");
+                $("#option-one").removeClass('active');
+                showPreview();
+            });
+            $("#preview").on('click', function() {
+                $(".export-container").toggleClass("active");
+            });
+            function showPreview(){
                 var c = 0;
                 var msg1 = new Messi("<p style='text-align: justify;'>Are you sure you want to view the journals preview of the group '" + $("#type option:selected").text() + "' between the dates '" + $('#dp1').val() + "' and '" + $('#dp2').val() + "'?</p>",
                 {
@@ -762,15 +784,14 @@
                                 dataType: "json",
                                 success: function (data) {
                                     if (data == true)
-                                        window.open('.././ReportingForms/CRViewer.aspx');
+                                        window.open('/Accounting/Report/Show?type='+exportOption);
                                 },
                             });
                         }
                         return true;
                     }
                 });
-
-            });
+            }
             $("#ledgers").on('dblclick', function () {
                 setLedger();
             });
@@ -806,5 +827,6 @@
         $('select:not(select[size],select.ui-datepicker-month,select.ui-datepicker-year),input.select').css('background', 'url(@Url.Content("~/images/down_arrow.png")) no-repeat right white');
         $('select:not(select.form-control,select[size],select.ui-datepicker-month,select.ui-datepicker-year)').css('padding', '0px 15px 0px 2px').css('border', '1px solid gray');
     </script>
+    <script type="text/javascript" src="~/Scripts/js/common.js"></script>
 </body>
 </html>

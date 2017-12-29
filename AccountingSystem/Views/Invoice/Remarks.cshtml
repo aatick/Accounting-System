@@ -98,7 +98,7 @@
     </style>
     <link href="~/Content/css/messi.min.css" rel="stylesheet" />
 }
-<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal" id="myModal"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header" style="margin-bottom: 0;">
@@ -108,10 +108,11 @@
                 <div class="row">
                     <div class="col-sm-5" style="padding-right: 0;">
                         <div class="col-sm-12">
-                            <label class="control-label input-sm">List of Companies</label>
+                            <input type="text" id="txtCompany" class="form-control">
                         </div>
                         <div class="col-sm-12">
-                            @Html.DropDownList("CompanyList", null, new { @class = "form-control input-sm", @size = "13", @style = "height: 200px;" })
+                            <label>List Of Companies</label>
+                            <select id="CompanyList" size="10" class="form-control" style="min-height:160px;"></select>
                         </div>
                     </div>
                     <div class="col-sm-7">
@@ -226,24 +227,23 @@
         $(document).ready(function () {
             var invoiceTable;
             var remarksTable;
-            $(window).on('load', function () {
-                onLoad();
-                setTimeout(showModal(), 3000);
+            //$(window).on('load', function () {
+            //    onLoad();
+            //    setTimeout(showModal(), 3000);
+            //});
 
-            });
-
-            function showModal() {
+            //function showModal() {
                 $("#myModal").modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
                 });
-            }
+            //}
             $("#date").datepicker({
                 changeMonth: true,
                 changeYear: true
             });
 
-            function onLoad() {
+            //function onLoad() {
                 invoiceTable = $("#invoiceTable").DataTable({
                     "bFilter": false,
                     "bInfo": false,
@@ -282,7 +282,7 @@
                         //{ className: "acenter", targets: [0, 4, 5, 8, 9] }
                     ]
                 });
-            }
+            //}
             var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
 
             $.fn.modal.Constructor.prototype.enforceFocus = function () { };
@@ -337,16 +337,14 @@
                 $("#myModal").css('display', 'block');
                 var $dialog = $('#myModal').find(".modal-dialog");
                 var offset = ($(window).height() - $dialog.height()) / 2;
-                // Center modal vertically in window
-                if (offset >= 0)
-                    $dialog.css("margin-top", offset);
+                $dialog.css("margin-top",  "0px");
             }
 
             $(window).on("resize", function () {
                 centerSuccess();
             });
 
-            $("#CompanyList option:first").prop('selected', true);
+            //$("#CompanyList option:first").prop('selected', true);
             $("#outstanding_check").prop('checked', true);
 
             var today = new Date();
@@ -434,7 +432,8 @@
                 });
             }
 
-            fillInvoiceTable($("#CompanyList").val(), 2);
+            
+            //fillInvoiceTable($("#CompanyList").val() == null ? 0 : $("#CompanyList").val(), 2);
 
             function determinefullPayment() {
                 var fullPayment;
@@ -450,7 +449,7 @@
             }
 
             $("#CompanyList, input:checkbox").on('change', function () {
-                fillInvoiceTable($("#CompanyList").val(), determinefullPayment());
+                fillInvoiceTable($("#CompanyList").val() == null ? 0 : $("#CompanyList").val(), determinefullPayment());
             });
             $('#invoiceTable tbody').on('click', 'tr', function () {
                 if (invoiceTable.cell($(this), 0).data() != "") {
@@ -700,7 +699,7 @@
                     dataType: "json",
                     success: function (dt) {
                         if (dt == true)
-                            window.open('.././ReportingForms/CRViewer.aspx');
+                            window.open('/Accounting/Report/Show');
                     },
                 });
                 return true;
@@ -718,6 +717,43 @@
             $("#close, #exit").on('click', function () {
                 $("#myModal").modal('hide');
             });
+
+            $("#txtCompany").on("focus", function () {
+                this.select();
+            });
+
+            function getCompanyList(start) {
+                $.ajax({
+                    type: "Post",
+                    url: '/Accounting/Company/GetCompanyListByKey',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ startingKey: start }),
+                    dataType: "json",
+                    success: function (data) {
+                        $("#CompanyList").html('');
+                        var strhtml = "";
+                        $.each(data, function (key, value) {
+                            strhtml += '<option value="' + value.Id + '">' + value.Name + '</option>';
+                        });
+                        $("#CompanyList").html(strhtml);
+                        invoiceTableClear();
+                        remarksTableClear();
+                    },
+                });
+            }
+
+            invoiceTableClear();
+            remarksTableClear();
+
+            $('#txtCompany').on('keyup', function () {
+                var str = $(this).val().trim();
+                if (str != "") {
+                    getCompanyList(str);
+                } else {
+                    $("#CompanyList").html('');
+                }
+            });
+
         });
     </script>
 }

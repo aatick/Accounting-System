@@ -88,7 +88,7 @@
             }
 
         .ccModal .modal-dialog {
-            width: 800px;
+            width: 900px;
         }
 
         .ccModal .modal-body {
@@ -231,26 +231,22 @@
             }
 
         #invoicesheader thead tr th:nth-child(1), #tableheader thead tr th:nth-child(1) {
-            width: 30px;
+            width: 35px;
         }
 
 
 
         #invoicesheader thead tr th:nth-child(2) {
-            width: 170px;
+            width: 195px;
         }
 
         #invoicesheader thead tr th:nth-child(3), #tableheader thead tr th:nth-child(2), #tableheader thead tr th:nth-child(3), #tableheader thead tr th:nth-child(4) {
-            width: 80px;
+            width: 92px;
         }
 
         #invoicesheader thead tr th:nth-child(4) {
             text-align: left;
         }
-
-        /*#tableheader thead tr th:nth-child(5) {
-            border-bottom: 1px solid black;
-        }*/
 
         #invoices tbody, #table tbody {
             cursor: pointer;
@@ -275,7 +271,7 @@
     </style>
 }
 <!-- Modal -->
-<div class="modal ccModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal ccModal" id="success" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header modal-header-cc">
@@ -285,22 +281,19 @@
             <div class="modal-body">
                 <div class="row" style="margin:-10px -15px 0px -15px;">
                     <div class="col-sm-6">
-
                         <div class="row">
                             <div class="col-sm-12">
+                                <input type="text" id="txtCompany" class="form-control" />
+                            </div>
+                            <div class="col-sm-12">
                                 <label>List Of Companies</label>
-                                <select id="companyList" size="10" class="form-control" style="min-height:320px;">
-                                    @foreach (Company company in ViewBag.CompanyList)
-                                    {
-                                        <option value="@company.Id">@company.Name</option>
-                                    }
-                                </select>
+                                <select id="companyList" size="10" class="form-control" style="min-height:285px;"></select>
                             </div>
                         </div>
 
                         <div class="row" style="margin:5px -15px 0px -15px;">
                             <div class="col-sm-6">
-                                &nbsp;
+                                <label style="padding-top: 10px; margin-bottom: 0px;">Payment list</label>
                             </div>
                             <div class="col-sm-6">
                                 <button type="button" class="btn btn-info btn-sm btn-block" id="unpaid">Unpaid</button>
@@ -308,8 +301,7 @@
                         </div>
 
                         <div class="row" style="margin:5px -15px 0px -15px;">
-                            <div class="col-sm-12" style="margin-top: -20px;">
-                                <label>Payment list</label>
+                            <div class="col-sm-12">
                                 <table class="table table-condensed table-bordered" id="tableheader">
                                     <thead>
                                         <tr>
@@ -322,7 +314,7 @@
                                     </thead>
                                 </table>
 
-                                <div class="div-table-content">
+                                <div class="div-table-content" style="height: 130px;">
                                     <table class="table table-condensed table-bordered" id="table">
                                         <tbody>
                                             <tr>
@@ -449,14 +441,16 @@
                         </div>
 
                         <div class="row" style="margin:10px -15px 0px -15px;">
-                            <div class="col-sm-offset-6 col-sm-6">
+                            <div class="col-sm-6 text-left">
+                                <label style="padding-top: 10px; margin-bottom: 0px;">Sales list</label>
+                            </div>
+                            <div class="col-sm-6 text-right">
                                 <button type="button" class="btn btn-info btn-sm btn-block" id="collectionNote">Collection Note</button>
                             </div>
                         </div>
 
-                        <div class="row" style="margin:0px -15px 0px -15px;">
-                            <div class="col-sm-12" style="margin-top: -20px;">
-                                <label>Sales list</label>
+                        <div class="row" style="margin:5px -15px 0px -15px;">
+                            <div class="col-sm-12">
                                 <select size="3" id="salesList" style="min-height: 60px;" class="form-control input-sm"></select>
                             </div>
                         </div>
@@ -497,7 +491,7 @@
 
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <div style="height: 180px; overflow-y: scroll; overflow-x: hidden; border-top: 1px solid #999999; padding-top: 5px;">
+                                            <div style="height: 210px; overflow-y: scroll; overflow-x: hidden; border-top: 1px solid #999999; padding-top: 5px;">
                                                 <div class="row">
                                                     <div class="col-sm-12" id="radios">
                                                         <div class="col-sm-12" style="border-bottom: 1px solid #DDDDDD; padding: 0 0 2px 0;">
@@ -562,7 +556,7 @@
                                                             </div>
                                                         </div>
                                                         <div class="col-sm-12" style="border-bottom: 1px solid #DDDDDD; padding: 0 0 2px 0;">
-                                                            <div class="payment_div col-sm-12" data-value="4">
+                                                            <div class="payment_div col-sm-12" data-value="4" data-id="378">
                                                                 Bad Debt
                                                             </div>
                                                         </div>
@@ -586,7 +580,7 @@
                                                                 Discount of Sales
                                                             </div>
                                                         </div>
-                                                        <div class="payment_div col-sm-12" data-value="9">
+                                                        <div class="payment_div col-sm-12" data-value="9" data-id="3342">
                                                             Online Collection Charges
                                                         </div>
                                                     </div>
@@ -608,7 +602,7 @@
                     <div class="col-sm-12">
                         <button type="button" class="btn btn-primary pull-left" id="update"><strong>Update</strong></button>
                         <button type="button" class="btn btn-primary pull-left" id="insert"><strong>Insert</strong></button>
-                        <button type="button" class="btn btn-primary pull-left"><strong>@post</strong></button>
+                        <button type="button" class="btn btn-primary pull-left" id="postToOnline"><strong>@post</strong></button>
                         <button type="button" class="btn btn-primary pull-right" id="exit"><strong>Exit</strong></button>
                     </div>
                 </div>
@@ -617,61 +611,16 @@
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 <!-- Modal -->
-<input type="hidden" id="payment" />
+<input type="hidden" id="payment" value="1" />
 <input type="hidden" id="invoiceNo" />
-<input type="hidden" id="paymentId" />
+<input type="hidden" id="paymentId" value="46" />
 <input type="hidden" id="accountReceivable" />
-
-<!-- Modal -->
-<div class="modal nsModal" id="anotherModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="width: 500px; margin-top: 200px;">
-        <div class="modal-content">
-            <div class="modal-header modal-header-ns">
-                <h4 class="nstitle">Unpaid item</h4>
-            </div>
-            <div class="modal-body" style="margin-left: 10px;">
-                <div class="row">
-                    <p class="col-sm-12" style="padding-top: 0; margin-top: 0;"><strong>Select the item for unpaid from the list below.</strong></p>
-                </div>
-                <div class="row">
-                    <p class="col-sm-3 text-left">Unpaid item</p>
-                    <div class="col-sm-5">
-                        <select id="items" class="form-control input-sm">
-                            @{
-                                var list = (List<Ledger>)ViewBag.Ledgers;
-                                list.Add(new Ledger { Id = 46, GroupName = "Cash" });
-                                list = list.OrderBy(x => x.GroupName).ToList();
-                            }
-                            @foreach (Ledger ledger in list)
-                            {
-                                if (ledger.Id == 0)
-                                {
-                                    <option value="@ledger.Id" selected>@ledger.GroupName</option>
-                                }
-                                else
-                                {
-                                    <option value="@ledger.Id">@ledger.GroupName</option>
-                                }
-                            }
-                        </select>
-                    </div>
-                    <div class="col-sm-2" style="padding-left: 0;">
-                        <button type="button" class="btn btn-block btn-primary btn-sm" id="ok"><strong>Ok</strong></button>
-                    </div>
-                    <div class="col-sm-2" style="padding-left: 0;">
-                        <button type="button" class="btn btn-block btn-primary btn-sm" data-dismiss="modal"><strong>Cancel</strong></button>
-                    </div>
-                </div>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-<!-- Modal -->
+<input type="hidden" id="invoiceId" />
 @section scripts
 {
     <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
     <script src="~/Scripts/js/messi.min.js"></script>
-    <script>
+    <script type="text/javascript">
         $(document).ready(function () {
             $(window).on('load', function () {
                 setTimeout(loadModal(), 1000);
@@ -679,15 +628,11 @@
 
             function loadModal() {
                 $("#success").modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
                 });
-                $('#anotherModal').modal({
-                    backdrop: 'static',
-                    keyboard: false
-                });
-                $("#anotherModal").modal('hide');
             }
+
             var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
 
             $.fn.modal.Constructor.prototype.enforceFocus = function () { };
@@ -706,8 +651,9 @@
                 var $dialog = $('#success').find(".modal-dialog");
                 var offset = ($(window).height() - $dialog.height()) / 2;
                 // Center modal vertically in window
-                if (offset >= 0)
-                    $dialog.css("margin-top", offset);
+                //if (offset >= 0)
+                //    $dialog.css("margin-top", offset);
+                $dialog.css("margin-top", "10px");
             }
 
             $("#close, #exit").on('click', function () {
@@ -724,6 +670,7 @@
                 changeMonth: true,
                 changeYear: true
             });
+            var previousValue = 0;
             $('#radios').on('click', 'div.payment_div', function () {
                 $("#radios div.payment_div").css('background', '').css('color', '');
                 $("#radios legend").css('color', '');
@@ -732,9 +679,28 @@
                 if ($(this).data('value') == "2" || $(this).data('value') == "3") {
                     $(this).find('fieldset').css('color', 'white').show();
                     $(this).find('legend').css('color', 'white');
+                    if ($(this).data('value') == "2") {
+                        if (previousValue != "2") {
+                            $('#ledgerList').val(411);
+                            $("#chequeNo").val('');
+                        }
+                        $('#vattype').val('');
+                    }
+                    if ($(this).data('value') == "3") {
+                        if ($('#vattype').val() == "") {
+                            $('#vattype').val('');
+                        }
+                        $('#ledgerList').val(411);
+                        $("#chequeNo").val('');
+                    }
+                } else {
+                    $('#vattype').val('');
+                    $('#ledgerList').val(411);
+                    $("#chequeNo").val('');
                 }
                 $("#payment").val($(this).data('value'));
                 $("#paymentId").val($(this).data('id'));
+                previousValue = $(this).data("value");
             });
             $("#refresh").on('click', function () {
                 alert($("#payment").val());
@@ -767,7 +733,7 @@
                     }
                 }
             });
-            $("#companyList").on('change', function () {
+            $(document).on("click", "#companyList option", function () {
                 getInvoices();
             });
 
@@ -793,7 +759,7 @@
                         success: function (data) {
                             invoices = [];
                             $.each(data, function (key, value) {
-                                invoices.push({ Id: value.Id, InvoiceNo: value.InvoiceNo, TAmount: value.TAmount, FullPayment: value.FullPayment, PostedNature: value.PostedNature, UploadedPaymentStatus: value.UploadedPaymentStatus });
+                                invoices.push({ Id: value.Id, InvoiceNo: value.InvoiceNo, TAmount: value.TAmount, FullPayment: value.FullPayment, PostedNature: value.PostedNature, UploadedPaymentStatus: ($('#due').is(':checked') && !$("#paid").is(':checked')) ? "-" : value.UploadedPaymentStatus });
                             });
                             fillInvoices(invoices);
                         },
@@ -803,7 +769,19 @@
                     for (var i = 1; i <= 4; i++) {
                         $("#invoices tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
                     }
+                    $("#salesList").html('');
+                    $("#table tbody").html('');
+                    for (var j = 1; j <= 4; j++) {
+                        $("#table tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
+                    }
                 }
+                $("#radios div.payment_div").css('background', '').css('color', '');
+                $("#radios legend").css('color', '');
+                $("#radios fieldset").css('color', '').hide();
+                initialSetup();
+                $('#vattype').val('');
+                $('#ledgerList').val(411);
+                $("#chequeNo").val('');
             }
 
             function fillInvoices(list) {
@@ -825,6 +803,7 @@
                 }
                 $("#update, #insert, #unpaid").prop('disabled', true);
             }
+
             $("#invoices tbody").on('click', 'tr', function (e) {
                 if ($(this).find('td:nth-child(1)').html() != '&nbsp;') {
                     //alert($(this).css('background-color'));
@@ -850,7 +829,8 @@
                         else
                             $(this).css('background', 'rgb(31, 241, 243)');
                     }
-                    $("#invoiceNo").val($(this).find('td:nth-child(2)').html());
+                    $("#invoiceNo").val($(this).find('td:nth-child(2)').html().trim());
+                    $("#invoiceId").val($(this).find('td:nth-child(5)').html().trim());
                     invoice = $(this);
                     var no = $(this).find('td:nth-child(2)').html();
                     $.ajax({
@@ -876,18 +856,16 @@
                                     $("#table tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
                                 }
                                 $('#insert').prop('disabled', true);
+                                $("#payment").val('1');
+                                $("#paymentId").val('46');
                             }
                         },
                     });
                 }
             });
 
-            //$("#salesList").on('click', function () {
-            //    alert('fire');
-            //});
-
-            $("#salesList").on('click', function () {
-                fillTable($(this).val());
+            $(document).on("click", "#salesList option", function () {
+                fillTable($("#salesList").val());
             });
 
             function fillTable(id) {
@@ -921,8 +899,8 @@
                         $("#radios legend").css('color', '');
                         $("#radios fieldset").css('color', '').hide();
                         $("#radios div.payment_div:first").css('background', '#006699').css('color', 'white');
-                        $("#payment").val($(this).data('value'));
-                        $("#paymentId").val($(this).data('id'));
+                        $("#payment").val('1');
+                        $("#paymentId").val('46');
                         $("#update, #unpaid").prop('disabled', true);
                         $("#insert").prop('disabled', false);
                     },
@@ -947,26 +925,26 @@
                     var bankId = 0;
                     var cheque = "";
                     var vattype = "";
-                    if ($(this).find('td:nth-child(9)').html() == 'true')
+                    if ($(this).find('td:nth-child(9)').html().trim() == 'true')
                         val = "4";
-                    else if ($(this).find('td:nth-child(7)').html() == "" || $(this).find('td:nth-child(7)').html() == null || $(this).find('td:nth-child(7)').html() == "Cash")
+                    else if ($(this).find('td:nth-child(7)').html().trim() == "" || $(this).find('td:nth-child(7)').html() == null || $(this).find('td:nth-child(7)').html().trim() == "Cash")
                         val = "1";
-                    else if ($(this).find('td:nth-child(7)').html() == "VAT" || $(this).find('td:nth-child(7)').html() == "AIT") {
+                    else if ($(this).find('td:nth-child(7)').html().trim() == "VAT" || $(this).find('td:nth-child(7)').html().trim() == "AIT") {
                         val = "3";
-                        vattype = $(this).find('td:nth-child(7)').html();
-                    } else if ($(this).find('td:nth-child(8)').html() != "0") {
+                        vattype = $(this).find('td:nth-child(7)').html().trim();
+                    } else if ($(this).find('td:nth-child(8)').html().trim() != "0") {
                         val = "2";
-                        bankId = $(this).find('td:nth-child(8)').html();
-                        cheque = $(this).find('td:nth-child(10)').html();
-                    } else if ($(this).find('td:nth-child(7)').html() == "SSL")
+                        bankId = $(this).find('td:nth-child(8)').html().trim();
+                        cheque = $(this).find('td:nth-child(10)').html().trim();
+                    } else if ($(this).find('td:nth-child(7)').html().trim() == "SSL")
                         val = "6";
-                    else if ($(this).find('td:nth-child(7)').html() == "Brac")
+                    else if ($(this).find('td:nth-child(7)').html().trim() == "Brac")
                         val = "5";
-                    else if ($(this).find('td:nth-child(7)').html() == "Discount")
+                    else if ($(this).find('td:nth-child(7)').html().trim() == "Discount")
                         val = "8";
-                    else if ($(this).find('td:nth-child(7)').html() == "OnlineCharges")
+                    else if ($(this).find('td:nth-child(7)').html().trim() == "OnlineCharges")
                         val = "9";
-                    else if ($(this).find('td:nth-child(7)').html() == "bKash")
+                    else if ($(this).find('td:nth-child(7)').html().trim().toLowerCase() == "bkash")
                         val = "7";
                     if (val != "") {
                         $.each($("#radios div.payment_div"), function () {
@@ -975,6 +953,8 @@
                                 $("#radios legend").css('color', '');
                                 $("#radios fieldset").css('color', '').hide();
                                 $(this).css('background', '#006699').css('color', 'white');
+                                $("#payment").val($(this).data('value'));
+                                $("#paymentId").val($(this).data('id'));
                                 if ($(this).data('value') == "2" || $(this).data('value') == "3") {
                                     $(this).find('fieldset').css('color', 'white').show();
                                     $(this).find('legend').css('color', 'white');
@@ -982,13 +962,24 @@
                                 if ($(this).data('value') == "2") {
                                     $('#ledgerList option[value="' + bankId + '"]').prop('selected', true);
                                     $(this).find('input:text').val(cheque);
+                                    $('#vattype').val('');
+                                    $("#paymentId").val(bankId);
                                 }
                                 if ($(this).data('value') == "3") {
-                                    $('#vattype option[text="' + vattype + '"]').prop('selected', true);
+                                    var vat_id = "";
+                                    if (vattype == "VAT")
+                                        vat_id = 847;
+                                    if (vattype == "AIT")
+                                        vat_id = 1189;
+                                    $('#vattype').val(vat_id);
+                                    $('#ledgerList').val(411);
+                                    $("#chequeNo").val('');
+                                    $("#paymentId").val(vat_id);
                                 }
-                                $("#payment").val($(this).data('value'));
-                                $("#paymentId").val($(this).data('id'));
+
+                                return false;
                             }
+                            return true;
                         });
                     }
                 }
@@ -1011,7 +1002,7 @@
                             modal: true,
                             title: 'Alert',
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -1024,7 +1015,7 @@
                             modal: true,
                             title: 'Alert',
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -1038,7 +1029,7 @@
                             modal: true,
                             title: 'Alert',
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -1055,7 +1046,7 @@
                             modal: true,
                             title: 'Alert',
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -1065,7 +1056,7 @@
                             modal: true,
                             title: 'Alert',
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -1075,7 +1066,7 @@
                             modal: true,
                             title: 'Alert',
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -1085,7 +1076,7 @@
                             modal: true,
                             title: 'Alert',
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -1095,7 +1086,7 @@
                             modal: true,
                             title: 'Alert',
                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                { id: 0, label: 'OK', val: 'X' }
                             ]
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -1129,15 +1120,25 @@
                                         $("#radios div.payment_div:first").css('background', '#006699').css('color', 'white');
                                         $("#payment").val($(this).data('value'));
                                         $("#paymentId").val($(this).data('id'));
-                                        var m6 = new Messi('Cash Collection Successfull',
+                                        var ct = 0;
+                                        var msg = new Messi('Do you want to upload this cash information to online?',
                                         {
+                                            title: 'Confirm',
                                             modal: true,
-                                            title: 'Success',
                                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
-                                            ]
+                                                { id: 0, label: 'Yes', val: 'Y' },
+                                                { id: 1, label: 'No', val: 'N' }
+                                            ],
+                                            callback: function (val) {
+                                                if (ct == 1)
+                                                    return false;
+                                                if (val == 'Y') {
+                                                    ct = 1;
+                                                    postToOnline("", $("#invoiceNo").val(), $("#invoiceId").val());
+                                                }
+                                                return false;
+                                            }
                                         });
-                                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                                     }
                                 },
                             });
@@ -1151,12 +1152,12 @@
                                 dataType: "json",
                                 success: function (dat) {
                                     if (dat == true) {
-                                        var m6 = new Messi('Update Successfull.',
+                                        var m6 = new Messi('Cash information has been updated successfully.',
                                         {
                                             modal: true,
                                             title: 'Success',
                                             buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                                                { id: 0, label: 'OK', val: 'X' }
                                             ]
                                         });
                                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -1182,15 +1183,21 @@
                             return false;
                         if (val == 'Y') {
                             ct = 1;
-                            $('#anotherModal').modal('show');
+                            unpaidItem();
                         }
                         return true;
                     }
                 });
             });
-            $('#ok').on('click', function () {
+
+            function unpaidItem() {
+                var ledgerId = $("#paymentId").val();
+                if ($("#payment").val() == "2") {
+                    ledgerId = $("#ledgerList option:selected").val();
+                } else if ($("#payment").val() == "3") {
+                    ledgerId = $("#vattype option:selected").val();
+                }
                 var userId = '@user.UserId';
-                var ledgerId = $("#items option:selected").val();
                 var tno = $("#salesList option:selected").data('tno');
                 var invoiceNo = invoice.find('td:nth-child(2)').html();
                 var invoiceId = invoice.find('td:nth-child(5)').html();
@@ -1206,7 +1213,6 @@
                     dataType: "json",
                     success: function (dat) {
                         if (dat == true) {
-                            $('#anotherModal').modal('hide');
                             fillTable($("#salesList").val());
                             var m66 = new Messi('Unpaid Successfull.',
                             {
@@ -1220,7 +1226,8 @@
                         }
                     },
                 });
-            });
+            }
+
             $("#collectionNote").on('click', function () {
                 var str = [];
                 $.each($("#invoices tbody tr"), function () {
@@ -1233,7 +1240,7 @@
                         modal: true,
                         title: 'Success',
                         buttons: [
-                                    { id: 0, label: 'OK', val: 'X' }
+                            { id: 0, label: 'OK', val: 'X' }
                         ]
                     });
                     $('.messi-actions').css('float', 'left').css('margin-left', '205px');
@@ -1252,12 +1259,69 @@
                         dataType: "json",
                         success: function (data) {
                             if (data == true) {
-                                window.open('../ReportingForms/CRViewer.aspx');
+                                window.open('/Accounting/Report/Show');
                             }
                         },
                     });
                 }
             });
+
+            $("#txtCompany").on("focus", function () {
+                this.select();
+            });
+
+            function getCompanyList(start) {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetCompanyListByKey", "Company")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ startingKey: start }),
+                    dataType: "json",
+                    success: function (data) {
+                        $("#companyList").html('');
+                        var strhtml = "";
+                        $.each(data, function (key, value) {
+                            strhtml += '<option value="' + value.Id + '">' + value.Name + '</option>';
+                        });
+                        $("#companyList").html(strhtml);
+                    },
+                });
+            }
+
+            $('#txtCompany').on('keyup click', function () {
+                var str = $(this).val().trim();
+                if (str != "") {
+                    getCompanyList(str);
+                } else {
+                    $("#companyList").html('');
+                    fillInvoices([]);
+                }
+            });
+            $("#postToOnline").on("click", function () {
+                postToOnline("All", 0, 0);
+            });
+
+            function postToOnline(postType, invoiceNo, invoiceId) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("PostToOnline", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ postType: postType, invoiceNo: invoiceNo, invoiceId: invoiceId }),
+                    dataType: "json",
+                    success: function (data) {
+                        var m66 = new Messi(data.Message,
+                        {
+                            modal: true,
+                            title: 'Success',
+                            buttons: [{ id: 0, label: 'OK', val: 'X' }]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        if (data.Connection == true && postType == "All") {
+                            location.reload();
+                        }
+                    },
+                });
+            }
         });
     </script>
 }

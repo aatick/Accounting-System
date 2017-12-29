@@ -20,6 +20,7 @@
 {
     <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
     <link href="~/Content/css/dataTables.jqueryui.css" rel="stylesheet" />
+    <link href="~/Content/css/colorbox.css" rel="stylesheet" />
     <link href="~/Content/css/messi.min.css" rel="stylesheet" />
 
     <style type="text/css">
@@ -201,14 +202,10 @@
                                         <label>Company</label>
                                         <input type="text" id="companies" class="form-control input-sm select" style="height: 30px;" />
                                         <select hidden size="10" id="CompanyList" style="border: 1px solid gray; font-size: 12px; z-index: 9999999999999; height: 200px; position: absolute; overflow-y: auto; overflow-x: hidden; background: white;">
-                                            @foreach (Company company in ViewBag.CompanyList)
-                                            {
-                                                <option value="@company.Id" data-blacklisted="@company.BlackListed">@company.Name</option>
-                                            }
                                         </select>
                                     </div>
                                     <div class="col-sm-12">
-                                        <button type="button" class="btn btn-info pull-left btn-sm" id="addCompany">Add New Company</button>
+                                        <button type="button" class="btn btn-info pull-left btn-sm" id="addCompany" width='800px' height='630px' path='@Url.Action("Index", "Company", new { page = "new" })'>Add New Company</button>
                                         <button type="button" class="btn btn-info pull-right btn-sm">Refresh Company List</button>
                                     </div>
                                 </div>
@@ -218,8 +215,8 @@
                                         @Html.DropDownList("Products", null, "List of Products", new { @class = "form-control input-sm" })
                                     </div>
                                     <div class="col-sm-12">
-                                        <button type="button" class="btn btn-info pull-left btn-sm">Add New Product</button>
-                                        <button type="button" class="btn btn-info pull-right btn-sm">Refresh Product List</button>
+                                        <button type="button" class="btn btn-info pull-left btn-sm" id="addNewproduct" width='788px' height='422px' path='@Url.Action("Create", "Ledger", new { page = "new" })'>Add New Product</button>
+                                        <button type="button" class="btn btn-info pull-right btn-sm" id="refreshProduct">Refresh Product List</button>
                                     </div>
                                 </div>
                             </div>
@@ -406,7 +403,7 @@
 
 <div class="container">
     <!-- Modal -->
-    <div class="modal nsModal" id="closejournal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal nsModal" id="closejournal"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog" style="width: 300px; margin-top: 200px;">
             <div class="modal-content">
                 <div class="modal-header modal-header-ns">
@@ -438,21 +435,24 @@
 </div>
 
 <input type="hidden" id="closedate" />
+<div class="modal-backdrop in" id="backdrop" style="display: none; height: 100%; z-index: 9999; background: #DDDDDD;"></div>
+<img src='/Accounting/image/ajax_loader.gif' style="position: absolute; top: 45%; left: 45%; z-index: 9999; display: none;" width='100' height='100' align='center' valign='middle' id="loader" />
 
 @section scripts
 {
+    <script src="~/Scripts/js/jquery.colorbox.js"></script>
     <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
     <script src="~/Scripts/js/jquery.dataTables.js"></script>
     <script src="~/Scripts/js/jquery.jeditable.js"></script>
     <script src="~/Scripts/js/jquery.jeditable.datepicker.js"></script>
     <script src="~/Scripts/js/messi.min.js"></script>
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             var closingDate = '@ViewBag.ClosingDate';
             $('#dp1').datepicker({
                 changeMonth: true,
                 changeYear: true,
-                onSelect: function (datetext, inst) {
+                onSelect: function(datetext, inst) {
                     calculateDuration(datetext, $("#dp2").val());
                     if (table.rows().data().length > 0) {
                         for (var i = 0; i < table.rows().data().length; i++) {
@@ -465,7 +465,7 @@
             $('#dp2').datepicker({
                 changeMonth: true,
                 changeYear: true,
-                onSelect: function (datetext, inst) {
+                onSelect: function(datetext, inst) {
                     calculateDuration($("#dp1").val(), datetext);
                 }
             });
@@ -478,31 +478,24 @@
                 changeMonth: true,
                 changeYear: true
             });
-            $(window).on('load', function () {
+            $(window).on('load', function() {
                 getCompanies();
                 $("#success").modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
                 });
                 $("#closejournal").modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
                 });
                 $("#closejournal").modal('hide');
                 $('#CompanyList').css('width', ($('#companies').width() + 22) + 'px');
             });
-            //$(document).click(function () {
-            //    $('#success').modal('show');
-            //});
-            //$(document).on('keydown', function (e) {
-            //    if (e.keyCode == 27)
-            //        $('#success').modal('show');
-            //});
             var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
 
-            $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+            $.fn.modal.Constructor.prototype.enforceFocus = function() {};
 
-            $("#close, #exit").on('click', function () {
+            $("#close, #exit").on('click', function() {
                 $('#success').modal('hide');
             });
 
@@ -514,8 +507,8 @@
 
             function getCompanies() {
                 if ('@companyid' != 0) {
-                    $('#companies').val($('#CompanyList option[value="@companyid"]').text());
-                    $('#CompanyList').val('@companyid');
+                    $('#companies').val('@ViewBag.CompanyName');
+                    $('#CompanyList').html("<option selected='selected' data-blacklisted='@ViewBag.Blacklist' value='@companyid'>@ViewBag.CompanyName</option>");
                     $("#Products option[value='@onlineLedgerId']").prop('selected', true);
                     $.ajax({
                         type: "Post",
@@ -523,13 +516,13 @@
                         contentType: "application/json; charset=utf-8",
                         data: JSON.stringify({ cId: '@companyid' }),
                         dataType: "json",
-                        success: function (dat) {
+                        success: function(dat) {
                             var persons = [];
-                            $.each(dat.ContactPersons, function (key11, value11) {
+                            $.each(dat.ContactPersons, function(key11, value11) {
                                 persons.push({ value: value11.Name, designation: value11.Designation, id: value11.Id });
                             });
                             var jobs = [];
-                            $.each(dat.JobTitles, function (key22, value22) {
+                            $.each(dat.JobTitles, function(key22, value22) {
                                 if (value22.JpId == '@onlineJobId') {
                                     $("#jobTitle").val(value22.Title);
                                     $("#job").css('color', '');
@@ -547,25 +540,25 @@
                             $("#billingPerson").autocomplete({
                                 source: persons,
                                 minLength: 0,
-                                select: function (event, ui) {
+                                select: function(event, ui) {
                                     $("#designation").val(ui.item.designation);
                                     $("#billingId").val(ui.item.id);
                                     $(this).blur();
                                 }
-                            }).focus(function () {
+                            }).focus(function() {
                                 $(this).autocomplete("search", "");
                             });
 
                             $("#jobTitle").autocomplete({
                                 source: jobs,
                                 minLength: 0,
-                                select: function (event, ui) {
+                                select: function(event, ui) {
                                     $("#dp1").val(ui.item.postingdate);
                                     $("#dp2").val(ui.item.validdate);
                                     $("#jobId").val(ui.item.jpid);
                                     $(this).blur();
                                 }
-                            }).focus(function () {
+                            }).focus(function() {
                                 $(this).autocomplete("search", "");
                             });
                             var val1 = $("#dp1").val();
@@ -586,15 +579,23 @@
                     });
                 }
             }
-
-            $(document).on('click', function () {
-                if (!$('#companies').is(':focus') && !$('#CompanyList').is(':focus') && $('#CompanyList').is(':visible'))
+            
+            $(document).mousedown(function (e) {
+                var container = $("#CompanyList,#companies");
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
                     $('#CompanyList').hide();
+                }
             });
 
-
-            $('#CompanyList').on('click', function () {
+            $(document).on('click', '#CompanyList option', function() {
                 setOptions();
+            });
+            $(document).on('keydown', '#CompanyList', function(e) {
+                if (e.keyCode == 13)
+                    setOptions();
+            });
+            $('#companies').on("focus", function() {
+                $(this).select();
             });
 
             function setOptions() {
@@ -619,20 +620,20 @@
                         contentType: "application/json; charset=utf-8",
                         data: JSON.stringify({ cId: $('#CompanyList').val() }),
                         dataType: "json",
-                        success: function (dt) {
+                        success: function(dt) {
                             var persons = [];
-                            $.each(dt.ContactPersons, function (key1, value1) {
+                            $.each(dt.ContactPersons, function(key1, value1) {
                                 persons.push({ value: value1.Name, designation: value1.Designation, id: value1.Id });
                             });
                             $("#billingPerson").autocomplete({
                                 source: persons,
                                 minLength: 0,
-                                select: function (ev, u) {
+                                select: function(ev, u) {
                                     $("#designation").val(u.item.designation);
                                     $("#billingId").val(u.item.id);
                                     $('#billingPerson').blur();
                                 }
-                            }).focus(function () {
+                            }).focus(function() {
                                 $('#billingPerson').autocomplete("search", "");
                             });
                             $("#billingPerson").val('');
@@ -644,47 +645,37 @@
                 $("#make").prop('disabled', true);
             }
 
-            $("#CompanyList").on('change', function () {
-                $('#companies').val($('#CompanyList option:selected').text());
-            });
-            $("#CompanyList").on('keydown', function (e) {
-                if (e.keyCode == 13) {
-                    setOptions();
-                } else if (e.keyCode == 27) {
-                    $("#CompanyList").hide();
-                    $("#companies").focus();
-                }
-            });
-            $('#companies').on('click', function () {
-                var str = $(this).val();
-                $.each($('#CompanyList option'), function () {
-                    if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) == 0) {
-                        $(this).prop('selected', true);
-                        return false;
-                    }
-                    return true;
-                });
-
-                if ($('#CompanyList').is(':visible'))
-                    $('#CompanyList').hide();
-                else
-                    $('#CompanyList').show().focus();
-            });
-            $('#companies').on('keyup', function (e) {
+            $('#companies').on('keyup click', function(e) {
                 if (e.keyCode != 13 && e.keyCode != 27) {
                     var str = $(this).val();
-                    $.each($('#CompanyList option'), function () {
-                        if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) == 0) {
-                            $(this).prop('selected', true);
-                            return false;
-                        }
-                        return true;
-                    });
-                    $('#CompanyList').show();
+                    str = str.trim();
+                    if (str != "") {
+                        var jsonData = { startingKey: str };
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("GetCompanyListByKey", "Company")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(jsonData),
+                            dataType: "json",
+                            success: function(data) {
+                                var strHtml = "";
+                                $.each(data, function(i, d) {
+                                    strHtml += "<option " + (d.Name.toLowerCase() == str.toLowerCase() ? "selected='selected'" : "") + " value='" + d.Id + "' data-blacklisted='" + d.BlackListed + "'>" + d.Name + "</option>";
+                                });
+                                if (strHtml != "")
+                                    $('#CompanyList').html(strHtml).show();
+                                else
+                                    $('#CompanyList').html("").hide();
+                            },
+                        });
+
+                    } else {
+                        $('#CompanyList').html("").hide();
+                    }
                 }
             });
 
-            $("#amount").prop('disabled', true);
+            //$("#amount").prop('disabled', true);
             $("#salsePrice, #amount").val('0.00');
             $("#month").val('1');
             var today = new Date();
@@ -728,7 +719,7 @@
             }
 
             tableClear();
-            $.fn.dataTableExt.oSort['nullable-asc'] = function (a, b) {
+            $.fn.dataTableExt.oSort['nullable-asc'] = function(a, b) {
                 if (a == '')
                     return 1;
                 else if (b == '')
@@ -740,7 +731,7 @@
                 }
             }
 
-            $.fn.dataTableExt.oSort['nullable-desc'] = function (a, b) {
+            $.fn.dataTableExt.oSort['nullable-desc'] = function(a, b) {
                 if (a == '')
                     return 1;
                 else if (b == '')
@@ -752,7 +743,7 @@
                 }
             }
 
-            $('#editable tbody').on('click', 'tr', function () {
+            $('#editable tbody').on('click', 'tr', function() {
                 if (table.cell($(this), 0).data() != "") {
                     if ($(this).hasClass('selected')) {
                         $(this).removeClass('selected');
@@ -768,8 +759,9 @@
                 var $dialog = $('.modal').find(".modal-dialog");
                 var offset = ($(window).height() - $dialog.height()) / 2;
                 // Center modal vertically in window
-                if (offset >= 0)
-                    $dialog.css("margin-top", offset);
+                //if (offset >= 0)
+                //    $dialog.css("margin-top", offset);
+                $dialog.css("margin-top",  "10px");
             }
 
             function centerSuccess2() {
@@ -777,12 +769,13 @@
                 var $dialog = $("#closejournal").find(".modal-dialog");
                 var offset = ($(window).height() - $dialog.height()) / 2;
                 // Center modal vertically in window
-                if (offset >= 0)
-                    $dialog.css("margin-top", offset);
+                //if (offset >= 0)
+                //    $dialog.css("margin-top", offset);
+                $dialog.css("margin-top", "10px");
             }
 
             centerSuccess();
-            $(window).on("resize", function () {
+            $(window).on("resize", function() {
                 centerSuccess();
                 $('#CompanyList').css('width', ($('#companies').width() + 22) + 'px');
             });
@@ -802,7 +795,7 @@
                 $("#month").val(m.toString());
             }
 
-            $('input:radio[name="duration"]').on('change', function () {
+            $('input:radio[name="duration"]').on('change', function() {
                 if ($(this).val() == "1") {
                     $("#month").val('1');
                     $("#dp2").val(toDate);
@@ -814,14 +807,14 @@
                 }
             });
 
-            $("#Type").on('change', function () {
+            $("#Type").on('change', function() {
                 if ($(this).val() != "")
                     $("#amount").prop('disabled', false);
                 else
                     $("#amount").prop('disabled', true);
             });
 
-            $("#Products").on('change', function () {
+            $("#Products").on('change', function() {
                 var value = $(this).val();
                 if (value != "") {
                     $.ajax({
@@ -830,7 +823,7 @@
                         contentType: "application/json; charset=utf-8",
                         data: JSON.stringify({ productId: value }),
                         dataType: "json",
-                        success: function (data) {
+                        success: function(data) {
                             if (data.length == 0) {
                                 $("#job").css('color', 'gray');
                                 $("#jobTitle").prop('disabled', true);
@@ -860,14 +853,22 @@
             });
 
             $("#noofinvoice").val('1');
-            $("#salsePrice, #amount").on('focusout', function () {
-                fillTable();
-                saveEnableDisable();
-            });
-            $("#salsePrice, #amount").on('keypress', function (e) {
-                if (e.keyCode == 13) {
+            $("#salsePrice, #amount").on('focusout', function() {
+                if (!isNaN($(this).val())) {
                     fillTable();
                     saveEnableDisable();
+                } else {
+                    $(this).val("0.00");
+                }
+            });
+            $("#salsePrice, #amount").on('keydown', function(e) {
+                if (e.keyCode == 13) {
+                    if (!isNaN($(this).val())) {
+                        fillTable();
+                        saveEnableDisable();
+                    } else {
+                        $(this).val("0.00");
+                    }
                 }
             });
 
@@ -890,7 +891,7 @@
                 }
             }
 
-            $("#noofinvoice").on('focusout', function () {
+            $("#noofinvoice").on('focusout', function() {
                 if ($(this).val() == "" || parseInt($(this).val()) == 0)
                     $(this).val('1');
                 if (parseFloat($("#salsePrice").val()) > 0) {
@@ -921,7 +922,7 @@
 
                 for (var k = 1; k <= table.rows().data().length; k++) {
                     if (table.cell(k - 1, 0).data() != "") {
-                        $('#editable tr:nth-child(' + k + ') td:nth-child(2)').editable(function (value, settings) {
+                        $('#editable tr:nth-child(' + k + ') td:nth-child(2)').editable(function(value, settings) {
                             return (value);
                         }, {
                             type: 'datepicker',
@@ -933,7 +934,7 @@
                             tooltip: "Double click to edit"
                         });
 
-                        $('#editable tr:nth-child(' + k + ') td:nth-child(3)').editable(function (value, settings) {
+                        $('#editable tr:nth-child(' + k + ') td:nth-child(3)').editable(function(value, settings) {
                             var amount = parseFloat(value);
                             table.cell($(this).parents('tr'), 2).data(amount.toFixed(2));
                             //var prevAmount = parseFloat(table.cell($(this), 1).data());
@@ -948,7 +949,7 @@
                 }
             }
 
-            $("#noofinvoice").on('keypress', function (e) {
+            $("#noofinvoice").on('keypress', function(e) {
                 if (e.keyCode == 13) {
                     if (parseFloat($("#salsePrice").val()) > 0) {
                         fill();
@@ -959,17 +960,11 @@
                 return true;
             });
 
-            $("#save").on('click', function () {
-                var isExist = false;
-                $.each($('#CompanyList option'), function () {
-                    if ($(this).text() == $('#companies').val()) {
-                        $(this).prop('selected', true);
-                        isExist = true;
-                        return false;
-                    }
-                    return true;
-                });
-                if (isExist == false) {
+            $("#save").on('click', function() {
+                var str = $('#companies').val().trim();
+                //console.log($("#CompanyList option:selected").html() + "---" + str);
+                //alert($("#CompanyList option:selected").html());
+                if (str != $("#CompanyList option:selected").text().trim()) {
                     var m101 = new Messi("<p style='text-align: justify;'>The Entered Company doesn't exist.</p>",
                     {
                         title: 'Not Exist',
@@ -990,7 +985,7 @@
                         { id: 0, label: 'Yes', val: 'Y' },
                         { id: 1, label: 'No', val: 'N' }
                     ],
-                    callback: function (val) {
+                    callback: function(val) {
                         if (l == 1)
                             return false;
                         if (val == 'Y') {
@@ -1083,6 +1078,7 @@
                                 $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                             } else {
                                 centerSuccess2();
+                                $("#journalDate").val($("#dp1").val());
                                 $("#closejournal").modal('show');
                             }
                             l = 1;
@@ -1094,7 +1090,7 @@
             });
 
             $("#journalDate").val(toDate);
-            $("#ok").on('click', function () {
+            $("#ok").on('click', function() {
                 var fromDate = $("#journalDate").val();
                 var date1 = fromDate.split('/');
                 var from = new Date(date1[2], (parseInt(date1[0]) - 1), date1[1]);
@@ -1112,8 +1108,11 @@
                     });
                     $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                 } else {
+                    $("#backdrop,#loader").show();
                     var userId = '@user.UserId';
                     var cId = $("#CompanyList").val();
+                    if (cId == null)
+                        cId = 0;
                     var pCode = $("#Products").val();
                     var frDate = $("#dp1").val();
                     var tDate = "";
@@ -1144,6 +1143,7 @@
                         data: JSON.stringify(jsonData),
                         dataType: "json",
                         success: function (dt) {
+                            $("#backdrop,#loader").hide();
                             var mm = new Messi("<p style='text-align: justify;'>All information has been saved successfully.</p>",
                             {
                                 title: 'Success',
@@ -1161,19 +1161,28 @@
                 }
             });
 
-            $("#addCompany").on('click', function () {
-                window.open('@Url.Action("Index", "Company")');
+            $("#addCompany").on('click', function() {
+                $.colorbox({
+                    iframe: true,
+                    width: $(this).attr('width'),
+                    height: $(this).attr('height'),
+                    href: $(this).attr('path'),
+                    scrolling: false,
+                    innerWidth: '545px'
+                });
             });
 
-            $("#make").on('click', function () {
-                window.location = '../Invoice/Create?companyId=' + $("#CompanyList").val();
+            $("#make").on('click', function() {
+                var cid = $("#CompanyList").val();
+                if (cid != null)
+                    window.location = '../Invoice/Create?companyId=' + cid;
             });
-            $("#sale").on('click', function () {
+            $("#sale").on('click', function() {
                 $('#companies').val('');
                 $("#Products option[value='']").prop('selected', true);
                 $('#salsePrice, #amount').val('0.00');
-                $("#Type option[value='']").prop('selected', true);
-                $("#amount").prop('disabled', true);
+                $("#Type option").eq(1).prop('selected', true);
+                $("#amount").prop('disabled', false);
                 $("#jobTitle, #designation, #billingPerson, #refno, #comment").val('');
                 $("#jobTitle").prop('disabled', true);
                 $("#month").val('1');
@@ -1186,6 +1195,33 @@
                 $("#workshopdateDiv").hide();
                 $("#job").html('Job Title');
                 $("#save, #make").prop('disabled', true);
+            });
+            $("#addNewproduct").on("click", function() {
+                $.colorbox({
+                    iframe: true,
+                    width: $(this).attr('width'),
+                    height: $(this).attr('height'),
+                    href: $(this).attr('path'),
+                    scrolling: false,
+                    innerWidth: '545px'
+                });
+            });
+            $("#refreshProduct").on("click", function() {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetProducts", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({}),
+                    dataType: "json",
+                    success: function(data) {
+                        var strHtml = "";
+                        strHtml += "<option value='' selected='selected'>List of Products</option>";
+                        $.each(data, function(i, d) {
+                            strHtml += "<option value='" + d.Id + "'>" + d.GroupName + "</option>";
+                        });
+                        $("#Products").html(strHtml);
+                    },
+                });
             });
         });
     </script>

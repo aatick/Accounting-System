@@ -8,6 +8,7 @@
 @section styles
 {
     <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/common.css" rel="stylesheet" />
     <style type="text/css">
         .modal-header-lj {
             color: #fff;
@@ -67,7 +68,7 @@
 }
 <div class="container">
     <!-- Modal -->
-    <div class="modal ljModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal ljModal" id="success"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header modal-header-lj">
@@ -127,8 +128,16 @@
 
                             <div class="row" style="margin:10px -15px 5px -15px;">
                                 <div class="col-sm-12">
-                                    <div style="margin:10px 0px 5px 0px;">
+                                    <div class="list-container" style="margin:10px 0px 5px 0px;">
                                         <button id="show" type="button" class="btn btn-info btn-block">Show</button>
+                                        <ul class="export-container" id="option-one">
+                                            <li data-type="Pdf">Pdf</li>
+                                            <li data-type="Excel">Microsoft Excel (97-2003)</li>
+                                            <li data-type="ExcelData">Microsoft Excel (97-2003) Data-Only</li>
+                                            <li data-type="ExcelBook">Microsoft Excel (2007-2013)</li>
+                                            <li data-type="Word">Microsoft Word (97-2003)</li>
+                                            <li data-type="XML">XML</li>
+                                        </ul>
                                     </div>
                                     <div style="margin:10px 0px 5px 0px;">
                                         <button id="exit" type="button" class="btn btn-info btn-block">Exit</button>
@@ -149,12 +158,12 @@
 {
     <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
     <script src="~/Scripts/js/messi.min.js"></script>
-    <script>
-        $(document).ready(function () {
+    <script type="text/javascript">
+        $(document).ready(function() {
             $('#show').prop('disabled', true);
             //$(document).click(function () {
             //    $('#success').modal({
-            //        backdrop: 'static',
+            //        backdrop: false,
             //        keyboard: false
             //    });
             //});
@@ -163,19 +172,20 @@
             //        $('#success').modal('show');
             //});
             $('#success').modal({
-                backdrop: 'static',
+                backdrop: false,
                 keyboard: false
             });
-            $("#close, #exit").on('click', function () {
+            $("#close, #exit").on('click', function() {
                 $('#success').modal('hide');
             });
             var today = new Date();
             $("#Year option[value='" + today.getFullYear() + "']").prop('selected', true);
             $("#Month option[value='" + (today.getMonth() + 1) + "']").prop('selected', true);
-            $("#Year, #Month").on('change', function () {
+            $("#Year, #Month").on('change', function() {
                 getVouchers();
             });
             centerSuccess();
+
             function centerSuccess() {
                 $('.modal').css('display', 'block');
                 var $dialog = $('.modal').find(".modal-dialog");
@@ -184,9 +194,10 @@
                 $dialog.css("margin-top", offset);
             }
 
-            $(window).on("resize", function () {
+            $(window).on("resize", function() {
                 centerSuccess();
             });
+
             function getVouchers() {
                 var jsonData = { year: $("#Year").val(), month: $("#Month").val() };
                 $.ajax({
@@ -195,33 +206,42 @@
                     contentType: "application/json; charset=utf-8",
                     data: JSON.stringify(jsonData),
                     dataType: "json",
-                    success: function (data) {
+                    success: function(data) {
                         $("#VoucherList").html('');
-                        $.each(data, function (key, value) {
+                        $.each(data, function(key, value) {
                             $("#VoucherList").append('<option value="' + value.Id + '">' + value.InvoiceNo + '</option>');
                         });
                     },
                 });
             }
 
-            $("#VoucherList").on('change', function () {
+            $("#VoucherList").on('change', function() {
                 $("#show").prop('disabled', false);
             });
-
-            $("#show").on('click', function () {
-                var jsonData = { voucherId: $("#VoucherList").val() };
-                $.ajax({
-                    type: "Post",
-                    url: '@Url.Action("GetVoucherReport", "Journal")',
-                    contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify(jsonData),
-                    dataType: "json",
-                    success: function (data) {
-                        if (data == true)
-                            window.open('.././ReportingForms/CRViewer.aspx');
-                    },
-                });
+            $("#show").on('click', function() {
+                $(".export-container").toggleClass("active");
             });
-        });
+            var exportOption;
+            $("#option-one li").on("click", function () {
+                exportOption = $(this).attr("data-type");
+                $("#option-one").removeClass('active');
+                showPreview();
+            });
+            function showPreview() {
+            var jsonData = { voucherId: $("#VoucherList").val() };
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("GetVoucherReport", "Journal")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(jsonData),
+                dataType: "json",
+                success: function(data) {
+                    if (data == true)
+                        window.open('/Accounting/Report/Show?type='+exportOption);
+                },
+            });
+        };
+    });
     </script>
+    <script type="text/javascript" src="~/Scripts/js/common.js"></script>
 }

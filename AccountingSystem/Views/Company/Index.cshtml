@@ -6,66 +6,90 @@
     var user = (User)Session["loggedinUser"];
     var accessRights = user.AccessRight.Split(',');
     var isAccountOrAdmin = user.AccountDep || user.CanModifyAdmin;
+    var districts = (List<District>) ViewBag.District;
 }
-@section styles
+
+<link href="~/Content/css/stylesheet.css" rel="stylesheet" />
+<link href="~/Content/css/ValidationMessage.css" rel="stylesheet" />
+<link href="~/Content/css/messi.min.css" rel="stylesheet" />
+<style>
+    .form-horizontal .control-label {
+        text-align: right;
+    }
+
+    body .modal-dialog {
+        width: 800px;
+        margin-top: 20px;
+    }
+
+    legend {
+        width: auto;
+        border-bottom: 0px;
+        color: inherit;
+    }
+
+    fieldset.billing-border {
+        font-family: Verdana, Arial, sans-serif;
+        font-size: small;
+        font-weight: normal;
+        border: 1px solid #999999;
+        padding: 0 10px 10px 0;
+    }
+
+    legend.billing-border {
+        font-size: 90%;
+        color: #888888;
+        background-color: transparent;
+        font-weight: bold;
+        padding-left: 5px;
+        padding-right: 5px;
+        margin: 0;
+    }
+
+    .margin-bottom {
+        margin-bottom: 5px;
+    }
+
+    #close {
+        position: absolute;
+        top: 0;
+        right: 0px;
+        background: url(./images/close2.png) no-repeat -25px 0;
+        width: 30px;
+        height: 30px;
+        text-indent: -9999px;
+        padding: 0 10px 0 0;
+        cursor: pointer;
+        margin: 0 0 0 0;
+    }
+</style>
+@if (ViewBag.Page != null)
 {
-    <link href="~/Content/css/stylesheet.css" rel="stylesheet" />
-    <link href="~/Content/css/ValidationMessage.css" rel="stylesheet" />
-    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
-    <style>
-        .form-horizontal .control-label {
-            text-align: right;
-        }
-        
+    Layout = null;
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-2.1.3.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <style type="text/css">
         body .modal-dialog {
-            width: 800px;
-            margin-top: 20px;
+            margin-top: 0px;
+            margin-left: -20px;
         }
 
-        legend {
-            width: auto;
-            border-bottom: 0px;
-            color: inherit;
+        body #close {
+            display: none;
         }
 
-        fieldset.billing-border {
-            font-family: Verdana, Arial, sans-serif;
-            font-size: small;
-            font-weight: normal;
-            border: 1px solid #999999;
-            padding: 0 10px 10px 0;
+        body .modal-backdrop.in {
+            display: none;
         }
 
-        legend.billing-border {
-            font-size: 90%;
-            color: #888888;
-            background-color: transparent;
-            font-weight: bold;
-            padding-left: 5px;
-            padding-right: 5px;
-            margin: 0;
-        }
-
-        .margin-bottom {
-            margin-bottom: 5px;
-        }
-
-        #close {
-            position: absolute;
-            top: 0;
-            right: 0px;
-            background: url(./images/close2.png) no-repeat -25px 0;
-            width: 30px;
-            height: 30px;
-            text-indent: -9999px;
-            padding: 0 10px 0 0;
-            cursor: pointer;
-            margin: 0 0 0 0;
+        .modal.in {
+            overflow: hidden !important;
         }
     </style>
 }
-
-<div class="modal" id="companyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal" id="companyModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -73,20 +97,17 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="row">
-                        <div class="col-sm-12" style="margin-top: -10px; padding: 0;">
+                    <div class="col-sm-12" style="margin-top: -10px; padding: 0;">
+                        <div class="row">
                             <div class="col-sm-6">
-                                <div class="col-sm-12">
-                                    <label class="control-label input-sm">List of Companies</label>
-                                </div>
-                                <div class="col-sm-12">
-                                    <input type="text" id="companies" class="form-control input-sm select" style="height: 30px;" />
-                                    <select hidden size="10" id="CompanyList" style="border: 1px solid gray; font-size: 12px; z-index: 9999999999999; height: 200px; position: absolute; overflow-y: auto; overflow-x: hidden; background: white;">
-                                        @foreach (Company company in ViewBag.CompanyList)
-                                        {
-                                            <option value="@company.Id" data-blacklisted="@company.BlackListed">@company.Name</option>
-                                        }
-                                    </select>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <label class="control-label input-sm">List of Companies</label>
+                                    </div>
+                                    <div class="col-sm-12" style="margin-left: 10px;">
+                                        <input type="text" id="companies" class="form-control input-sm select" style="height: 30px;" />
+                                        <select hidden size="10" id="CompanyList" style="border: 1px solid gray; font-size: 12px; z-index: 9999999999999; height: 200px; position: absolute; overflow-y: auto; overflow-x: hidden; background: white;"></select>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-sm-6">
@@ -100,28 +121,32 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-12" style="padding: 0;">
-                            @using (Html.BeginForm("Index", "Company", FormMethod.Post, new { @id = "companyForm" }))
-                            {
-                                @Html.ValidationSummary(true)
+                    </div>
+                    <div class="col-sm-12" style="padding: 0;">
+                        @using (Html.BeginForm("Index", "Company", FormMethod.Post, new { @id = "companyForm" }))
+                        {
+                            @Html.ValidationSummary(true)
+                            <div class="row">
                                 <div class="col-sm-12">
-                                    <div class="col-sm-4">
-                                        @Html.LabelFor(model => model.Id, new { @class = "control-label col-sm-6 input-sm" })
-                                        <div class="col-sm-6">
-                                            <label class="form-control input-sm" id="companyId"></label>
+                                    <div class="row">
+                                        <div class="col-sm-4">
+                                            @Html.LabelFor(model => model.Id, new { @class = "control-label col-sm-6 input-sm" })
+                                            <div class="col-sm-6">
+                                                <label class="form-control input-sm" style="margin-left: 10px;" id="companyId"></label>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-5">
-                                        @Html.LabelFor(model => model.CP_Id, new { @class = "control-label col-sm-5 input-sm" })
-                                        <div class="col-sm-7">
-                                            <input type="text" name="CP_Id" id="cpId" class="form-control input-sm" />
+                                        <div class="col-sm-5">
+                                            @Html.LabelFor(model => model.CP_Id, new { @class = "control-label col-sm-5 input-sm text-right" })
+                                            <div class="col-sm-7">
+                                                <input type="text" name="CP_Id" id="cpId" class="form-control input-sm" />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-3" style="margin-right: 0; padding-right: 0;">
-                                        <div class="col-sm-12">
-                                            @Html.CheckBoxFor(model => model.BlackListed, new { @class = "checkbox checkbox-inline input-sm", @style = "float: right; margin-top: 2px;" })
-                                            <label class="control-label input-sm" style="float:right; margin-right: 5px;">Black Listed</label>
-                                            @Html.ValidationMessageFor(model => model.BlackListed)
+                                        <div class="col-sm-3">
+                                            <div class="col-sm-12">
+                                                @Html.CheckBoxFor(model => model.BlackListed, new { @class = "checkbox checkbox-inline input-sm", @style = "float: right; margin-top: 2px;" })
+                                                <label class="control-label input-sm" style="float:right; margin-right: 5px;">Black Listed</label>
+                                                @Html.ValidationMessageFor(model => model.BlackListed)
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -130,18 +155,26 @@
                                     @Html.LabelFor(model => model.Name, new { @class = "control-label col-sm-2 input-sm" })
                                     <div class="col-sm-10">
                                         @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control input-sm" } })
-                                        @*<input type="text" name="Name" id="companyName" class="form-control input-sm"/>*@
                                         <span style="color: red;" id="name-err" hidden class="input-sm">This Company already exist</span>
                                         <span style="color: red;" id="name-err2" hidden class="input-sm">This field is required</span>
-                                        @*@Html.ValidationMessageFor(model => model.Name,"",new {@id="name-err"})*@
                                     </div>
                                 </div>
 
                                 <div class="col-sm-12 margin-bottom">
                                     @Html.LabelFor(model => model.VatRegNo, new { @class = "control-label col-sm-2 input-sm" })
-                                    <div class="col-sm-10">
+                                    <div class="col-sm-5">
                                         @Html.EditorFor(model => model.VatRegNo, new { htmlAttributes = new { @class = "form-control input-sm" } })
                                         @Html.ValidationMessageFor(model => model.VatRegNo)
+                                    </div>
+                                    <label class="control-label col-sm-1 input-sm">District</label>
+                                    <div class="col-sm-4">
+                                        <select id="district" class="form-control input-sm" name="DistrictId">
+                                            <option value="0">Select</option>
+                                            @foreach (var aDistrict in districts)
+                                            {
+                                                <option value="@aDistrict.Id">@aDistrict.Name</option>
+                                            }
+                                        </select>
                                     </div>
                                 </div>
 
@@ -160,141 +193,905 @@
                                         @Html.ValidationMessageFor(model => model.Address, "", new { @id = "Address_err" })
                                     </div>
                                 </div>
-
+                            </div>
+                            <div class="row">
                                 <div class="col-sm-12" style="padding-right: 0;">
-                                    <div class="col-sm-8" style="margin-left: -16px;">
-                                        <div class="col-sm-12 margin-bottom">
-                                            @Html.LabelFor(model => model.City, new { @class = "control-label col-sm-3 input-sm" })
-                                            <div class="col-sm-9">
-                                                @Html.EditorFor(model => model.City, new { htmlAttributes = new { @class = "form-control input-sm" } })
-                                                <span style="color: red;" hidden id="city-err" class="input-sm">This field is required</span>
-                                                @Html.ValidationMessageFor(model => model.City, "", new { @id = "City_err" })
-                                            </div>
-                                        </div>
+                                    <div class="row">
+                                        <div class="col-sm-8">
+                                            <div class="row">
+                                                <div class="col-sm-12 margin-bottom">
+                                                    @Html.LabelFor(model => model.City, new { @class = "control-label col-sm-3 input-sm" })
+                                                    <div class="col-sm-9">
+                                                        @Html.EditorFor(model => model.City, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                                        <span style="color: red;" hidden id="city-err" class="input-sm">This field is required</span>
+                                                        @Html.ValidationMessageFor(model => model.City, "", new { @id = "City_err" })
+                                                    </div>
+                                                </div>
 
-                                        <div class="col-sm-12 margin-bottom">
-                                            @Html.LabelFor(model => model.Phone, new { @class = "control-label col-sm-3 input-sm" })
-                                            <div class="col-sm-9">
-                                                @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control input-sm" } })
-                                                <span style="color: red;" hidden id="phone-err" class="input-sm">This field is required</span>
-                                                @Html.ValidationMessageFor(model => model.Phone, "", new { @id = "Phone_err" })
-                                            </div>
-                                        </div>
+                                                <div class="col-sm-12 margin-bottom">
+                                                    @Html.LabelFor(model => model.Phone, new { @class = "control-label col-sm-3 input-sm" })
+                                                    <div class="col-sm-9">
+                                                        @Html.EditorFor(model => model.Phone, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                                        <span style="color: red;" hidden id="phone-err" class="input-sm">This field is required</span>
+                                                        @Html.ValidationMessageFor(model => model.Phone, "", new { @id = "Phone_err" })
+                                                    </div>
+                                                </div>
 
-                                        <div class="col-sm-12 margin-bottom">
-                                            @Html.LabelFor(model => model.Email, new { @class = "control-label col-sm-3 input-sm" })
-                                            <div class="col-sm-9">
-                                                @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control input-sm" } })
-                                                <span style="color: red;" hidden id="email-err" class="input-sm">This field is required</span>
-                                                @Html.ValidationMessageFor(model => model.Email, "", new { @id = "Email_err" })
-                                            </div>
-                                        </div>
+                                                <div class="col-sm-12 margin-bottom">
+                                                    @Html.LabelFor(model => model.Email, new { @class = "control-label col-sm-3 input-sm" })
+                                                    <div class="col-sm-9">
+                                                        @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                                        <span style="color: red;" hidden id="email-err" class="input-sm">This field is required</span>
+                                                        @Html.ValidationMessageFor(model => model.Email, "", new { @id = "Email_err" })
+                                                    </div>
+                                                </div>
 
-                                        <div class="col-sm-12 margin-bottom">
-                                            @Html.LabelFor(model => model.Fax, new { @class = "control-label col-sm-3 input-sm" })
-                                            <div class="col-sm-9">
-                                                @Html.EditorFor(model => model.Fax, new { htmlAttributes = new { @class = "form-control input-sm" } })
-                                                @Html.ValidationMessageFor(model => model.Fax)
-                                            </div>
-                                        </div>
+                                                <div class="col-sm-12 margin-bottom">
+                                                    @Html.LabelFor(model => model.Fax, new { @class = "control-label col-sm-3 input-sm" })
+                                                    <div class="col-sm-9">
+                                                        @Html.EditorFor(model => model.Fax, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                                        @Html.ValidationMessageFor(model => model.Fax)
+                                                    </div>
+                                                </div>
 
-                                        <div class="col-sm-12 margin-bottom">
-                                            @Html.LabelFor(model => model.ContactPerson, new { @class = "control-label col-sm-3 input-sm" })
-                                            <div class="col-sm-9">
-                                                @Html.EditorFor(model => model.ContactPerson, new { htmlAttributes = new { @class = "form-control input-sm" } })
-                                                <span style="color: red;" hidden id="contact-err" class="input-sm">This field is required</span>
-                                                @Html.ValidationMessageFor(model => model.ContactPerson, "", new { @id = "ContactPerson_err" })
-                                            </div>
-                                        </div>
+                                                <div class="col-sm-12 margin-bottom">
+                                                    @Html.LabelFor(model => model.ContactPerson, new { @class = "control-label col-sm-3 input-sm" })
+                                                    <div class="col-sm-9">
+                                                        @Html.EditorFor(model => model.ContactPerson, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                                        <span style="color: red;" hidden id="contact-err" class="input-sm">This field is required</span>
+                                                        @Html.ValidationMessageFor(model => model.ContactPerson, "", new { @id = "ContactPerson_err" })
+                                                    </div>
+                                                </div>
 
-                                        <div class="col-sm-12 margin-bottom">
-                                            @Html.LabelFor(model => model.Designation, new { @class = "control-label col-sm-3 input-sm" })
-                                            <div class="col-sm-9">
-                                                @Html.EditorFor(model => model.Designation, new { htmlAttributes = new { @class = "form-control input-sm" } })
-                                                @Html.ValidationMessageFor(model => model.Designation)
-                                            </div>
-                                        </div>
+                                                <div class="col-sm-12 margin-bottom">
+                                                    @Html.LabelFor(model => model.Designation, new { @class = "control-label col-sm-3 input-sm" })
+                                                    <div class="col-sm-9">
+                                                        @Html.EditorFor(model => model.Designation, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                                        @Html.ValidationMessageFor(model => model.Designation)
+                                                    </div>
+                                                </div>
 
-                                        <div class="col-sm-12 margin-bottom">
-                                            @Html.LabelFor(model => model.AccContactName, new { @class = "control-label col-sm-3 input-sm" })
-                                            <div class="col-sm-9">
-                                                @Html.EditorFor(model => model.AccContactName, new { htmlAttributes = new { @class = "form-control input-sm" } })
-                                                @Html.ValidationMessageFor(model => model.AccContactName)
+                                                <div class="col-sm-12 margin-bottom">
+                                                    @Html.LabelFor(model => model.AccContactName, new { @class = "control-label col-sm-3 input-sm" })
+                                                    <div class="col-sm-9">
+                                                        @Html.EditorFor(model => model.AccContactName, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                                                        @Html.ValidationMessageFor(model => model.AccContactName)
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-4" id="billing" style="padding-left: 0; margin-left: -30px; padding-right: 0; margin-right: 0; width: 286px;">
-                                        <fieldset class="col-sm-12 billing-border">
-                                            <legend class="billing-border input-sm">Billing Person</legend>
-                                            <div class="col-sm-12" style="float: right;">
-                                                <div class="col-sm-5">
-                                                    <input type="radio" value="Add" class="radio radio-inline input-sm" id="add_bill" style="margin-top: -3px;" />
-                                                    <label class="control-label input-sm">Add</label>
-                                                </div>
-                                                <div class="col-sm-7">
-                                                    <input type="radio" value="Update" checked="checked" class="radio radio-inline input-sm" id="update_bill" style="margin-top: -3px;" />
-                                                    <label class="control-label input-sm">Update</label>
-                                                </div>
+                                        <div class="col-sm-4" id="billing" style="margin-left: -25px;">
+                                            <div class="row">
+                                                <fieldset class="billing-border" style="width: 93%;">
+                                                    <legend class="billing-border input-sm">Billing Person</legend>
+                                                    <div class="col-sm-12">
+                                                        <div class="row">
+                                                            <div class="col-sm-5">
+                                                                <input type="radio" value="Add" class="radio radio-inline input-sm" id="add_bill" style="margin-top: -3px;" />
+                                                                <label class="control-label input-sm">Add</label>
+                                                            </div>
+                                                            <div class="col-sm-7">
+                                                                <input type="radio" value="Update" checked="checked" class="radio radio-inline input-sm" id="update_bill" style="margin-top: -3px;" />
+                                                                <label class="control-label input-sm">Update</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="row">
+                                                            <div class="col-sm-12">
+                                                                <label class="control-label input-sm">Name</label>
+                                                            </div>
+                                                            <div class="col-sm-12">
+                                                                <input type="text" class="form-control input-sm" id="billing_name" />
+                                                                <select class="form-control input-sm" id="billing_name_dropdown"></select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12 margin-bottom">
+                                                        <div class="row">
+                                                            <div class="col-sm-12">
+                                                                <label class="control-label input-sm">Designation</label>
+                                                            </div>
+                                                            <div class="col-sm-12">
+                                                                <input type="text" class="form-control input-sm" id="billing_designation" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-12">
+                                                        <div class="row">
+                                                            <div class="col-sm-4" style="padding: 0 0 0 5px;">
+                                                                <input type="button" id="delete_billing" class="btn btn-block btn-sm btn-primary" value="Delete" />
+                                                            </div>
+                                                            <div class="col-sm-4" style="padding: 0 0 0 5px;">
+                                                                <input type="button" id="update_billing" class="btn btn-block btn-sm btn-primary" value="Update" />
+                                                            </div>
+                                                            <div class="col-sm-4" style="padding: 0 0 0 5px;">
+                                                                <input type="button" id="add_billing" class="btn btn-block btn-sm btn-primary" value="Add" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
                                             </div>
-                                            <div class="col-sm-12">
-                                                <div class="col-sm-12">
-                                                    <label class="control-label input-sm">Name</label>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <input type="text" class="form-control input-sm" id="billing_name" />
-                                                    <select class="form-control input-sm" id="billing_name_dropdown"></select>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12 margin-bottom">
-                                                <div class="col-sm-12">
-                                                    <label class="control-label input-sm">Designation</label>
-                                                </div>
-                                                <div class="col-sm-12">
-                                                    <input type="text" class="form-control input-sm" id="billing_designation" />
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-12">
-                                                <div class="col-sm-4" style="padding: 0 0 0 5px;">
-                                                    <input type="button" id="delete_billing" class="btn btn-block btn-sm btn-primary" value="Delete" />
-                                                </div>
-                                                <div class="col-sm-4" style="padding: 0 0 0 5px;">
-                                                    <input type="button" id="update_billing" class="btn btn-block btn-sm btn-primary" value="Update" />
-                                                </div>
-                                                <div class="col-sm-4" style="padding: 0 0 0 5px;">
-                                                    <input type="button" id="add_billing" class="btn btn-block btn-sm btn-primary" value="Add" />
-                                                </div>
-                                            </div>
-                                        </fieldset>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-12">
-                                    <div class="col-sm-3">
-                                        <input type="button" id="delete_company" class="btn btn-block btn-primary input-sm" value="Delete" />
-                                    </div>
-                                    <div class="col-sm-3">
-                                        <input type="submit" id="update_company" name="update" class="btn btn-block btn-primary input-sm" value="Update" />
-                                    </div>
-                                    <div class="col-sm-3">
-                                        <input type="submit" id="add_company" name="add" class="btn btn-block btn-primary input-sm" value="Add" />
-                                    </div>
-                                    <div class="col-sm-3">
-                                        <input type="button" id="exit" name="exit" class="btn btn-block btn-primary input-sm" value="Exit" />
+                                <div class="col-sm-12" style="margin-left: 10px;padding-right: 35px;">
+                                    <div class="row">
+                                        <div class="col-sm-3">
+                                            <input type="button" id="delete_company" class="btn btn-block btn-primary input-sm" value="Delete" />
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <input type="submit" id="update_company" name="update" class="btn btn-block btn-primary input-sm" value="Update" />
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <input type="submit" id="add_company" name="add" class="btn btn-block btn-primary input-sm" value="Add" />
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <input type="button" id="exit" name="exit" class="btn btn-block btn-primary input-sm" value="Exit" />
+                                        </div>
                                     </div>
                                 </div>
-                            }
-                        </div>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-@section scripts
+@if (ViewBag.Page == null)
 {
-    <script src="~/Scripts/jquery.validate.js"></script>
-    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
-    <script src="~/Scripts/js/messi.min.js"></script>
-    <script>
+    @section scripts{
+        <script src="~/Scripts/jquery.validate.js"></script>
+        <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+        <script src="~/Scripts/js/messi.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                function allHide() {
+                    $("#name-err").hide();
+                    $("#name-err2").hide();
+                    $("#address-err").hide();
+                    $("#city-err").hide();
+                    $("#phone-err").hide();
+                    $("#email-err").hide();
+                    $("#contact-err").hide();
+                    $("#Name").css('border-color', '');
+                    $("#ContactPerson").css('border-color', '');
+                    $("#Email").css('border-color', '');
+                    $("#Phone").css('border-color', '');
+                    $("#City").css('border-color', '');
+                    $("#Address").css('border-color', '');
+                }
+
+                allHide();
+                $("#companyModal").modal({
+                    backdrop: false,
+                    keyboard: false
+                });
+                $('#CompanyList').css('width', ($('#companies').width() + 22) + 'px');
+                centerSuccess();
+
+                function centerSuccess() {
+                    $('.modal').css('display', 'block');
+                    var $dialog = $('.modal').find(".modal-dialog");
+                    var offset = ($(window).height() - $dialog.height()) / 2;
+                    // Center modal vertically in window
+                    //if (offset >= 0)
+                    //    $dialog.css("margin-top", offset);
+                    $dialog.css("margin-top", "0px");
+                }
+
+                $(window).on("resize", function () {
+                    centerSuccess();
+                    $('#CompanyList').css('width', ($('#companies').width() + 22) + 'px');
+                });
+                
+                $(document).mousedown(function (e) {
+                    var container = $("#CompanyList,#companies");
+                    if (!container.is(e.target) && container.has(e.target).length === 0) {
+                        $('#CompanyList').hide();
+                    }
+                });
+
+                $(document).on('click', '#CompanyList option', function () {
+                    $('#companies').val($('#CompanyList option:selected').text());
+                    $('#CompanyList').hide();
+                    $('#companies').focus();
+                    setOptions();
+                });
+
+                function setOptions() {
+                    $('#companies').val($('#CompanyList option:selected').text());
+                    $("#update_company, #delete_company").prop('disabled', false);
+                    var companyId = $("#CompanyList").val();
+                    if (companyId == null)
+                        companyId = 0;
+                    var jsonData = { companyId: companyId };
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("GetCompanyById", "Company")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(jsonData),
+                        dataType: "json",
+                        success: function (data) {
+                            $("#companyId").html(pad(data.Id, 5));
+                            $("#cpId").val(data.CP_Id);
+                            $("#BlackListed").prop('checked', data.BlackListed);
+                            $("#Name").val(data.Name);
+                            $("#VatRegNo").val(data.VatRegNo);
+                            $("#VatRegAdd").val(data.VatRegAdd);
+                            $("#AccContactName").val(data.AccContactName);
+                            $("#Designation").val(data.Designation);
+                            $("#ContactPerson").val(data.ContactPerson);
+                            $("#Fax").val(data.Fax);
+                            $("#Email").val(data.Email);
+                            $("#Phone").val(data.Phone);
+                            $("#City").val(data.City);
+                            $("#Address").val(data.Address);
+                            $("#district").val(data.DistrictId);
+                        },
+                    });
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("GetContactPersonByCompanyId", "Company")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(jsonData),
+                        dataType: "json",
+                        success: function (data) {
+                            $("#billing_name_dropdown").html('');
+                            $("#billing_name_dropdown").append('<option value=""></option>');
+                            $.each(data, function (key, value) {
+                                $("#billing_name_dropdown").append('<option value="' + value.Id + '">' + value.Name + '</option>');
+                            });
+                        },
+                    });
+                    $("#billing_name").hide();
+                    $("#billing_name_dropdown").show();
+                    $("#billing_designation").val('');
+                }
+
+                $("#CompanyList").on('keydown', function (e) {
+                    if (e.keyCode == 13 || e.keyCode == 27) {
+                        $('#companies').val($('#CompanyList option:selected').text());
+                        $('#CompanyList').hide();
+                        $('#companies').focus();
+                        setOptions();
+                    }
+                });
+                $('#companies').on("focus", function () {
+                    $(this).select();
+                });
+
+                $('#companies').on('keyup click', function (e) {
+                    if (e.keyCode != 13 && e.keyCode != 27) {
+                        var str = $(this).val();
+                        str = str.trim();
+                        if (str != "") {
+                            var jsonData = { startingKey: str };
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("GetCompanyListByKey", "Company")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(jsonData),
+                                dataType: "json",
+                                success: function (data) {
+                                    var strHtml = "";
+                                    $.each(data, function (i, d) {
+                                        strHtml += "<option " + (d.Name.toLowerCase() == str.toLowerCase() ? "selected='selected'" : "") + " value='" + d.Id + "' data-blacklisted='" + d.BlackListed + "'>" + d.Name + "</option>";
+                                    });
+                                    if (strHtml != "")
+                                        $('#CompanyList').html(strHtml).show();
+                                    else
+                                        $('#CompanyList').html("").hide();
+                                },
+                            });
+
+                        } else {
+                            $('#CompanyList').html("").hide();
+                        }
+                    }
+                });
+
+                $("#close, #exit").on('click', function () {
+                    $("#companyModal").modal('hide');
+                });
+                var isAccOrAdmin = '@isAccountOrAdmin';
+
+                $("#City").val('Dhaka');
+                $("#cpId").val('0');
+                $("#companies").prop('disabled', true);
+                $("#companyId").css('background-color', '#EEEEEE');
+                $("#billing input,#billing select").prop('disabled', true);
+                $("#billing label").css('color', '#EEEEEE');
+                $("#update_company").prop('disabled', true);
+                $("#delete_company").prop('disabled', true);
+                $("#add_billing").addClass('disabled');
+                $("#billing_name").hide();
+
+                function pad(str, max) {
+                    str = str.toString();
+                    return str.length < max ? pad("0" + str, max) : str;
+                }
+
+                $("#billing_name_dropdown").on('change', function () {
+                    $("#billing_name_dropdown option[value='']").remove();
+                    var id = $("#billing_name_dropdown").val();
+                    var jsonData = { id: id };
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("GetContactPersonById", "Company")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(jsonData),
+                        dataType: "json",
+                        success: function (data) {
+                            $("#billing_name_dropdown").hide();
+                            $("#billing_name").val(data.Name);
+                            $("#billing_name").show();
+                            $("#billing_designation").val(data.Designation);
+                        },
+                    });
+                });
+
+                $("#add_radio").on('change', function () {
+                    $(".row input[type='text'], input[type='tel'], input[type='email']").val('');
+                    $("#cpId").val('0');
+                    $("#City").val('Dhaka');
+                    $("#add_radio").prop('checked', true);
+                    $("#update_radio").prop('checked', false);
+                    $("#companies").prop('disabled', true);
+                    $("#companyId").html('');
+                    $("#companyId").css('background-color', '#EEEEEE');
+                    $("#billing input,#billing select").prop('disabled', true);
+                    $("#billing input[type='text'],#billing select").val('');
+                    $("#billing label").css('color', '#EEEEEE');
+                    $("#delete_company").prop('disabled', true);
+                    $("#update_company").prop('disabled', true);
+                    $("#add_company").prop('disabled', false);
+                    $('#Name').css('border-color', '');
+                    $('#name-err').hide();
+                });
+                $("#billing").on('click', function () {
+                    $('#Name').css('border-color', '');
+                    $('#name-err').hide();
+                });
+
+                $("#update_radio").on('change', function () {
+                    $(".form-horizontal input[type='text'], input[type='tel'], input[type='email']").val('');
+                    $("#add_radio").prop('checked', false);
+                    $("#update_radio").prop('checked', true);
+                    $("#companies").prop('disabled', false);
+                    $("#companyId").css('background-color', '');
+                    $("#billing input,#billing select").prop('disabled', false);
+                    $("#billing select").html('');
+                    $("#billing label").css('color', '');
+                    $("#add_company").prop('disabled', true);
+                    $("#delete_company").prop('disabled', true);
+                    $('#Name').css('border-color', '');
+                    $('#name-err').hide();
+                });
+
+                $("#add_billing").on('click', function () {
+                    if ($("#companies").val().trim() == "") {
+                        new Messi("You must select a company first.",
+                        {
+                            title: 'Alert',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else {
+                        var str = $('#companies').val().trim();
+                        var isExist = false;
+                        $('#CompanyList option').each(function () {
+                            if ($(this).html().toLowerCase().replace(/&amp/g, "&") == str.toLowerCase()) {
+                                $(this).prop('selected', true);
+                                isExist = true;
+                                return false;
+                            }
+                            return true;
+                        });
+                        if (isExist == false) {
+                            new Messi("The Entered Company doesn't exist.",
+                            {
+                                title: 'Not exist',
+                                modal: true,
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                            return false;
+                        }
+                        var CId = $("#CompanyList").val();
+                        var Name = $("#billing_name").val();
+                        if (Name != "" || !checkAllAreSpaces(Name)) {
+                            var Designation = $("#billing_designation").val();
+                            var PType = 'Billing person';
+                            var jsonData = { CId: CId, Name: Name, Designation: Designation, PType: PType };
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("AddOrUpdatePerson", "Company")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(jsonData),
+                                dataType: "json",
+                                success: function (data) {
+                                    $("#billing_name_dropdown").html('');
+                                    $("#billing_name_dropdown").append('<option value=""></option>');
+                                    $.each(data, function (key, value) {
+                                        $("#billing_name_dropdown").append('<option value="' + value.Id + '">' + value.Name + '</option>');
+                                    });
+                                    $("#billing_name").val('');
+                                    $("#billing_designation").val('');
+                                    $("#billing_name").hide();
+                                    $("#billing_name_dropdown").show();
+                                    var msg = new Messi("Billing Person added successfully.",
+                                    {
+                                        title: 'Success',
+                                        modal: true,
+                                        buttons: [
+                                            { id: 0, label: 'OK', val: 'X' }
+                                        ]
+                                    });
+                                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                },
+                            });
+                        } else {
+                            new Messi("Enter a person name.",
+                            {
+                                title: 'Alert',
+                                modal: true,
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        }
+                    }
+                });
+
+                function checkAllAreSpaces(str) {
+                    var isSpace = true;
+                    for (var l = 0; l < str.length; l++) {
+                        var ch = str[l];
+                        if (ch != " ")
+                            isSpace = false;
+                    }
+                    return isSpace;
+                }
+
+                $("#update_billing").on('click', function () {
+                    if ($("#companies").val().trim() == "") {
+                        new Messi("You must select a company first.",
+                        {
+                            title: 'Alert',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else {
+                        var str = $('#companies').val().trim();
+                        var isExist = false;
+                        $('#CompanyList option').each(function () {
+                            if ($(this).html().toLowerCase().replace(/&amp/g, "&") == str.toLowerCase()) {
+                                $(this).prop('selected', true);
+                                isExist = true;
+                                return false;
+                            }
+                            return true;
+                        });
+                        if (isExist == false) {
+                            new Messi("The Entered Company doesn't exist.",
+                            {
+                                title: 'Not exist',
+                                modal: true,
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                            return false;
+                        }
+                        var Id = $("#billing_name_dropdown").val();
+                        var CId = $("#CompanyList").val();
+                        var Name = $("#billing_name").val();
+                        if (Name != "" || checkAllAreSpaces(Name)) {
+                            var Designation = $("#billing_designation").val();
+                            var jsonData = { Id: Id, CId: CId, Name: Name, Designation: Designation };
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("AddOrUpdatePerson", "Company")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(jsonData),
+                                dataType: "json",
+                                success: function (data) {
+                                    $("#billing_name_dropdown").html('');
+                                    $("#billing_name_dropdown").append('<option value=""></option>');
+                                    $.each(data, function (key, value) {
+                                        $("#billing_name_dropdown").append('<option value="' + value.Id + '">' + value.Name + '</option>');
+                                    });
+                                    $("#billing_name").val('');
+                                    $("#billing_designation").val('');
+                                    $("#billing_name").hide();
+                                    $("#billing_name_dropdown").show();
+                                    new Messi("Update Successful.",
+                                    {
+                                        title: 'Success',
+                                        modal: true,
+                                        buttons: [
+                                            { id: 0, label: 'OK', val: 'X' }
+                                        ]
+                                    });
+                                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                },
+                            });
+                        } else {
+                            new Messi("Name can not be left empty.",
+                            {
+                                title: 'Alert',
+                                modal: true,
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        }
+                    }
+                });
+
+                $("#delete_billing").on('click', function () {
+                    if ($("#companies").val().trim() == "") {
+                        new Messi("You must select a company first.",
+                        {
+                            title: 'Alert',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else {
+                        var str = $('#companies').val().trim();
+                        var isExist = false;
+                        $('#CompanyList option').each(function () {
+                            if ($(this).html().toLowerCase().replace(/&amp/g, "&") == str.toLowerCase()) {
+                                $(this).prop('selected', true);
+                                isExist = true;
+                                return false;
+                            }
+                            return true;
+                        });
+                        if (isExist == false) {
+                            new Messi("The Entered Company doesn't exist.",
+                            {
+                                title: 'Not exist',
+                                modal: true,
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                            return false;
+                        }
+                        var Id = $("#billing_name_dropdown").val();
+                        var CId = $("#CompanyList").val();
+                        var jsonData = { Id: Id, CId: CId };
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("DeletePerson", "Company")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(jsonData),
+                            dataType: "json",
+                            success: function (data) {
+                                $("#billing_name_dropdown").html('');
+                                $("#billing_name_dropdown").append('<option value=""></option>');
+                                $.each(data, function (key, value) {
+                                    $("#billing_name_dropdown").append('<option value="' + value.Id + '">' + value.Name + '</option>');
+                                });
+                                $("#billing_name").val('');
+                                $("#billing_designation").val('');
+                                $("#billing_name").hide();
+                                $("#billing_name_dropdown").show();
+                                new Messi("Delete Successful.",
+                                {
+                                    title: 'Success',
+                                    modal: true,
+                                    buttons: [
+                                        { id: 0, label: 'OK', val: 'X' }
+                                    ]
+                                });
+                                $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                            },
+                        });
+                    }
+                });
+
+                $("#add_bill").on('change', function () {
+                    $("#billing_name").val('');
+                    $('#billing_designation').val('');
+                    $("#add_bill").prop('checked', true);
+                    $("#update_bill").prop('checked', false);
+                    $("#billing_name_dropdown").hide();
+                    $("#billing_name").show();
+                    $("#add_billing").removeClass('disabled');
+                    $("#delete_billing").addClass('disabled');
+                    $("#update_billing").addClass('disabled');
+                });
+                $("#update_bill").on('change', function () {
+                    $('#billing_designation').val('');
+                    $("#add_bill").prop('checked', false);
+                    $("#update_bill").prop('checked', true);
+                    $("#add_billing").addClass('disabled');
+                    $("#delete_billing").removeClass('disabled');
+                    $("#update_billing").removeClass('disabled');
+                    $("#billing_name_dropdown").show();
+                    $("#billing_name").hide();
+                });
+                $("#cpId").on('keypress', function (e) {
+                    if (e.keyCode != 8) {
+                        if (!$.isNumeric(String.fromCharCode(e.which)))
+                            return false;
+                    }
+                    return true;
+                });
+                $("#add_company").on('click', function (e) {
+                    if ('@accessRights.Contains("1")' != 'True') {
+                        var mm0 = new Messi("Sorry, You have no permission to add a record.",
+                        {
+                            title: 'User Access Control',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        e.preventDefault();
+                    }
+                });
+                $("#update_company").on('click', function (e) {
+                    if ('@accessRights.Contains("2")' != 'True' || isAccOrAdmin != 'True') {
+                        var mm0 = new Messi("Sorry, You have no permission to update a record.",
+                        {
+                            title: 'User Access Control',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        e.preventDefault();
+                    }
+                });
+
+                $("#companyForm").submit(function () {
+                    var cpId = $("#cpId").val();
+                    var black = $("#BlackListed").is(':checked');
+                    var name = $("#Name").val();
+                    var vatRegNo = $("#VatRegNo").val();
+                    var vatRegAdd = $("#VatRegAdd").val();
+                    var accName = $("#AccContactName").val();
+                    var designation = $("#Designation").val();
+                    var contactPerson = $("#ContactPerson").val();
+                    var fax = $("#Fax").val();
+                    var email = $("#Email").val();
+                    var phone = $("#Phone").val();
+                    var city = $("#City").val();
+                    var address = $("#Address").val();
+                    var id = $("#companyId").text();
+                    var districtId = $("#district").val();
+
+                    if (name == "" || checkAllAreSpaces(name)) {
+                        $("#name-err2").show();
+                        $("#Name").css('border-color', 'red');
+                    } else if (address == "" || checkAllAreSpaces(address)) {
+                        $("#address-err").show();
+                        $("#Address").css('border-color', 'red');
+                    } else if (city == "" || checkAllAreSpaces(city)) {
+                        $("#city-err").show();
+                        $("#City").css('border-color', 'red');
+                    }
+                    //else if (phone == "" || checkAllAreSpaces(phone)) {
+                    //    $("#phone-err").show();
+                    //    $("#Phone").css('border-color', 'red');
+                    //} else if (email == "" || checkAllAreSpaces(email)) {
+                    //    $("#email-err").show();
+                    //    $("#Email").css('border-color', 'red');
+                    //}
+                    //else if (contactPerson == "" || checkAllAreSpaces(contactPerson)) {
+                    //    $("#contact-err").show();
+                    //    $("#ContactPerson").css('border-color', 'red');
+                    //}
+                    else {
+                        var isUpdate = $("#update_radio").is(':checked');
+                        var value = $("#Name").val().trim();
+                        if (id == "") {
+                            id = "-1";
+                        }
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("CheckCompanyNameWithId", "Company")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({ name: value, id: id }),
+                            dataType: "json",
+                            success: function (data) {
+                                if (data == true) {
+                                    $("#companyForm").validate();
+                                    if ($("#companyForm").valid()) {
+                                        id = id == "-1" ? "" : id;
+                                        var jsonData = {
+                                            Name: name,
+                                            Address: address,
+                                            City: city,
+                                            Phone: phone,
+                                            Email: email,
+                                            Fax: fax,
+                                            ContactPerson: contactPerson,
+                                            Designation: designation,
+                                            BlackListed: black,
+                                            CP_Id: cpId,
+                                            AccContactName: accName,
+                                            VatRegNo: vatRegNo,
+                                            VatRegAdd: vatRegAdd,
+                                            Id: id,
+                                            DistrictId: districtId
+                                        };
+                                        $.ajax({
+                                            type: "Post",
+                                            url: '@Url.Action("Index", "Company")',
+                                            contentType: "application/json; charset=utf-8",
+                                            data: JSON.stringify(jsonData),
+                                            dataType: "json",
+                                            success: function (data2) {
+                                                var strMessage = "";
+                                                if (isUpdate) {
+                                                    strMessage = "Company Information Updated successfully.";
+                                                } else {
+                                                    strMessage = "New Company Inserted successfully.";
+                                                }
+                                                var t = new Messi(strMessage,
+                                                    {
+                                                        title: 'Success',
+                                                        modal: true,
+                                                        buttons: [
+                                                            { id: 0, label: 'OK', val: 'X' }
+                                                        ]
+                                                    });
+                                                $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                            },
+                                        });
+                                    }
+                                } else {
+                                    $("#name-err").show();
+                                    $("#Name").css('border-color', 'red');
+                                }
+                            },
+                        });
+                    }
+                    return false;
+                });
+
+                $("#delete_company").on('click', function () {
+                    if ('@accessRights.Contains("3")' != 'True') {
+                        var mm0 = new Messi("Sorry, You have no permission to delete a record.",
+                        {
+                            title: 'User Access Control',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else {
+                        var companyId = $("#CompanyList").val();
+                        if ($('#companies').val().trim() == "") {
+                            new Messi("You must select a company first.",
+                            {
+                                title: 'Alert',
+                                modal: true,
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        } else {
+                            var str = $('#companies').val().trim();
+                            var isExist = false;
+                            $('#CompanyList option').each(function () {
+                                if ($(this).html().toLowerCase().replace(/&amp/g, "&") == str.toLowerCase()) {
+                                    $(this).prop('selected', true);
+                                    isExist = true;
+                                    return false;
+                                }
+                                return true;
+                            });
+                            if (isExist == false) {
+                                new Messi("The Entered Company doesn't exist.",
+                                {
+                                    title: 'Not exist',
+                                    modal: true,
+                                    buttons: [
+                                        { id: 0, label: 'OK', val: 'X' }
+                                    ]
+                                });
+                                $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                return false;
+                            }
+                            var jsonData = { companyId: companyId };
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("Delete", "Company")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(jsonData),
+                                dataType: "json",
+                                success: function (data) {
+                                    $('#CompanyList option[value="' + data.Id + '"]').remove();
+                                    $('#companies').val('');
+                                    $("#CompanyList").html($('#CompanyList option').sort(function (x, y) {
+                                        return $(x).text() < $(y).text() ? -1 : 1;
+                                    }));
+                                    $('#CompanyList').val('');
+                                    $(".row input[type='text'], input[type='tel'], input[type='email']").val('');
+                                    $("#companyId").html('');
+                                    $('#billing_name_dropdown').html('');
+                                    $('#billing_name').val('');
+                                    $('#billing_designation').val('');
+                                    new Messi("Delete Successfully.",
+                                    {
+                                        title: 'Success',
+                                        modal: true,
+                                        buttons: [
+                                            { id: 0, label: 'OK', val: 'X' }
+                                        ]
+                                    });
+                                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                },
+                            });
+                        }
+                    }
+                });
+
+                $("#Address, #City, #Phone, #Email, #ContactPerson").on('keypress', function (e) {
+                    allHide();
+                });
+                $("#Name").on('keyup', function (e) {
+                    $("#Name").css('border-color', '');
+                    $("#name-err2").hide();
+                    var id = $("#companyId").text();
+                    var value = $("#Name").val().trim();
+                    if (id == "") {
+                        id = "-1";
+                    }
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("CheckCompanyNameWithId", "Company")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ name: value, id: id }),
+                        dataType: "json",
+                        success: function (data) {
+                            if (data == true) {
+                                $("#name-err").hide();
+                                $("#Name").css('border-color', '');
+                            } else {
+                                $("#name-err").show();
+                                $("#Name").css('border-color', 'red');
+                            }
+                        },
+                    });
+                });
+                $('.row input, select').on('click', function () {
+                    allHide();
+                });
+
+            });
+        </script>
+    }
+}
+else
+{
+    <script type="text/javascript">
         $(document).ready(function () {
             function allHide() {
                 $("#name-err").hide();
@@ -314,7 +1111,7 @@
 
             allHide();
             $("#companyModal").modal({
-                backdrop: 'static',
+                backdrop: false,
                 keyboard: false
             });
             $('#CompanyList').css('width', ($('#companies').width() + 22) + 'px');
@@ -341,16 +1138,19 @@
             });
 
 
-            $('#CompanyList').on('click', function () {
+            $(document).on('click', '#CompanyList option', function () {
                 $('#companies').val($('#CompanyList option:selected').text());
                 $('#CompanyList').hide();
                 $('#companies').focus();
+                setOptions();
             });
 
             function setOptions() {
                 $('#companies').val($('#CompanyList option:selected').text());
                 $("#update_company,#delete_company").prop('disabled', false);
                 var companyId = $("#CompanyList").val();
+                if (companyId == null)
+                    companyId = 0;
                 var jsonData = { companyId: companyId };
                 $.ajax({
                     type: "Post",
@@ -373,6 +1173,7 @@
                         $("#Phone").val(data.Phone);
                         $("#City").val(data.City);
                         $("#Address").val(data.Address);
+                        $("#district").val(data.DistrictId);
                     },
                 });
                 $.ajax({
@@ -393,48 +1194,49 @@
                 $("#billing_name_dropdown").show();
                 $("#billing_designation").val('');
             }
-
-            $("#CompanyList").on('change', function () {
-                setOptions();
-            });
             $("#CompanyList").on('keydown', function (e) {
                 if (e.keyCode == 13 || e.keyCode == 27) {
                     $('#companies').val($('#CompanyList option:selected').text());
                     $('#CompanyList').hide();
                     $('#companies').focus();
+                    setOptions();
                 }
             });
-            $('#companies').on('click', function () {
-                var str = $(this).val();
-                $.each($('#CompanyList option'), function () {
-                    if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) == 0) {
-                        $(this).prop('selected', true);
-                        return false;
-                    }
-                    return true;
-                });
-
-                if ($('#CompanyList').is(':visible'))
-                    $('#CompanyList').hide();
-                else
-                    $('#CompanyList').show().focus();
+            $('#companies').on("focus", function () {
+                $(this).select();
             });
-            $('#companies').on('keyup', function (e) {
+
+            $('#companies').on('keyup click', function (e) {
                 if (e.keyCode != 13 && e.keyCode != 27) {
                     var str = $(this).val();
-                    $.each($('#CompanyList option'), function () {
-                        if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) == 0) {
-                            $(this).prop('selected', true);
-                            return false;
-                        }
-                        return true;
-                    });
-                    $('#CompanyList').show();
+                    str = str.trim();
+                    if (str != "") {
+                        var jsonData = { startingKey: str };
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("GetCompanyListByKey", "Company")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(jsonData),
+                            dataType: "json",
+                            success: function (data) {
+                                var strHtml = "";
+                                $.each(data, function (i, d) {
+                                    strHtml += "<option " + (d.Name.toLowerCase() == str.toLowerCase() ? "selected='selected'" : "") + " value='" + d.Id + "' data-blacklisted='" + d.BlackListed + "'>" + d.Name + "</option>";
+                                });
+                                if (strHtml != "")
+                                    $('#CompanyList').html(strHtml).show();
+                                else
+                                    $('#CompanyList').html("").hide();
+                            },
+                        });
+
+                    } else {
+                        $('#CompanyList').html("").hide();
+                    }
                 }
             });
-
             $("#close, #exit").on('click', function () {
-                $("#companyModal").modal('hide');
+                parent.$.colorbox.close();
             });
             var isAccOrAdmin = '@isAccountOrAdmin';
 
@@ -442,7 +1244,7 @@
             $("#cpId").val('0');
             $("#companies").prop('disabled', true);
             $("#companyId").css('background-color', '#EEEEEE');
-            $("#billing :input, select").prop('disabled', true);
+            $("#billing input,#billing select").prop('disabled', true);
             $("#billing label").css('color', '#EEEEEE');
             $("#update_company").prop('disabled', true);
             $("#delete_company").prop('disabled', true);
@@ -453,11 +1255,6 @@
                 str = str.toString();
                 return str.length < max ? pad("0" + str, max) : str;
             }
-
-
-            //$("#CompanyList").on('change', function () {
-
-            //});
 
             $("#billing_name_dropdown").on('change', function () {
                 $("#billing_name_dropdown option[value='']").remove();
@@ -487,8 +1284,8 @@
                 $("#companies").prop('disabled', true);
                 $("#companyId").html('');
                 $("#companyId").css('background-color', '#EEEEEE');
-                $("#billing :input, select").prop('disabled', true);
-                $("#billing :input[type='text'], select").val('');
+                $("#billing input,#billing select").prop('disabled', true);
+                $("#billing input[type='text'],#billing select").val('');
                 $("#billing label").css('color', '#EEEEEE');
                 $("#delete_company").prop('disabled', true);
                 $("#update_company").prop('disabled', true);
@@ -507,7 +1304,7 @@
                 $("#update_radio").prop('checked', true);
                 $("#companies").prop('disabled', false);
                 $("#companyId").css('background-color', '');
-                $("#billing :input, select").prop('disabled', false);
+                $("#billing input,#billing select").prop('disabled', false);
                 $("#billing select").html('');
                 $("#billing label").css('color', '');
                 $("#add_company").prop('disabled', true);
@@ -517,7 +1314,7 @@
             });
 
             $("#add_billing").on('click', function () {
-                if ($("#companies").val() == "") {
+                if ($("#companies").val().trim() == "") {
                     new Messi("You must select a company first.",
                     {
                         title: 'Alert',
@@ -528,10 +1325,10 @@
                     });
                     $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                 } else {
-                    var str = $('#companies').val();
+                    var str = $('#companies').val().trim();
                     var isExist = false;
-                    $.each($('#CompanyList option'), function () {
-                        if ($(this).text().toLowerCase() == str.toLowerCase()) {
+                    $('#CompanyList option').each(function () {
+                        if ($(this).html().toLowerCase().replace(/&amp/g, "&") == str.toLowerCase()) {
                             $(this).prop('selected', true);
                             isExist = true;
                             return false;
@@ -608,7 +1405,7 @@
             }
 
             $("#update_billing").on('click', function () {
-                if ($("#companies").val() == "") {
+                if ($("#companies").val().trim() == "") {
                     new Messi("You must select a company first.",
                     {
                         title: 'Alert',
@@ -619,10 +1416,10 @@
                     });
                     $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                 } else {
-                    var str = $('#companies').val();
+                    var str = $('#companies').val().trim();
                     var isExist = false;
-                    $.each($('#CompanyList option'), function () {
-                        if ($(this).text().toLowerCase() == str.toLowerCase()) {
+                    $('#CompanyList option').each(function () {
+                        if ($(this).html().toLowerCase().replace(/&amp/g, "&") == str.toLowerCase()) {
                             $(this).prop('selected', true);
                             isExist = true;
                             return false;
@@ -689,7 +1486,7 @@
             });
 
             $("#delete_billing").on('click', function () {
-                if ($("#companies").val() == "") {
+                if ($("#companies").val().trim() == "") {
                     new Messi("You must select a company first.",
                     {
                         title: 'Alert',
@@ -700,10 +1497,10 @@
                     });
                     $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                 } else {
-                    var str = $('#companies').val();
+                    var str = $('#companies').val().trim();
                     var isExist = false;
-                    $.each($('#CompanyList option'), function () {
-                        if ($(this).text().toLowerCase() == str.toLowerCase()) {
+                    $('#CompanyList option').each(function () {
+                        if ($(this).html().toLowerCase().replace(/&amp/g, "&") == str.toLowerCase()) {
                             $(this).prop('selected', true);
                             isExist = true;
                             return false;
@@ -827,7 +1624,7 @@
                 var city = $("#City").val();
                 var address = $("#Address").val();
                 var id = $("#companyId").text();
-
+                var districtId = $("#district").val();
                 if (name == "" || checkAllAreSpaces(name)) {
                     $("#name-err2").show();
                     $("#Name").css('border-color', 'red');
@@ -837,95 +1634,82 @@
                 } else if (city == "" || checkAllAreSpaces(city)) {
                     $("#city-err").show();
                     $("#City").css('border-color', 'red');
-                } else if (phone == "" || checkAllAreSpaces(phone)) {
-                    $("#phone-err").show();
-                    $("#Phone").css('border-color', 'red');
-                } else if (email == "" || checkAllAreSpaces(email)) {
-                    $("#email-err").show();
-                    $("#Email").css('border-color', 'red');
-                } else if (contactPerson == "" || checkAllAreSpaces(contactPerson)) {
-                    $("#contact-err").show();
-                    $("#ContactPerson").css('border-color', 'red');
-                } else {
-                    var isUnique = true;
+                }
+                //else if (phone == "" || checkAllAreSpaces(phone)) {
+                //    $("#phone-err").show();
+                //    $("#Phone").css('border-color', 'red');
+                //} else if (email == "" || checkAllAreSpaces(email)) {
+                //    $("#email-err").show();
+                //    $("#Email").css('border-color', 'red');
+                //} else if (contactPerson == "" || checkAllAreSpaces(contactPerson)) {
+                //    $("#contact-err").show();
+                //    $("#ContactPerson").css('border-color', 'red');
+                //}
+                else {
                     var isUpdate = $("#update_radio").is(':checked');
-                    var Cid = +$("#companyId").text();
-                    var value = $("#Name").val();
-
-                    if (Cid == "") {
-                        $.each($("#CompanyList option"), function () {
-                            if (this.text == value && value != "")
-                                isUnique = false;
-                        });
-                    } else {
-                        $.each($("#CompanyList option"), function () {
-                            if (this.text == value && this.value != Cid) {
-                                isUnique = false;
+                    var value = $("#Name").val().trim();
+                    if (id == "") {
+                        id = "-1";
+                    }
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("CheckCompanyNameWithId", "Company")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ name: value, id: id }),
+                        dataType: "json",
+                        success: function (data) {
+                            if (data == true) {
+                                $("#companyForm").validate();
+                                if ($("#companyForm").valid()) {
+                                    id = id == "-1" ? "" : id;
+                                    var jsonData = {
+                                        Name: name,
+                                        Address: address,
+                                        City: city,
+                                        Phone: phone,
+                                        Email: email,
+                                        Fax: fax,
+                                        ContactPerson: contactPerson,
+                                        Designation: designation,
+                                        BlackListed: black,
+                                        CP_Id: cpId,
+                                        AccContactName: accName,
+                                        VatRegNo: vatRegNo,
+                                        VatRegAdd: vatRegAdd,
+                                        Id: id,
+                                        DistrictId: districtId
+                                    };
+                                    $.ajax({
+                                        type: "Post",
+                                        url: '@Url.Action("Index", "Company")',
+                                        contentType: "application/json; charset=utf-8",
+                                        data: JSON.stringify(jsonData),
+                                        dataType: "json",
+                                        success: function (data2) {
+                                            var strMessage = "";
+                                            if (isUpdate) {
+                                                strMessage = "Company Information Updated successfully.";
+                                            } else {
+                                                strMessage = "New Company Inserted successfully.";
+                                            }
+                                            var t = new Messi(strMessage,
+                                            {
+                                                title: 'Success',
+                                                modal: true,
+                                                buttons: [
+                                                    { id: 0, label: 'OK', val: 'X' }
+                                                ]
+                                            });
+                                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                        },
+                                    });
+                                }
+                            } else {
+                                $("#name-err").show();
+                                $("#Name").css('border-color', 'red');
                             }
-                        });
-                    }
-
-                    if (!isUnique) {
-                        $("#name-err").show();
-                        $("#Name").css('border-color', 'red');
-                    } else {
-                        $("#companyForm").validate();
-                        if ($("#companyForm").valid()) {
-                            var jsonData = {
-                                Name: name,
-                                Address: address,
-                                City: city,
-                                Phone: phone,
-                                Email: email,
-                                Fax: fax,
-                                ContactPerson: contactPerson,
-                                Designation: designation,
-                                BlackListed: black,
-                                CP_Id: cpId,
-                                AccContactName: accName,
-                                VatRegNo: vatRegNo,
-                                VatRegAdd: vatRegAdd,
-                                Id: id
-                            };
-                            var c = $("#CompanyList option").length;
-                            $.ajax({
-                                type: "Post",
-                                url: '@Url.Action("Index", "Company")',
-                                contentType: "application/json; charset=utf-8",
-                                data: JSON.stringify(jsonData),
-                                dataType: "json",
-                                success: function (data) {
-                                    $('#CompanyList option[value="' + data.Id + '"]').remove();
-                                    $('#companies').val(data.Name);
-                                    $("#CompanyList").append('<option value="' + data.Id + '" selected="true">' + data.Name + '</option>');
-                                    $("#CompanyList").html($('#CompanyList option').sort(function (x, y) {
-                                        return $(x).text() < $(y).text() ? -1 : 1;
-                                    }));
-                                    if ($("#CompanyList option").length == c) {
-                                        new Messi("Company Information Updated successfully.",
-                                        {
-                                            title: 'Success',
-                                            modal: true,
-                                            buttons: [
-                                                { id: 0, label: 'OK', val: 'X' }
-                                            ]
-                                        });
-                                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
-                                    } else {
-                                        new Messi("New Company Inserted successfully.",
-                                        {
-                                            title: 'Success',
-                                            modal: true,
-                                            buttons: [
-                                                { id: 0, label: 'OK', val: 'X' }
-                                            ]
-                                        });
-                                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
-                                    }
-                                },
-                            });
-                        }
-                    }
+                        },
+                    });
                 }
                 return false;
             });
@@ -943,8 +1727,8 @@
                     $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                 } else {
                     var companyId = $("#CompanyList").val();
-                    if ($('#companies').val() == "") {
-                        new Messi("You must select a company first.",
+                    if ($('#companies').val().trim() == "") {
+                        var b = new Messi("You must select a company first.",
                         {
                             title: 'Alert',
                             modal: true,
@@ -954,10 +1738,10 @@
                         });
                         $('.messi-actions').css('float', 'left').css('margin-left', '205px');
                     } else {
-                        var str = $('#companies').val();
+                        var str = $('#companies').val().trim();
                         var isExist = false;
-                        $.each($('#CompanyList option'), function () {
-                            if ($(this).text().toLowerCase() == str.toLowerCase()) {
+                        $('#CompanyList option').each(function () {
+                            if ($(this).html().toLowerCase().replace(/&amp/g, "&") == str.toLowerCase()) {
                                 $(this).prop('selected', true);
                                 isExist = true;
                                 return false;
@@ -965,7 +1749,7 @@
                             return true;
                         });
                         if (isExist == false) {
-                            new Messi("The Entered Company doesn't exist.",
+                            var a = new Messi("The Entered Company doesn't exist.",
                             {
                                 title: 'Not exist',
                                 modal: true,
@@ -995,7 +1779,7 @@
                                 $('#billing_name_dropdown').html('');
                                 $('#billing_name').val('');
                                 $('#billing_designation').val('');
-                                new Messi("Delete Successfully.",
+                                var j = new Messi("Delete Successfully.",
                                 {
                                     title: 'Success',
                                     modal: true,
@@ -1010,36 +1794,33 @@
                 }
             });
 
-            $("#Address,#City,#Phone,#Email,#ContactPerson").on('keypress', function (e) {
+            $("#Address, #City, #Phone, #Email, #ContactPerson").on('keypress', function (e) {
                 allHide();
             });
             $("#Name").on('keyup', function (e) {
                 $("#Name").css('border-color', '');
                 $("#name-err2").hide();
-                var isUnique = true;
-                var isUpdate = $("#update_radio").is(':checked');
-                var id = +$("#companyId").text();
-                var value = $("#Name").val();
+                var id = $("#companyId").text();
+                var value = $("#Name").val().trim();
                 if (id == "") {
-                    $.each($("#CompanyList option"), function () {
-                        if (this.text == value && value != "")
-                            isUnique = false;
-                    });
-                } else {
-                    $.each($("#CompanyList option"), function () {
-                        if (this.text == value && this.value != id) {
-                            isUnique = false;
+                    id = "-1";
+                }
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("CheckCompanyNameWithId", "Company")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ name: value, id: id }),
+                    dataType: "json",
+                    success: function (data) {
+                        if (data == true) {
+                            $("#name-err").hide();
+                            $("#Name").css('border-color', '');
+                        } else {
+                            $("#name-err").show();
+                            $("#Name").css('border-color', 'red');
                         }
-                    });
-                }
-
-                if (!isUnique) {
-                    $("#name-err").show();
-                    $("#Name").css('border-color', 'red');
-                } else {
-                    $("#name-err").hide();
-                    $("#Name").css('border-color', '');
-                }
+                    },
+                });
             });
             $('.row input, select').on('click', function () {
                 allHide();
@@ -1047,4 +1828,16 @@
 
         });
     </script>
+    <script type="text/javascript">
+        var browser = ["firefox", "chrome"];
+        if (navigator.userAgent.toUpperCase().indexOf(browser[1].toUpperCase()) > -1) {
+            $('select:not(select[size],select.ui-datepicker-month,select.ui-datepicker-year)').css('padding', '0px 10px');
+        }
+        $('select:not(select[size],select.ui-datepicker-month,select.ui-datepicker-year),input.select').css('background', 'url(@Url.Content("~/images/down_arrow.png")) no-repeat right white');
+        $('select:not(select.form-control, select[size], select.ui-datepicker-month, select.ui-datepicker-year)').css('padding', '0px 15px 0px 2px').css('border', '1px solid gray');
+        if (navigator.userAgent.toUpperCase().indexOf(browser[0].toUpperCase()) > -1) {
+            $("body .modal-dialog").css("margin-left", "0px");
+        }
+    </script>
 }
+

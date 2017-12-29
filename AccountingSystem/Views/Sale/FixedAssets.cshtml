@@ -8,6 +8,7 @@
 @section styles
 {
     <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/colorbox.css" rel="stylesheet" />
     <link href="~/Content/css/messi.min.css" rel="stylesheet" />
     <style>
         #from, #to {
@@ -172,7 +173,7 @@
 }
 
 <!-- Modal -->
-<div class="modal faModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal faModal" id="success"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header modal-header-fa">
@@ -213,7 +214,7 @@
                                     <div class="col-sm-2">&nbsp;</div>
                                     <div class="col-sm-5">
                                         <button type="button" class="btn btn-info pull-left" id="purchase">Purchase New asset</button>
-                                        <button type="button" class="btn btn-info pull-right">Add new item</button>
+                                        <button type="button" class="btn btn-info pull-right" id="addNewproduct" width='788px' height='422px' path='@Url.Action("Create", "Ledger", new { page = "new" })'>Add new item</button>
                                     </div>
                                 </div>
 
@@ -447,17 +448,25 @@
 <!-- Modal -->
 @section scripts
 {
+    <script src="~/Scripts/js/jquery.colorbox.js"></script>
     <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
     <script src="~/Scripts/js/messi.min.js"></script>
     <script>
         $(document).ready(function () {
             $(window).on('load', function () {
                 $("#success").modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
-                });
+                }); 
             });
-            $("#purchaseDate, #depStartDate").datepicker({
+            $("#purchaseDate").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                onSelect: function (text, event) {
+                    $("#depStartDate").val(text);
+                }
+            });
+            $("#depStartDate").datepicker({
                 changeMonth: true,
                 changeYear: true
             });
@@ -471,7 +480,8 @@
                 var $dialog = $('.modal').find(".modal-dialog");
                 var offset = ($(window).height() - $dialog.height()) / 2;
                 // Center modal vertically in window
-                $dialog.css("margin-top", offset);
+                //$dialog.css("margin-top", offset);
+                $dialog.css("margin-top",  "10px");
             }
 
             centerSuccess();
@@ -485,6 +495,7 @@
             //    if (e.keyCode == 27)
             //        $('#success').modal('show');
             //});
+            var loadFirst = 0;
             $("#insert, #update, #delete, #make, #disposal, #purchase").prop('disabled', true);
             function load(assetnumber) {
                 $.ajax({
@@ -505,12 +516,14 @@
                             else
                                 $("#items").append('<option value="' + value1.ItemId + '" data-type="' + value1.AssetType + '" data-name="' + value1.AssetName + '">' + value1.ItemName + '</option>');
                         });
-                        $("#purchaseBanks, #resaleBanks").html('');
-                        $("#resaleBanks").append('<option value=""></option>');
-                        $.each(data.BankList, function (key2, value2) {
-                            $("#purchaseBanks, #resaleBanks").append('<option value="' + value2.Id + '">' + value2.Name + '</option>');
+                        if (loadFirst == 0) {
+                            $("#purchaseBanks, #resaleBanks").html('');
+                            $("#resaleBanks").append('<option value=""></option>');
+                            $.each(data.BankList, function (key2, value2) {
+                                $("#purchaseBanks, #resaleBanks").append('<option value="' + value2.Id + '">' + value2.Name + '</option>');
 
-                        });
+                            });
+                        }
 
                         $("#assetCodes").autocomplete({
                             source: assetCodes,
@@ -608,8 +621,10 @@
                         $("#update, #delete, #make, #disposal").prop('disabled', true);
                         $("#insert").prop('disabled', false);
                         $("#purchaseDate, #depStartDate").val(todayDate);
-                        $("#supplier, #invoiceNo, #labelNo, #price, #depLife").val('');
+                        $("#assetType, #assetElec, #supplier, #invoiceNo, #labelNo, #price, #depLife, #memo, #purchaseBanks").val('');
+                        $("#purchaseBanks").val('46');
                         $("#depRate, #depEndDate, #startDate, #endDate, #accDep, #currValue").html('&nbsp;&nbsp;&nbsp;&nbsp; ');
+                        $("#resale").prop("checked", "checked");
                     },
                 });
             });
@@ -754,6 +769,7 @@
                                         $("#insert").prop('disabled', true);
                                         if (noDep == 0)
                                             $("#make").prop('disabled', false);
+                                        loadFirst = 1;
                                         load(assetNo);
                                         var msg = new Messi('All information has been added to database successfully.',
                                         {
@@ -1151,6 +1167,16 @@
             });
             $("#exit,#close").on('click', function () {
                 $("#success").modal('hide');
+            });
+            $("#addNewproduct").on("click", function () {
+                $.colorbox({
+                    iframe: true,
+                    width: $(this).attr('width'),
+                    height: $(this).attr('height'),
+                    href: $(this).attr('path'),
+                    scrolling: false,
+                    innerWidth: '545px'
+                });
             });
         });
     </script>

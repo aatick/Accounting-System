@@ -194,7 +194,7 @@
     </style>
 }
 <!-- Modal -->
-<div class="modal usipjModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal usipjModal" id="success"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header modal-header-usipj">
@@ -206,12 +206,12 @@
                     <div class="col-sm-6">
                         <div class="row">
                             <div class="col-sm-12">
+                                <input type="text" id="txtCompany" class="form-control"/>
+                            </div>
+                            <div class="col-sm-12">
                                 <label>Select a company</label>
-                                <select size="20" class="form-control" style="height:210px;" id="companyList">
-                                    @foreach (Company company in ViewBag.CompanyList)
-                                    {
-                                        <option value="@company.Id">@company.Name</option>
-                                    }
+                                <select size="15" class="form-control" style="height:175px;" id="companyList">
+                                    
                                 </select>
                             </div>
                         </div>
@@ -295,12 +295,13 @@
                         <div class="col-sm-4 pull-left text-left" style="margin-left:-15px; margin-top: 15px;padding-right: 0; margin-right: 0;">
                             Show
                             <select id="pagesize">
-                                <option value="10">10</option>
                                 <option value="20">20</option>
-                                <option value="30">30</option>
                                 <option value="40">40</option>
                                 <option value="50">50</option>
+                                <option value="60">60</option>
+                                <option value="80">80</option>
                                 <option value="100">100</option>
+                                <option value="0">All</option>
                             </select>
                             entries per page
                         </div>
@@ -408,7 +409,7 @@
 </div><!-- /.modal -->
 <!-- Modal -->
 <!-- Modal -->
-<div class="modal nsModal" id="closejournal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal nsModal" id="closejournal"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="width: 300px; margin-top: 200px;">
         <div class="modal-content">
             <div class="modal-header modal-header-ns">
@@ -489,7 +490,7 @@
             var today = new Date();
             var toDate = pad((today.getMonth() + 1), 2) + "/" + pad(today.getDate(), 2) + "/" + today.getFullYear();
 
-            $('#paging').bootpag({
+            $('#paging,#pagingBottom').bootpag({
                 total: 1,
                 page: 1,
                 maxVisible: 6,
@@ -504,14 +505,14 @@
                 prevClass: 'prev',
                 lastClass: 'last',
                 firstClass: 'first'
-            }).on("page", function (event, num) {
-                getSales(num, $("#pagesize").val(), $("#companyList option:selected").val());
+            });
+            $('#paging').on("page", function (event, num) {
+                getSales(num, $("#pagesize").val(), $("#companyList").val());
             });
             $("#refresh").on('click', function () {
                 getLedgers();
             });
             $('.sub_window_new').on('click', function () {
-                $("#view").hide();
                 $.colorbox({
                     iframe: true,
                     width: $(this).attr('width'),
@@ -524,32 +525,13 @@
             $('#cancel').on('click', function () {
                 $("#view").hide();
             });
-            $('.div-table-content').bind('scroll', function () {
-                $("#view").hide();
-            });
-            $('#pagingBottom').bootpag({
-                total: 1,
-                page: 1,
-                maxVisible: 6,
-                firstLastUse: true,
-                first: 'start',
-                last: 'end',
-                leaps: true,
-                wrapClass: 'pagination',
-                activeClass: 'active',
-                disabledClass: 'disabled',
-                nextClass: 'next',
-                prevClass: 'prev',
-                lastClass: 'last',
-                firstClass: 'first'
-            });
             $(window).on('load', function () {
                 $("#success").modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
                 });
                 $("#closejournal").modal({
-                    backdrop: 'static',
+                    backdrop: false,
                     keyboard: false
                 });
                 $("#closejournal").modal('hide');
@@ -560,26 +542,22 @@
                 $("#amount, #tax").val('0.00');
                 getLedgers();
             });
-            //$(document).on('click', function () {
-            //    $("#success").modal('show');
-            //});
-            //$(document).on('keydown', function (e) {
-            //    if (e.keyCode == 27)
-            //        $("#success").modal('show');
-            //});
             $("#exit, #close").on('click', function () {
                 $("#success").modal('hide');
             });
             $("#companyList").on('change', function () {
+                commonFunc();
+            });
+            function commonFunc() {
                 sbName = null;
                 row = null;
-                getContactPersons($(this).val());
-                getSales(1, $("#pagesize").val(), $("#companyList option:selected").val());
+                getContactPersons($("#companyList").val());
+                getSales(1, $("#pagesize").val(), $("#companyList").val());
                 $("#makeInvoice").prop('disabled', false);
                 $("#update").prop('disabled', true);
-            });
+            }
             $("#pagesize").on('change', function () {
-                getSales(1, $("#pagesize").val(), $("#companyList option:selected").val());
+                getSales(1, $("#pagesize").val(), $("#companyList").val());
             });
 
             function clearInfo() {
@@ -664,75 +642,61 @@
                             pager = pager + 1;
                         $('#paging, #pagingBottom').bootpag({
                             total: pager,
-                            page: pageNo,
-                            maxVisible: 6,
-                            firstLastUse: true,
-                            first: 'start',
-                            last: 'end',
-                            leaps: true,
-                            wrapClass: 'pagination',
-                            activeClass: 'active',
-                            disabledClass: 'disabled',
-                            nextClass: 'next',
-                            prevClass: 'prev',
-                            lastClass: 'last',
-                            firstClass: 'first'
+                            page: pageNo
                         });
-                        $("#salesList tbody tr").on('click', function () {
-                            if ($(this).find('td:first').html() != '&nbsp;') {
-                                $("#delete, #update").prop('disabled', false);
-                                $("#salesList tbody tr").removeClass('row-selected');
-                                $(this).addClass('row-selected');
-                                $("#amount").val($(this).find('td:nth-child(6)').html());
-                                $("#tax").val($(this).find('td:nth-child(9)').html());
-                                $('#contactPersons option[value="' + $(this).find('td:nth-child(10)').html() + '"]').prop('selected', true);
-                                $("#refNo").val($(this).find('td:nth-child(11)').html());
-                                $("#dp1").val($(this).find('td:nth-child(3)').html());
-                                $("#dp2").val($(this).find('td:nth-child(4)').html());
-                                $("#duration").val($(this).find('td:nth-child(5)').html());
-                                if ($(this).find('td:nth-child(8)').html() == 'No')
-                                    $("#makeJournal").prop('disabled', false);
-                                else
-                                    $("#makeJournal").prop('disabled', true);
-                                if (sbName != "" && sbName != null) {
-                                    var sb = { Sl: row.find('td:nth-child(1)').html(), Name: row.find('td:nth-child(2)').html(), SId: row.find('td:nth-child(13)').html(), Tno: row.find('td:nth-child(12)').html() };
-                                    if (sb.Sl != $(this).find('td:nth-child(1)').html()) {
-                                        if (sb.Name != sbName.Name || sb.SId != sbName.SId) {
-                                            $("#view").hide();
-                                            update(row, sbName.Name, sb.Name, sbName.SId, sb.SId, sb.Tno);
-                                        }
-                                        sbName = { Sl: $(this).find('td:nth-child(1)').html(), Name: $(this).find('td:nth-child(2)').html(), SId: $(this).find('td:nth-child(13)').html(), Tno: $(this).find('td:nth-child(12)').html() };
-                                        row = $(this);
-                                    }
-                                } else {
-                                    sbName = { Sl: $(this).find('td:nth-child(1)').html(), Name: $(this).find('td:nth-child(2)').html(), SId: $(this).find('td:nth-child(13)').html(), Tno: $(this).find('td:nth-child(12)').html() };
-                                    row = $(this);
-                                }
-                            }
-                        });
-                        $('#salesList tbody tr td:nth-child(2)').on('click', function () {
-                            var button = $(this);
-                            if (button.html() != "&nbsp;") {
-                                $('#ledgers').find('option[value="' + button.parent('tr').find('td:nth-child(13)').html() + '"]').prop('selected', true);
-                                $("#ledgers").css('width', (button.width()) + 'px');
-                                $("#view").children('div:nth-child(2)').children('div:first').children('div').css('width', (button.width() / 4) + 'px').css('font-size', '10px');
-                                $("#view").css({
-                                    'width': (button.width() + 10) + 'px',
-                                    'top': (button.position().top + button.height() + 10) + 'px',
-                                    'left': button.position().left + 'px',
-                                    'position': 'absolute'
-                                }).show();
-                                $("#ledgers").focus();
-                                tr = button.parent('tr');
-                            }
-                        });
-                        $("#salesList tbody tr td:not(td:nth-child(2))").on('click', function () {
-                            $("#view").hide();
-                        });
+                                      
                     },
                 });
             }
+            $(document).on('click', "#salesList tbody tr", function () {
+                if ($(this).find('td:first').html() != '&nbsp;') {
+                    $("#delete, #update").prop('disabled', false);
+                    $("#salesList tbody tr").removeClass('row-selected');
+                    $(this).addClass('row-selected');
+                    $("#amount").val($(this).find('td:nth-child(6)').html());
+                    $("#tax").val($(this).find('td:nth-child(9)').html());
+                    $('#contactPersons option[value="' + $(this).find('td:nth-child(10)').html() + '"]').prop('selected', true);
+                    $("#refNo").val($(this).find('td:nth-child(11)').html());
+                    $("#dp1").val($(this).find('td:nth-child(3)').html());
+                    $("#dp2").val($(this).find('td:nth-child(4)').html());
+                    $("#duration").val($(this).find('td:nth-child(5)').html());
+                    if ($(this).find('td:nth-child(8)').html() == 'No')
+                        $("#makeJournal").prop('disabled', false);
+                    else
+                        $("#makeJournal").prop('disabled', true);
+                    if (sbName != "" && sbName != null) {
+                        var sb = { Sl: row.find('td:nth-child(1)').html(), Name: row.find('td:nth-child(2)').html(), SId: row.find('td:nth-child(13)').html(), Tno: row.find('td:nth-child(12)').html() };
+                        if (sb.Sl != $(this).find('td:nth-child(1)').html()) {
+                            if (sb.Name != sbName.Name || sb.SId != sbName.SId) {
+                                $("#view").hide();
+                                update(row, sbName.Name, sb.Name, sbName.SId, sb.SId, sb.Tno);
+                            }
+                            sbName = { Sl: $(this).find('td:nth-child(1)').html(), Name: $(this).find('td:nth-child(2)').html(), SId: $(this).find('td:nth-child(13)').html(), Tno: $(this).find('td:nth-child(12)').html() };
+                            row = $(this);
+                        }
+                    } else {
+                        sbName = { Sl: $(this).find('td:nth-child(1)').html(), Name: $(this).find('td:nth-child(2)').html(), SId: $(this).find('td:nth-child(13)').html(), Tno: $(this).find('td:nth-child(12)').html() };
+                        row = $(this);
+                    }
+                }
+            });
 
+            $(document).on('click', '#salesList tbody tr td:nth-child(2)', function () {
+                var button = $(this);
+                if (button.html() != "&nbsp;") {
+                    $('#ledgers').find('option[value="' + button.parent('tr').find('td:nth-child(13)').html() + '"]').prop('selected', true);
+                    $("#ledgers").css('width', (button.width()) + 'px');
+                    $("#view").children('div:nth-child(2)').children('div:first').children('div').css('width', (button.width() / 4) + 'px').css('font-size', '10px');
+                    $("#view").css({
+                        'width': (button.width() + 10) + 'px',
+                        'top': (button.position().top + button.height() + 10) + 'px',
+                        'left': button.position().left + 'px',
+                        'position': 'absolute'
+                    }).show();
+                    $("#ledgers").focus();
+                    tr = button.parent('tr');
+                }
+            });
             function update(rowNum, oldName, newName, oldSid, newSid, tno) {
                 var c = 0;
                 var msg1 = new Messi('You have changed product name.<br/>Do you want to change the product for this sale?',
@@ -871,7 +835,7 @@
                                         } else if (data == 0) {
                                             $("#salesList tbody tr.row-selected").remove();
                                             var count = 0;
-                                            $.each($("#salesList tbodyn tr"), function () {
+                                            $.each($("#salesList tbody tr"), function () {
                                                 if ($(this).find('td:first').html() != '&nbsp;') {
                                                     count++;
                                                     $(this).find('td:first').html(count);
@@ -962,8 +926,9 @@
                 var $dialog = $('#success').find(".modal-dialog");
                 var offset = ($(window).height() - $dialog.height()) / 2;
                 // Center modal vertically in window
-                if (offset >= 0)
-                    $dialog.css("margin-top", offset);
+                //if (offset >= 0)
+                //    $dialog.css("margin-top", offset);
+                $dialog.css("margin-top",  "10px");
             }
             $("#ok").on('click', function () {
                 var fromDate = $("#journalDate").val();
@@ -1009,7 +974,7 @@
                 }
             });
             $("#makeInvoice").on('click', function () {
-                window.location = '../Invoice/Create?companyId=' + $("#companyList option:selected").val();
+                window.location = '../Invoice/Create?companyId=' + $("#companyList").val();
             });
             $("#ledgers").on('dblclick', function () {
                 setLedger();
@@ -1381,6 +1346,44 @@
                     }
                 });
             }
+
+            $("#txtCompany").on("focus", function () {
+                this.select();
+            });
+
+            function getCompanyList(start) {
+                $.ajax({
+                    type: "Post",
+                    url: '/Accounting/Company/GetCompanyListByKey',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ startingKey: start }),
+                    dataType: "json",
+                    success: function (data) {
+                        $("#companyList").html('');
+                        var strhtml = "";
+                        $.each(data, function (key, value) {
+                            strhtml += '<option value="' + value.Id + '">' + value.Name + '</option>';
+                        });
+                        $("#companyList").html(strhtml);
+                    },
+                });
+            }
+
+            $('#txtCompany').on('keyup', function () {
+                var str = $(this).val().trim();
+                if (str != "") {
+                    getCompanyList(str);
+                } else {
+                    $("#companyList").html('');
+                }
+            });
+
+            $(document).mouseup(function(e) {
+                var container = $("#view");
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
+                    $("#view").hide();
+                }
+            });
         });
     </script>
 }
