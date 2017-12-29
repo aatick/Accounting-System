@@ -1,0 +1,31 @@
+﻿body .modal-dialog {
+    width: 800px;
+}
+/*body .list-group-item {
+    padding: 0;
+    margin: 0;
+}*/
+body .modal-title {
+    background-color: #005BF1;
+    color: white;
+    height: 30px;
+    font-size: 15px;
+    padding-top: 3px;
+    padding-bottom: 0;
+}
+
+body .header_text {
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 5px;
+}
+
+body .modal-header {
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+.form-horizontal .control-label {
+    text-align: left;
+  }

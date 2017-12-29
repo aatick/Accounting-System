@@ -1,0 +1,55 @@
+html, body { margin:0; padding:0; height:100%; font-family:Arial, Helvetica, sans-serif; font-size:12px; color:#333; background:#f0f1f2;}
+
+.header_content{ float:left; text-align:center; color:#063851; margin:15px 0px 0px 10px;}
+
+.menu_wrapper {	position:relative;}
+.menu {position:relative; z-index:500; height:28px; font-size:14px; min-width:468px;}
+.menu ul {padding:0; margin:0; list-style:none; padding:5px; background:#063851;}
+.menu ul.level1 {height:28px;}
+.menu ul ul {position:absolute; left:-9999px; width:156px; top:30px;}
+.menu ul ul ul {position:absolute; left:-9999px; width:156px; top:-1px;}
+.menu ul li {background:#fff; margin-right:5px; float:left;position:relative;}
+.menu ul li a {display:block; float:left; padding:4px 10px 5px 5px; color:#fff; text-decoration:none; background:#2c5a77; border:1px solid #888; border-color:#2f6180 #2c5a77 #306382 #2c5a77;}
+.menu ul li a.fly {background:#2c5a77 url(../../images/arrow.gif) no-repeat right center; padding-right:15px;}
+.menu ul ul li {margin:0;}
+.menu ul ul li a {width:140px;}
+.menu ul ul li a.fly {padding-right:10px;}
+.menu ul li:hover > a {background-color:#063851; color:#fff; border-color:#063851;}
+.menu ul li a:focus {outline:0;}
+.menu ul li a:active + ul.dropdown {left:-5px}
+.menu ul li a:focus + ul.d1,
+.menu ul li a:focus + ul.d2,
+.menu ul li a:focus + ul.d3,
+.menu ul li a:focus + ul.d4 {left:-5px}
+.menu ul li ul.dropdown:hover {left:-5px}
+.menu ul li a:active + ul.flyout {left:156px;}
+.menu ul li a:focus + ul.f1,
+.menu ul li a:focus + ul.f2,
+.menu ul li a:focus + ul.f3,
+.menu ul li a:focus + ul.ff1 {left:156px;}
+.menu ul li ul.flyout:hover {left:156px;}
+
+.accordion_wrapper{ position: relative; margin:8px 0px 0px 0px; padding: 0;}
+.bdj_accordion { position: relative; margin: 0; padding: 0; list-style: none; margin-bottom:20px;}
+.bdj_accordion .accordion_in { border: 1px solid #ccc; position: relative; z-index: 10; margin-top: -1px; overflow: hidden;}
+.bdj_accordion .accordion_in .acc_head { position: relative; background: #6a6c6f; padding: 10px; font-size: 14px; display: block; cursor: pointer; font-weight:bold; color:#fff;}
+.bdj_accordion .accordion_in .acc_head .acc_icon_expand { display: block; width: 18px; height: 18px; position: absolute; left: 10px; top: 50%; margin-top: -9px; background: url(../../images/plusminus.png) center 0;}
+.bdj_accordion .accordion_in .acc_content { background: #F9F9F9; color: #7B7E85; padding: 3px 10px;}
+.bdj_accordion .accordion_in:last-of-type,
+.bdj_accordion .accordion_in:last-of-type .acc_content { border-radius: 0 0 3px 3px;}
+.bdj_accordion .accordion_in.acc_active > .acc_content { display: block;}
+.bdj_accordion .accordion_in.acc_active > .acc_head { background: #6a6c6f;}
+.bdj_accordion .accordion_in.acc_active > .acc_head .acc_icon_expand { background:url(../../images/plusminus.png) center -18px;}
+.bdj_accordion.acc_with_icon .accordion_in .acc_head,
+.bdj_accordion.acc_with_icon .accordion_in .acc_content { padding-left: 35px;}
+.acc_content ul {list-style:none; margin:0px 0px -3px -40px;}
+.acc_content li { margin:0px 0px 0px -70px;}
+.acc_content li a { text-decoration:none; color:#fff;}
+.acc_content li a img { border:none; vertical-align:middle; margin:-2px 2px 0px 0px;}
+.acc_content li > a { width:100%; display:block; background-color:#868787; padding:5px 0px 5px 40px; border-top:1px solid #FFF; margin:0px 0px 0px 0px;}
+.acc_content li:hover a { BACKGROUND: transparent; color:#F30;}
+
+.content{ float:left; text-align:left; color:#333; margin:15px 0px 0px 10px; font-size:13px;}
+
+.footer_content{ float:left; text-align:justify; color:#fff; margin:0px 0px 0px 10px; font-size:13px;}
+
