@@ -10,7 +10,6 @@ namespace AccountingSystem.Controllers
 {
     public class SaleController : Controller
     {
-        private AccountingDbGateway accountingDb = new AccountingDbGateway();
         public bool RenewSession()
         {
             if (ControllerContext.HttpContext.Request.Cookies["userid"] != null)
@@ -18,7 +17,7 @@ namespace AccountingSystem.Controllers
                 var userid = ControllerContext.HttpContext.Request.Cookies["userid"].Value;
                 if (Session["loggedinUser"] == null)
                 {
-                    var user = accountingDb.GetAllUsers().FirstOrDefault(x => x.UserId.ToString() == userid && x.ValidUser);
+                    var user = AccountingDbGateway.GetAllUsers().FirstOrDefault(x => x.UserId.ToString() == userid && x.ValidUser);
                     Session["loggedinUser"] = user;
                 }
                 return true;
@@ -27,296 +26,439 @@ namespace AccountingSystem.Controllers
         }
         public ActionResult New(int? onlinejobId, int? onlineLedgerId, int? companyid)
         {
+            AccountingDbGateway.OpenConnection();
             if (this.RenewSession() == false)
                 return RedirectToAction("Index", "Home");
             ViewBag.AccordionId = "collapsetwo,2";
-            ViewBag.CompanyList = accountingDb.GetCompanyList().OrderBy(x => x.Name);
-            ViewBag.Products = new SelectList(accountingDb.GetProducts(0, 0, "Revenue", "", "I", 0), "Id", "GroupName");
-            ViewBag.Type = new SelectList(accountingDb.GetProducts(0, 0, "", "", "", 1), "Id", "GroupName");
-            ViewBag.ClosingDate = accountingDb.GetClosingDate();
+            ViewBag.Products = new SelectList(AccountingDbGateway.GetProducts(0, 0, "Revenue", "", "I", 0), "Id", "GroupName");
+            ViewBag.Type = new SelectList(AccountingDbGateway.GetProducts(0, 0, "", "", "", 1).Where(x => x.Id != 847), "Id", "GroupName",672);
+            ViewBag.ClosingDate = AccountingDbGateway.GetClosingDate();
             if (onlineLedgerId != null && onlinejobId != null && companyid != null)
             {
                 ViewBag.Online = new[] { onlineLedgerId, onlinejobId, companyid };
+                var aCompany = AccountingDbGateway.GetCompanyById(companyid);
+                ViewBag.CompanyName = aCompany.Name;
+                ViewBag.Blacklist = aCompany.BlackListed;
             }
+            AccountingDbGateway.CloseConnection();
             return View();
         }
 
         public ActionResult OnlineJobs()
         {
+            AccountingDbGateway.OpenConnection();
             if (this.RenewSession() == false)
                 return RedirectToAction("Index", "Home");
             ViewBag.AccordionId = "collapsetwo,9";
-            ViewBag.Services = accountingDb.GetServices();
-            //ViewBag.CompanyList = accountingDb.GetCompanyList().OrderBy(x => x.Name);
-            ViewBag.Connection = accountingDb.GetOnlineConnectionString();
+            ViewBag.Services = AccountingDbGateway.GetServices();
+            ViewBag.Districts = AccountingDbGateway.GetDistricts();
+            AccountingDbGateway.CloseConnection();
             return View();
         }
 
         public JsonResult GetLocalCompanyList()
         {
-            var json = Json(accountingDb.GetCompanyList().OrderBy(x => x.Name), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var json = Json(AccountingDbGateway.GetCompanyList().OrderBy(x => x.Name), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.CloseConnection();
             json.MaxJsonLength = int.MaxValue;
             return json;
         }
 
         public ActionResult FixedAssets()
         {
+            AccountingDbGateway.OpenConnection();
             if (this.RenewSession() == false)
                 return RedirectToAction("Index", "Home");
+            AccountingDbGateway.CloseConnection();
             ViewBag.AccordionId = "collapsetwo,1";
             return View();
         }
 
         public JsonResult GetOnlineJobList()
         {
-            return Json(accountingDb.GetOnlineJobList("USP_ONLINE_JOB_LIST"), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetOnlineJobList();
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult GetJobs(int cpId, string date)
+        public JsonResult GetJobs(int cpId, string date, int adType,int adRegion)
         {
-            return Json(accountingDb.GetJobs(cpId,date), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetJobs(cpId, date, adType, adRegion);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetInvoices(int cpId, string sDate, int ledgerId)
         {
-            return Json(accountingDb.GetInvoices(cpId, sDate, ledgerId), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetInvoices(cpId, sDate, ledgerId);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetOnlineLedgerId(string onlineProduct)
         {
-            return Json(accountingDb.GetOnlineLedgerId(onlineProduct), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetOnlineLedgerId(onlineProduct);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult DeleteOnlineJob(int jpId)
         {
-            accountingDb.DeleteOnlineJob(jpId);
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.DeleteOnlineJob(jpId);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult IsAllUploaded()
+        public JsonResult DownLoadOnlineJobs(string fromDate, string toDate)
         {
-            return Json(accountingDb.IsAllUploaded(), JsonRequestBehavior.AllowGet);
+            object returnValue = 0;
+            AccountingDbGateway.OpenConnection();
+            var isUploaded=AccountingDbGateway.IsAllUploaded();
+            AccountingDbGateway.CloseConnection();
+            if (!isUploaded)
+            {
+                returnValue = 1;
+            }
+            else
+            {
+                var isOnlineOk = AccountingDbGateway.CheckOnlineConnection();
+                if (!isOnlineOk)
+                {
+                    returnValue = 2;
+                }
+                else
+                {
+                    bool status;
+                    returnValue = AccountingDbGateway.DownloadJobs(fromDate, toDate, out status);
+                    if (!status)
+                    {
+                        returnValue = 3;
+                    }
+                }
+            }
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult CheckOnlineConnection()
-        {
-            return Json(accountingDb.CheckOnlineConnection(), JsonRequestBehavior.AllowGet);
-        }
+        //public JsonResult IsAllUploaded()
+        //{
+        //    AccountingDbGateway.OpenConnection();
+        //    var returnValue = AccountingDbGateway.IsAllUploaded();
+        //    AccountingDbGateway.CloseConnection();
+        //    return Json(returnValue, JsonRequestBehavior.AllowGet);
+        //}
 
-        public JsonResult DeleteTmpJobs()
-        {
-            accountingDb.DeleteTmpJobs();
-            return Json(true, JsonRequestBehavior.AllowGet);
-        }
+        //public JsonResult CheckOnlineConnection()
+        //{
+        //    var returnValue = AccountingDbGateway.CheckOnlineConnection();
+        //    return Json(returnValue, JsonRequestBehavior.AllowGet);
+        //}
 
-        public JsonResult DownloadJobs(string fromDate, string toDate)
-        {
-            return Json(accountingDb.DownloadJobs(fromDate, toDate), JsonRequestBehavior.AllowGet);
-        }
+        //public JsonResult DeleteTmpJobs()
+        //{
+        //    AccountingDbGateway.OpenConnection();
+        //    AccountingDbGateway.DeleteTmpJobs();
+        //    AccountingDbGateway.CloseConnection();
+        //    return Json(true, JsonRequestBehavior.AllowGet);
+        //}
+
+        //public JsonResult DownloadJobs(string fromDate, string toDate)
+        //{
+        //    AccountingDbGateway.OpenConnection();
+        //    var returnValue = AccountingDbGateway.DownloadJobs(fromDate, toDate);
+        //    AccountingDbGateway.CloseConnection();
+        //    return Json(returnValue, JsonRequestBehavior.AllowGet);
+        //}
 
         public JsonResult GetContactOrJob(string type, int cId)
         {
-            return Json(new { ContactPersons = accountingDb.GetContactPersonsOrJobTitle("C", cId), JobTitles = accountingDb.GetContactPersonsOrJobTitle("T", cId) }, JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var contact = AccountingDbGateway.GetContactPersonsOrJobTitle("C", cId);
+            var jobs = AccountingDbGateway.GetContactPersonsOrJobTitle("T", cId);
+            AccountingDbGateway.CloseConnection();
+            return Json(new { ContactPersons = contact, JobTitles = jobs }, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult CheckJobTitle(int productId)
         {
-            return Json(accountingDb.CheckJobTitle(productId), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.CheckJobTitle(productId);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetClosingDate()
         {
-            return Json(accountingDb.GetClosingDate(), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetClosingDate();
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult Save(int userId, int cId, int pCode, string fromdate, string toDate, string journalDate,
             double salesPrice, string billingPerson, string designation, string comment, int duration, int noOfInvoice,
-            string refNo, int typeId, double vat, int jpId, string jobTitle, string workshopDate)
+            string refNo, string typeId, double vat, int jpId, string jobTitle, string workshopDate)
         {
-            accountingDb.SaveSale(userId, cId, pCode, fromdate, toDate, journalDate, salesPrice,
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.SaveSale(userId, cId, pCode, fromdate, toDate, journalDate, salesPrice,
                 billingPerson.Replace("'", "`"), designation.Replace("'", "`"), comment.Replace("'", "`"), duration,
                 noOfInvoice, refNo, typeId, vat, jpId, jobTitle.Replace("'", "`"), workshopDate);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetFixedAssetInitialData()
         {
-            return Json(new
+            AccountingDbGateway.OpenConnection();
+            var json = Json(new
             {
-                AssetCodes = accountingDb.GetAssetCodes(),
-                BankList = accountingDb.GetAssetBankList(),
-                AssetItems = accountingDb.GetFixedAssetItem()
+                AssetCodes = AccountingDbGateway.GetAssetCodes(),
+                BankList = AccountingDbGateway.GetAssetBankList(),
+                AssetItems = AccountingDbGateway.GetFixedAssetItem()
             }, JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.CloseConnection();
+            return json;
         }
 
         public JsonResult GetGeneratedAssetCode(int id, string assettype)
         {
-            return Json(accountingDb.GetGeneratedAssetCode(id, assettype), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetGeneratedAssetCode(id, assettype);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetAssetInfo(string assetCode)
         {
-            return Json(accountingDb.GetAssetInfo(assetCode), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetAssetInfo(assetCode);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult InsertUpdateAsset(string action, int userId, int noDep, string assetCode, string assetNo,
             string assetType, string purchasedDate, double price, string depStartDate, string supplier, string invoiceNo,
             string labelNo, string description, double depRate, int depLife, string depEndDate)
         {
-            accountingDb.InsertUpdateAsset(action, userId, noDep, assetCode, assetNo, assetType, purchasedDate, price,
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.InsertUpdateAsset(action, userId, noDep, assetCode, assetNo, assetType, purchasedDate, price,
                 depStartDate, supplier, invoiceNo, labelNo, description, depRate, depLife, depEndDate);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult CheckAssetNumber(string assetCode)
         {
-            return Json(accountingDb.CheckAssetNumber(assetCode), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.CheckAssetNumber(assetCode);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult MakeAssetJournal(string userId, string noDep, string assetCode, string assetNo, string purchasedId,
             double price, string description)
         {
-            accountingDb.MakeJournal(userId, noDep, assetCode, assetNo, purchasedId, price, description);
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.MakeJournal(userId, noDep, assetCode, assetNo, purchasedId, price, description);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult InsertDisposalAsset(string userId, string assetNoId, string disposalDate, double amount,
             int sold, string soldId, string description)
         {
-            accountingDb.InsertDisposalAsset(userId, assetNoId, disposalDate, amount, sold, soldId, description);
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.InsertDisposalAsset(userId, assetNoId, disposalDate, amount, sold, soldId, description);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult DeleteAssetJournal(string assetCode)
         {
-            accountingDb.DeleteAssetJournal(assetCode);
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.DeleteAssetJournal(assetCode);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetOnlineCompanyList(int radio)
         {
-            return Json(accountingDb.GetOnlineCompanyList(radio), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetOnlineCompanyList(radio);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult GetOnlineCompanyInfo(int cpId, string connectionString)
+        public JsonResult GetOnlineCompanyInfo(int cpId)
         {
-            return Json(accountingDb.GetOnlineCompanyInfo(cpId, connectionString), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetOnlineCompanyInfo(cpId);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetLocalCompanyInfo(int cpId)
         {
-            return Json(accountingDb.GetCompanyById(cpId), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetCompanyById(cpId);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
-        public JsonResult InsertUpdateOnlineCompany(string action, string cpId, string name, string address, string city, string phone, string email, string cPerson, string designation, string companyId)
+        public JsonResult InsertUpdateOnlineCompany(string action, string cpId, string name, string address, string city, string phone, string email, string cPerson, string designation, string companyId, string districtId)
         {
-            accountingDb.InsertUpdateOnlineCompany(action, cpId, name, address, city, phone, email, cPerson, designation,
-                companyId);
-            accountingDb.UpdateProfile(action, name, cpId, companyId);
+          
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.InsertUpdateOnlineCompany(action, cpId, name, address, city, phone, email, cPerson,designation,companyId,districtId);
+            AccountingDbGateway.UpdateProfile(action, name, cpId, companyId);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult CheckCompany(string name)
         {
+            AccountingDbGateway.OpenConnection();
             var companies = new List<Company>();
-            var company = accountingDb.GetCompanyByName(name);
+            var company = AccountingDbGateway.GetCompanyByName(name);
             if (company != null)
                 companies.Add(company);
+            AccountingDbGateway.CloseConnection();
             return Json(companies, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult CheckOnlineCompany(int id)
         {
-            var company = accountingDb.GetCompanyById(id);
+            AccountingDbGateway.OpenConnection();
+            var company = AccountingDbGateway.GetCompanyById(id);
+            AccountingDbGateway.CloseConnection();
             return Json(company, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult CashCollection()
         {
+            AccountingDbGateway.OpenConnection();
             if (this.RenewSession() == false)
                 return RedirectToAction("Index", "Home");
             ViewBag.AccordionId = "collapsetwo,4";
-            ViewBag.CompanyList = accountingDb.GetCompanyList();
-            ViewBag.Ledgers = accountingDb.GetAllLedger().Where(x => x.Under == "1,12,410").OrderBy(x => x.GroupName).ToList();
-            ViewBag.Total = accountingDb.GetTotalOnlinePost();
-            ViewBag.ClosingDate = accountingDb.GetClosingDate();
+            ViewBag.Ledgers = AccountingDbGateway.GetAllLedger().Where(x => x.Under == "1,12,410").OrderBy(x => x.GroupName).ToList();
+            ViewBag.Total = AccountingDbGateway.GetTotalOnlinePost();
+            ViewBag.ClosingDate = AccountingDbGateway.GetClosingDate();
+            AccountingDbGateway.CloseConnection();
             return View();
         }
 
         public JsonResult GetInvoicesForCashCollection(string query)
         {
-            return Json(accountingDb.GetInvoicesForCashCollection(query), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetInvoicesForCashCollection(query);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetSalesInfo(string invoiceNo)
         {
-            return Json(accountingDb.GetSalesInfo(invoiceNo), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetSalesInfo(invoiceNo);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetCashCollection(string id)
         {
-            return Json(accountingDb.GetCashCollection(id), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetCashCollection(id);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult InsertCashCollection(string type, string userId, string invoiceNo, string cash, string date, string tno, string invoiceShedulerId, string ledgerId, string chequeDetails, string companyName)
         {
-            accountingDb.InsertCashCollection(type, userId, invoiceNo, cash, date, tno, invoiceShedulerId, ledgerId,
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.InsertCashCollection(type, userId, invoiceNo, cash, date, tno, invoiceShedulerId, ledgerId,
                 chequeDetails, companyName);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetAccountReceivable(string tno)
         {
-            return Json(accountingDb.GetAccountReceivable(tno), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetAccountReceivable(tno);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
         public JsonResult UpdateCashCollection(string type, string userId, string invoiceNo, string cash, string date, string tno, string invoiceShedulerId, string ledgerId, string chequeDetails, string companyName, string cashCollectionId)
         {
-            accountingDb.UpdateCashCollection(type, userId, invoiceNo, cash, date, tno, invoiceShedulerId, ledgerId,
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.UpdateCashCollection(type, userId, invoiceNo, cash, date, tno, invoiceShedulerId, ledgerId,
                 chequeDetails, companyName, cashCollectionId);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult UnpaidCashCollection(string userId, string ledgerId, string tno, string invoiceId, string invoiceNo, string collectionid, string amount, string companyName)
         {
-            accountingDb.UnpaidCashCollection(userId, ledgerId, tno, invoiceId, invoiceNo, collectionid, amount,
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.UnpaidCashCollection(userId, ledgerId, tno, invoiceId, invoiceNo, collectionid, amount,
                 companyName);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult Edit()
         {
+            AccountingDbGateway.OpenConnection();
             if (this.RenewSession() == false)
                 return RedirectToAction("Index", "Home");
             ViewBag.AccordionId = "collapsetwo,3";
-            ViewBag.CompanyList = accountingDb.GetCompanyList();
-            ViewBag.ClosingDate = accountingDb.GetClosingDate();
-            ViewBag.Type = accountingDb.GetProducts(0, 0, "", "", "", 1);
+            //ViewBag.CompanyList = AccountingDbGateway.GetCompanyList();
+            ViewBag.ClosingDate = AccountingDbGateway.GetClosingDate();
+            ViewBag.Type = AccountingDbGateway.GetProducts(0, 0, "", "", "", 1);
+            AccountingDbGateway.CloseConnection();
             return View();
         }
         public JsonResult GetSales(string pageNo, string pageSize, int cId)
         {
-            return Json(accountingDb.GetSales(pageNo, pageSize, cId, 0), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetSales(pageNo, pageSize, cId, 0);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult DeleteSale(string tno)
         {
-            return Json(accountingDb.DeleteSale(tno), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.DeleteSale(tno);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult MakeJournalOfSale(string sId, string amount, string jDate, string duration, string tno, string description, string salesdate, string taxId, string tax, string userId)
         {
-            accountingDb.MakeJournalOfSale(sId, amount, jDate, duration, tno, description, salesdate, taxId, tax, userId);
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.MakeJournalOfSale(sId, amount, jDate, duration, tno, description, salesdate, taxId, tax, userId);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetNumberOfId(string tno)
         {
-            return Json(accountingDb.GetNumberOfId(tno), JsonRequestBehavior.AllowGet);
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetNumberOfId(tno);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult UpdateSaleInfo(string salesPrice, string accReceivable, string duration, string tax, string sDate, string eDate, string tno, string contactId, string refNo)
         {
-            accountingDb.UpdateSaleInfo(salesPrice, accReceivable, duration, tax, sDate, eDate, tno, contactId, refNo);
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.UpdateSaleInfo(salesPrice, accReceivable, duration, tax, sDate, eDate, tno, contactId, refNo);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
@@ -324,38 +466,82 @@ namespace AccountingSystem.Controllers
             string newDuration, string oldAmount, string newAmount, string oldVatAmount, string newVatAmount,
             string fromDate, string description, string userId)
         {
-            accountingDb.UpdateSalesJournal(sid, vatId, tno, oldDuration, newDuration, oldAmount, newAmount,
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.UpdateSalesJournal(sid, vatId, tno, oldDuration, newDuration, oldAmount, newAmount,
                 oldVatAmount, newVatAmount, fromDate, description, userId);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult UpdateSalePosted(string sid, string newAmount, string fromdate, string newDuration, string tno, string description, string dateFrom, string vatId, string newVatAmount, string userId)
         {
-            accountingDb.UpdateSalePosted(sid, newAmount, fromdate, newDuration, tno, description, dateFrom, vatId,
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.UpdateSalePosted(sid, newAmount, fromdate, newDuration, tno, description, dateFrom, vatId,
                 newVatAmount, userId);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult UpdateProduct(string oldSid, string tno, string newSid)
         {
-            accountingDb.UpdateSaleProduct(oldSid, tno, newSid);
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.UpdateSaleProduct(oldSid, tno, newSid);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult UpdateSaleContactPersonAndRefNo(string personId, string refNo, string tno)
         {
-            accountingDb.UpdateSaleContactPersonAndRefNo(personId, refNo, tno);
+            AccountingDbGateway.OpenConnection();
+            AccountingDbGateway.UpdateSaleContactPersonAndRefNo(personId, refNo, tno);
+            AccountingDbGateway.CloseConnection();
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult GetMoneyReceipt(string invoices, string str)
         {
-            var receipts = accountingDb.GetMoneyReceipt(invoices);
+            AccountingDbGateway.OpenConnection();
+            var receipts = AccountingDbGateway.GetMoneyReceipt(invoices);
+            AccountingDbGateway.CloseConnection();
             Session["reportName"] = "rptRecceipt.rpt";
             Session["Report"] = receipts;
             Session["str"] = str;
             return Json(true, JsonRequestBehavior.AllowGet);
         }
 
+        public JsonResult UploadInvoicesOnline(int? cpId, string invoiceNo, int serviceNo, string billingContact, string price, string opId,string jpIdList)
+        {
+            AccountingDbGateway.OpenConnection();
+            var invSendDt = AccountingDbGateway.GetInvSendDt(invoiceNo);
+            var cid = cpId ?? 0;
+            var results = AccountingDbGateway.UploadInvoiceOnline(cid, invoiceNo, serviceNo, invSendDt, billingContact,
+                price, opId, jpIdList);
+            AccountingDbGateway.CloseConnection();
+            return Json(results, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult UpdateInvoice(string invoiceNo)
+        {
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.UpdateInvoice(invoiceNo);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetProducts()
+        {
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.GetProducts(0, 0, "Revenue", "", "I", 0);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult PostToOnline(string postType,string invoiceNo, string invoiceId)
+        {
+            AccountingDbGateway.OpenConnection();
+            var returnValue = AccountingDbGateway.PostToOnline(postType, invoiceNo, invoiceId);
+            AccountingDbGateway.CloseConnection();
+            return Json(returnValue, JsonRequestBehavior.AllowGet);
+        }
     }
 }
