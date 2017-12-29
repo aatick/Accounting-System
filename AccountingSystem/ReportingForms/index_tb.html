@@ -1,0 +1,391 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Bdjobs.com Ltd.</title>
+    <link type="text/css" href="../Content/bootstrap.css" rel="stylesheet">
+    <link type="text/css" href="../Content/bootstrap-theme.css" rel="stylesheet">
+    <link href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css" rel="stylesheet" />
+    <style type="text/css">
+        body {
+            background: #ece9d8;
+        }
+
+        legend.legendStyle {
+            padding: 0px 5px 0px 5px;
+            margin: 1px 0px 0px 0px;
+            font-size: 100%;
+            background-color: transparent;
+            color: #24721e;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        fieldset.fsStyle {
+            border: 1px solid #999999;
+            padding: 4px;
+            margin: 10px 0px 5px 0px;
+        }
+
+        legend {
+            border-bottom: 0px;
+            width: auto;
+        }
+
+        fieldset label {
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        table th {
+            background: #fffde0;
+            text-align: center;
+            font-weight: normal;
+            color: #666;
+        }
+
+        table {
+            background: #fff;
+            table-layout: fixed;
+            border-radius: 0px 0px 0px 0px;
+        }
+
+        .table_w {
+            background: #ffeee6;
+            table-layout: fixed;
+            border-radius: 0px 0px 0px 0px;
+        }
+
+        .div-table-content {
+            height: 150px;
+            overflow-y: auto;
+            border-radius: 0px 0px 0px 0px;
+            margin: -20px 0px 0px 0px;
+        }
+
+            .div-table-content table th {
+                background: #d1f1cc;
+                text-align: center;
+                font-weight: normal;
+            }
+
+        .row.no-gutter [class*='col-']:not(:first-child):not(:last-child) {
+            padding-right: 5px;
+            padding-left: 5px;
+        }
+
+        .purple_Label {
+            background-color: #7c80fd;
+            color: #ece9d8;
+            display: block;
+            text-align: center;
+            padding: 5px 0px 5px 0px;
+            font-size: 14px;
+        }
+
+        .datepicker {
+            z-index: 1151 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+
+        <div class="row" style="background:#0153e7; color:#fff;">
+            <div class="col-sm-12">
+                Trial Balance
+            </div>
+        </div>
+
+        <div class="row no-gutter">
+            <div class="col-sm-2">
+                <div class="row no-gutter">
+                    <div class="col-sm-12">
+                        <fieldset class="fsStyle">
+                            <legend class="legendStyle">
+                                Show journals
+                            </legend>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="optionsRadios" id="optionsRadios4" value="option4"> by date
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="optionsRadios" id="optionsRadios4" value="option4"> by sale
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row no-gutter">
+                    <div class="col-sm-12">
+                        <select class="form-control input-sm">
+                            <option>All</option>
+                            <option>January</option>
+                            <option>February</option>
+                            <option>March</option>
+                            <option>April</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-8">
+                <div class="col-sm-12">
+                    <div class="col-sm-7 pull-right text-right" id="paging">
+
+                    </div>
+                </div>
+                <div class="row no-gutter" style="margin-top:15px;">
+                    <div class="col-sm-12">
+                        <table class="table table-condensed table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>SNo</th>
+                                    <th>Company</th>
+                                    <th>Product name</th>
+                                    <th>Amount</th>
+                                    <th>Sales Date</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        <div class="div-table-content">
+                            <table class="table table-condensed table-bordered table_w">
+                                <tbody>
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-2">
+                <div class="row no-gutter" style="margin-top:15px;">
+                    <div class="col-sm-12">
+                        <label class="label label-default purple_Label">From</label>
+                        <div class="has-feedback" style="margin:0px 0px 0px 0px;">
+                            <input name="from" type="text" class="form-control input-sm" id="dp1" style="padding: 0;">
+                            <span class="glyphicon glyphicon-chevron-down form-control-feedback"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row no-gutter" style="margin-top:15px;">
+                    <div class="col-sm-12">
+                        <label class="label label-default purple_Label">To</label>
+                        <div class="has-feedback" style="margin:0px 0px 0px 0px;">
+                            <input name="from" type="text" class="form-control input-sm" id="dp2" style="padding: 0;">
+                            <span class="glyphicon glyphicon-chevron-down form-control-feedback"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row no-gutter" style="margin-top:15px;">
+            <div class="col-sm-12">
+                <div class="col-sm-7 pull-right text-right" id="paging2">
+
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <table class="table table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th colspan="5">Trial Balance of sold item 'Online job posting (Basic) for .net computer and Information technology</th>
+                        </tr>
+                        <tr>
+                            <th>SNo</th>
+                            <th>Company</th>
+                            <th>Product name</th>
+                            <th>Amount</th>
+                            <th>Sales Date</th>
+                        </tr>
+                    </thead>
+                </table>
+
+                <div class="div-table-content">
+                    <table class="table table-condensed table-bordered">
+                        <tbody>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="row no-gutter" style="margin-top:5px;">
+            <div class="col-sm-6">&nbsp;</div>
+            <div class="col-sm-3">
+                <div class="form-group-sm pull-right">
+                    <input name="credit" type="text" maxlength="10" size="10" class="form-control input-sm">
+                </div>
+                <div class="form-group-sm pull-right">
+                    <input name="debt" type="text" maxlength="10" size="10" class="form-control input-sm">
+                </div>
+            </div>
+            <div class="col-sm-3">&nbsp;</div>
+        </div>
+
+        <div class="row" style="margin-top:5px;">
+            <div class="col-sm-2">
+                <button type="button" class="btn btn-primary btn-sm btn-block"><strong>Show Journals</strong></button>
+            </div>
+            <div class="col-sm-2">
+                <button type="button" class="btn btn-primary btn-sm btn-block"><strong>Show Preview</strong></button>
+            </div>
+            <div class="col-sm-6">&nbsp;</div>
+            <div class="col-sm-2">
+                <button type="button" class="btn btn-primary btn-sm btn-block"><strong>Exit</strong></button>
+            </div>
+        </div>
+
+    </div>
+    <script src="../Scripts/jquery-2.1.3.js"></script>
+    <script src="../Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script src="../Scripts/bootstrap.js" type="text/jscript"></script>
+    <script src="~/Scripts/js/jquery.bootpag.min.js"></script>
+    <script type="text/javascript">
+        //$(document).ready(function () {
+        $(function () {
+            $('#dp1').datepicker({
+                changeMonth: true,
+                changeYear: true
+            });
+            $('#dp2').datepicker({
+                changeMonth: true,
+                changeYear: true
+            });
+            $('#paging').bootpag({
+                total: 20,
+                page: 1,
+                maxVisible: 6,
+                firstLastUse: true,
+                first: 'start',
+                last: 'end',
+                leaps: true,
+                wrapClass: 'pagination',
+                activeClass: 'active',
+                disabledClass: 'disabled',
+                nextClass: 'next',
+                prevClass: 'prev',
+                lastClass: 'last',
+                firstClass: 'first'
+            }).on("page", function (event, num) {
+                alert(1);
+            });
+            $('#paging2').bootpag({
+                total: 20,
+                page: 1,
+                maxVisible: 6,
+                firstLastUse: true,
+                first: 'start',
+                last: 'end',
+                leaps: true,
+                wrapClass: 'pagination',
+                activeClass: 'active',
+                disabledClass: 'disabled',
+                nextClass: 'next',
+                prevClass: 'prev',
+                lastClass: 'last',
+                firstClass: 'first'
+            }).on("page", function (event, num) {
+                alert(2);
+            });
+        });
+    </script>
+</body>
+</html>
