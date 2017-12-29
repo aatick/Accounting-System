@@ -1,0 +1,1304 @@
+﻿@using AccountingSystem.Models
+
+@{
+    ViewBag.Title = "Make Invoice";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+}
+@section styles
+{
+    <link href="~/Content/css/stylesheet.css" rel="stylesheet" />
+    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/dataTables.jqueryui.css" rel="stylesheet" />
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <style>
+        body .modal-dialog {
+            /*margin-top: 3px;*/
+            margin-top: 2px;
+            width: 850px;
+        }
+
+        .modal-footer {
+            border: none;
+        }
+
+        legend {
+            width: auto;
+            border-bottom: 0px;
+            color: inherit;
+        }
+
+        fieldset.schedule-border {
+            font-family: Verdana, Arial, sans-serif;
+            font-size: small;
+            font-weight: normal;
+            border: 1px solid #999999;
+            padding: 0;
+            padding-bottom: 10px;
+        }
+
+        legend.schedule-border {
+            font-size: 90%;
+            color: #888888;
+            background-color: transparent;
+            font-weight: bold;
+            padding-left: 5px;
+            padding-right: 5px;
+            margin: 0;
+        }
+
+        .form-horizontal .control-label {
+            text-align: left;
+        }
+
+        .aright {
+            text-align: right;
+        }
+
+        .acenter {
+            text-align: center;
+        }
+
+
+        #productTable tbody tr {
+            max-height: 25px;
+            cursor: pointer;
+            display: block;
+            overflow: hidden;
+        }
+
+            #productTable tbody tr td {
+                width: 355px;
+                display: block;
+                overflow: hidden; /* this is what fixes the expansion */
+                text-overflow: ellipsis; /* not supported in all browsers, but I accepted the tradeoff */
+                white-space: nowrap;
+            }
+
+        #products tbody tr {
+            max-height: 25px;
+            cursor: pointer;
+            display: block;
+            overflow: hidden;
+        }
+
+            #products tbody tr td {
+                width: 210px;
+                display: block;
+                overflow: hidden; /* this is what fixes the expansion */
+                text-overflow: ellipsis; /* not supported in all browsers, but I accepted the tradeoff */
+                white-space: nowrap;
+            }
+
+        #invoicePrice, #totalPrice, #labels, #issueDate {
+            cursor: default;
+        }
+
+        #commentTable tbody tr {
+            cursor: pointer;
+        }
+
+        .picker {
+            z-index: 100000;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        #close {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            background: url(../images/close2.png) no-repeat -25px 0;
+            width: 30px;
+            height: 30px;
+            text-indent: -9999px;
+            padding: 0 10px 0 0;
+            cursor: pointer;
+            margin: 0 5px 0 0;
+        }
+    </style>
+}
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title list-group-item" style="padding-left: 10px;" id="myModalLabel"><img alt="Create_Invoice_logo" src="~/images/Make_Invoice.png" height="25" width="25" /><span class="header_text" style="margin-left: 10px;">Make Invoice</span></h4><div id="close"></div>
+            </div>
+            <div class="modal-body" style="margin: 0 -30px 0 -30px;">
+                <div class="form-horizontal">
+                    <div class="form-group-sm">
+                        <div class="col-sm-3">
+                            <div class="col-sm-12">
+                                <label style="cursor: pointer; font-weight: normal; padding: 0; margin: 0;"><input type="radio" id="new_radio" style="margin-right: 5px;" name="invoice" value="0" />Make New Invoice</label>
+                            </div>
+                            <div class="col-sm-12">
+                                <label style="cursor: pointer; font-weight: normal; padding: 0; margin: 0;"><input type="radio" id="existing_radio" style="margin-right: 5px;" name="invoice" value="1" />View Existing Invoice</label>
+                            </div>
+                        </div>
+                        <div class="col-sm-offset-1 col-sm-4">
+                            <label class="col-sm-12 control-label">Invoice Number</label>
+                            <div class="col-sm-12">
+                                <input type="datetime" id="invoice_no_generate" style="text-align: center;" class="form-control input-sm" />
+                            </div>
+                            <div class="col-sm-12">
+                                <input type="button" class="btn btn-block btn-sm btn-info" id="generateInvoice" value="Generate Invoice Number" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4" style="padding-right: 0;">
+                            <div class="col-sm-12">
+                                <label class="col-sm-12 control-label">Issue Date</label>
+                                <div class="col-sm-12">
+                                    <div class="col-sm-10" style="padding-left: 0; padding-right: 0;">
+                                        <input type="text" style="background-color: white; text-align: center; padding: 0;" readonly class="form-control input-sm picker select" id="issueDate" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group-sm">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                            <label class="col-sm-12 control-label">Company</label>
+                            <div class="col-sm-12">
+                                <input type="text" id="companies" class="form-control input-sm select" style="height: 30px;" />
+                                <select hidden size="10" id="CompanyList" style="border: 1px solid gray; font-size: 12px; z-index: 9999999999999; height: 200px; position: absolute; overflow-y: auto; overflow-x: hidden; background: white;">
+                                    @foreach (Company company in ViewBag.CompanyList)
+                                    {
+                                        <option value="@company.Id" data-blacklisted="@company.BlackListed">@company.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-sm-12" style="margin-top: 5px;">
+                                <table id="productTable" class="table table-bordered" style="font-size: 10px;">
+                                    <thead>
+                                        <tr>
+                                            <th>Products</th>
+                                            <th>Id</th>
+                                            <th>Product</th>
+                                            <th>LedgerId</th>
+                                            <th>SbName</th>
+                                            <th>SDate</th>
+                                            <th>EDate</th>
+                                            <th>Comments</th>
+                                            <th>Amount</th>
+                                            <th>TNO</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-sm-2" style="padding-left: 0;padding-right: 0;">
+                            <div class="col-sm-12" style="margin-top: 85px;">
+                                <button type="button" class="btn btn-block btn-sm btn-default" id="go" value="1"><i class="fa fa-arrow-right"></i></button>
+                            </div>
+                            <div class="col-sm-12" style="margin-top: 30px;">
+                                <button type="button" class="btn btn-block btn-sm btn-default" id="back" value="2"><i class="fa fa-arrow-left"></i></button>
+                            </div>
+                        </div>
+                        <div class="col-sm-4" style="padding-left: 0;">
+                            <div class="col-sm-12">
+                                <span class="col-sm-7" style="text-align: right; padding-top: 5px; padding-right: 0;">Invoice Price</span>
+                                <div class="col-sm-5" style="padding-right: 0;">
+                                    <input type="text" id="invoicePrice" readonly style="background-color: white; text-align: right;" class="form-control input-sm" />
+                                </div>
+                            </div>
+                            <label class="col-sm-12 control-label">Selected products to make invoice</label>
+                            <div class="col-sm-12" id="makeProducts">
+                                <table id="products" class="table table-bordered" style="font-size: 10px;">
+                                    <thead>
+                                        <tr>
+                                            <th>Products</th>
+                                            <th>Id</th>
+                                            <th>Product</th>
+                                            <th>LedgerId</th>
+                                            <th>SbName</th>
+                                            <th>SDate</th>
+                                            <th>EDate</th>
+                                            <th>Comments</th>
+                                            <th>Amount</th>
+                                            <th>TNO</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                            <div class="col-sm-12" style="margin-top: 5px;">
+                                <span class="col-sm-7" style="text-align: right; padding-top: 5px; padding-right: 0;">Total Price</span>
+                                <div class="col-sm-5" style="padding-right: 0;">
+                                    <input type="text" id="totalPrice" readonly style="background-color: white; text-align: right;" class="form-control input-sm" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group-sm">
+                        <div class="col-sm-12">
+                            <div class="col-sm-6" style="padding-right: 0; padding-left: 0; margin-top: 5px;">
+                                <label class="col-sm-12 control-label">Labels of Companies</label>
+                                <div class="col-sm-12" style="margin-top: 5px; padding-top: 7px;">
+                                    <textarea id="labels" readonly class="form-control input-sm" style="height: 100px; background-color: white;"></textarea>
+                                </div>
+                                <div class="col-sm-12" style="margin-top: 10px;">
+                                    <span style="background-color: #D5D5D5; padding-top: 5px; padding-bottom: 5px; padding-right: 5px;">
+                                        <label style="cursor: pointer; padding: 0; margin: 0;"><input type="checkbox" id="request" style="margin-right: 5px;" />Request Comment</label>
+                                        <label style="cursor: pointer; padding: 0; margin: 0;"><input type="checkbox" id="print" style="margin-left: 20px; margin-right: 5px;" />Print on color pad</label>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6" style="padding-left: 0; margin-top: 5px; padding-right: 0;">
+                                <div class="col-sm-12" id="make" style="padding-top: 0; padding-left: 0; padding-right: 0;">
+                                    <div class="col-sm-12" style="padding-left: 0; padding-right: 0;">
+                                        <label class=" col-sm-7 control-label">Comments of invoice item</label>
+                                        <div class="col-sm-5">
+                                            <input type="button" class="btn btn-block btn-info btn-sm" id="updateComment" value="Update Comments" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12" style="margin-top: 5px;">
+                                        <textarea id="comments" class="form-control input-sm" style="height: 172px;"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-sm-12" id="view" hidden style="padding-top: 0; padding-left: 0; padding-right: 0;">
+                                    <div class="col-sm-12" style="padding-left: 0; padding-right: 0;">
+                                        <label class=" col-sm-7 control-label">Comments of invoice item</label>
+                                        <div class="col-sm-5">
+                                            <input type="button" class="btn btn-block btn-info btn-sm" id="deleteComment" value="Delete Item" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12" style="margin-top: 5px;">
+                                        <table id="commentTable" class="table table-bordered" style="font-size: 10px; width: 100%">
+                                            <thead>
+                                                <tr>
+                                                    <th>Comments</th>
+                                                    <th>Amount</th>
+                                                    <th>Id</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="margin: 0 -30px 0 -30px">
+                <div class="form-group-sm">
+                    <div class="col-sm-12" style="padding-top: 0px; margin-top: -30px;">
+                        <div class="col-sm-2">
+                            <button type="button" id="save" class="btn btn-block btn-primary btn-sm" value="2">Save</button>
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="button" id="show" class="btn btn-block btn-primary btn-sm" value="3">Show Invoice</button>
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="button" id="exit" class="btn btn-block btn-primary btn-sm" value="exit">Exit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script src="~/Scripts/js/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/js/jquery.jeditable.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var change = false;
+            $("#issueDate").datepicker({
+                changeMonth: true,
+                changeYear: true
+            });
+            $(window).on('load', function () {
+                $("#myModal").modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                $('#CompanyList').css('width', ($('#companies').width() + 22) + 'px');
+                centerSuccess();
+            });
+
+            //$("#companyList").on('click', function () {
+            //    setTimeout($(this).focus(), -100);
+            //});
+            var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+
+            $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+            //$(document).click(function () {
+            //    $('#myModal').modal('show');
+            //});
+            //$(document).on('keydown', function (e) {
+            //    if (e.keyCode == 27)
+            //        $('#myModal').modal('show');
+            //});
+
+
+            $("#close, #exit").on('click', function () {
+                $('#myModal').modal('hide');
+            });
+
+            $(document).on('click', function () {
+                if (!$('#companies').is(':focus') && !$('#CompanyList').is(':focus') && $('#CompanyList').is(':visible'))
+                    $('#CompanyList').hide();
+            });
+
+
+            $('#CompanyList').on('click', function () {
+                $('#companies').val($('#CompanyList option:selected').text());
+                $('#CompanyList').hide();
+                $('#companies').focus();
+            });
+
+            function setOptions() {
+                $('#companies').val($('#CompanyList option:selected').text());
+                $(document).fillProducts();
+                $("#labels").val('');
+                $("#comments").val('');
+                $('#updateComment, #deleteComment').prop('disabled', true);
+            }
+
+            $("#CompanyList").on('change', function () {
+                setOptions();
+                $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th.sorting').css('width', '288px');
+                $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th:nth-child(2)').css('width', '54px');
+                $('#commentTable').find('tbody tr td:nth-child(1),thead tr:first th.sorting').css('width', '288px');
+                $('#commentTable').find('tbody tr td:nth-child(2),thead tr:first th:nth-child(2)').css('width', '54px');
+            });
+            $("#CompanyList").on('keydown', function (e) {
+                if (e.keyCode == 13 || e.keyCode == 27) {
+                    $('#companies').val($('#CompanyList option:selected').text());
+                    $('#CompanyList').hide();
+                    $('#companies').focus();
+                }
+            });
+            $('#companies').on('click', function () {
+                var str = $(this).val();
+                $.each($('#CompanyList option'), function () {
+                    if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) == 0) {
+                        $(this).prop('selected', true);
+                        return false;
+                    }
+                    return true;
+                });
+
+                if ($('#CompanyList').is(':visible'))
+                    $('#CompanyList').hide();
+                else
+                    $('#CompanyList').show().focus();
+            });
+            $('#companies').on('keyup', function (e) {
+                if (e.keyCode != 13 && e.keyCode != 27) {
+                    var str = $(this).val();
+                    $.each($('#CompanyList option'), function () {
+                        if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) == 0) {
+                            $(this).prop('selected', true);
+                            return false;
+                        }
+                        return true;
+                    });
+                    $('#CompanyList').show();
+                }
+            });
+            $("#deleteComment").prop('disabled', true);
+            $("#updateComment").prop('disabled', true);
+            $("#show").prop('disabled', true);
+            var productTable = $("#productTable").DataTable({
+                "bFilter": false,
+                "bInfo": false,
+                "scrollY": "100px",
+                "scrollCollapse": true,
+                "paging": false,
+                "jQueryUI": true,
+                "aoColumns": [
+                    { "bSortable": true, "sType": "nullable" }
+                ],
+                columnDefs: [
+                    { sortable: false, targets: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
+                    { visible: false, targets: [1, 2, 3, 4, 5, 6, 7, 8, 9] }
+                    //{ className: "aright", targets: [3] },
+                    //{ className: "acenter", targets: [0, 4, 5, 8, 9] }
+                ]
+            });
+            var products = $("#products").DataTable({
+                "bFilter": false,
+                "bInfo": false,
+                "scrollY": "100px",
+                "scrollCollapse": true,
+                "paging": false,
+                "jQueryUI": true,
+                "aoColumns": [
+                    { "bSortable": true, "sType": "nullable" }
+                ],
+                columnDefs: [
+                    { sortable: false, targets: [1, 2, 3, 4, 5, 6, 7, 8, 9] },
+                    { visible: false, targets: [0, 1, 3, 4, 5, 6, 7, 8, 9] }
+                    //{ className: "aright", targets: [3] },
+                    //{ className: "acenter", targets: [0, 4, 5, 8, 9] }
+                ]
+            });
+            var commentTable = $("#commentTable").DataTable({
+                "bFilter": false,
+                "bInfo": false,
+                "scrollY": "110px",
+                "scrollCollapse": true,
+                "paging": false,
+                "jQueryUI": true,
+                "aoColumns": [
+                    { "bSortable": true, "sType": "nullable" }
+                ],
+                columnDefs: [
+                    { sortable: false, targets: [0, 1] },
+                    { visible: false, targets: [2] },
+                    { "width": "82%", "targets": [0] },
+                    { "width": "18%", "targets": [1] }
+                    //{ className: "aright", targets: [3] },
+                    //{ className: "acenter", targets: [0, 4, 5, 8, 9] }
+                ]
+            });
+
+
+            $.fn.dataTableExt.oSort['nullable-asc'] = function (a, b) {
+                if (a == '')
+                    return 1;
+                else if (b == '')
+                    return -1;
+                else {
+                    var ia = parseInt(a);
+                    var ib = parseInt(b);
+                    return (ia < ib) ? -1 : ((ia > ib) ? 1 : 0);
+                }
+            }
+
+            $.fn.dataTableExt.oSort['nullable-desc'] = function (a, b) {
+                if (a == '')
+                    return 1;
+                else if (b == '')
+                    return -1;
+                else {
+                    var ia = parseInt(a);
+                    var ib = parseInt(b);
+                    return (ia > ib) ? -1 : ((ia < ib) ? 1 : 0);
+                }
+            }
+
+
+            function centerSuccess() {
+                $('.modal').css('display', 'block');
+                var $dialog = $('.modal').find(".modal-dialog");
+                var offset = ($(window).height() - $dialog.height()) / 2;
+                // Center modal vertically in window
+                if (offset >= 0)
+                    $dialog.css("margin-top", offset);
+            }
+
+            $(window).on("resize", function () {
+                centerSuccess();
+                $('#CompanyList').css('width', ($('#companies').width() + 22) + 'px');
+            });
+            var today = new Date();
+            var toDate = (today.getMonth() + 1) + "/" + today.getDate() + "/" + today.getFullYear();
+            $("#go").prop('disabled', true);
+            $("#back").prop('disabled', true);
+            $("#invoice_no_generate").val('0000-00000-000-00000');
+            $("#issueDate").val(toDate);
+
+            function blankPrices() {
+                $('#totalPrice').val('0.00');
+                $('#invoicePrice').val('0.00');
+            }
+
+            blankPrices();
+
+            function pad(str, max) {
+                str = str.toString();
+                return str.length < max ? pad("0" + str, max) : str;
+            }
+
+            $.fn.fillProducts = function () {
+                var type = $('input:radio:checked').val();
+                var cId = $("#CompanyList").val();
+                var jsonData = { type: type, cId: cId };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetProductsForInvoice", "Invoice")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        productTable.clear().draw();
+                        $.each(data, function (key, value) {
+                            if (type == 0)
+                                productTable.row.add([value.ListItem, value.Id, value.Product, value.LedgerId, value.SbName, value.SDate, value.EDate, value.Comments, value.Amount, value.TNO]).draw();
+                            else {
+                                productTable.row.add([value.ListItem, value.Id, 0, 0, value.SbName, value.SDate, 0, 0, value.Amount, 0]).draw();
+                            }
+                        });
+                        if (data.length < 6) {
+                            for (var i = 1; i <= 6 - data.length; i++) {
+                                productTable.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
+                            }
+                        }
+                        productsClear();
+                        blankPrices();
+                        if (data.length == 0) {
+                            $("#invoice_no_generate").val('0000-' + pad(cId, 5) + '-000-00000');
+                        } else {
+                            setInvoiceNumber();
+                        }
+                        $("#show").prop('disabled', true);
+                    },
+                });
+            }
+            productTableClear();
+            productsClear();
+            commentTableClear();
+            $('table.dataTable').css('border-collapse', 'collapse');
+            $('.dataTables_scrollBody').css('overflow-y', 'scroll').css('overflow-x', 'hidden');
+
+            function productTableClear() {
+                productTable.clear().draw();
+                for (var i = 1; i <= 6; i++) {
+                    productTable.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
+                }
+
+            }
+
+            function productsClear() {
+                products.clear().draw();
+                for (var i = 1; i <= 6; i++) {
+                    products.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
+                }
+            }
+
+            function commentTableClear() {
+                commentTable.clear().draw();
+                for (var i = 1; i <= 7; i++) {
+                    commentTable.row.add(["", "", ""]).draw();
+                }
+                $('table:not(#productTable):not(#products):not(#commentTable), .dataTables_scrollHeadInner').css('width', '377px');
+                $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th.sorting').css('width', '288px');
+                $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th:nth-child(2)').css('width', '54px');
+                $('#commentTable').find('tbody tr td:nth-child(1),thead tr:first th.sorting').css('width', '288px');
+                $('#commentTable').find('tbody tr td:nth-child(2),thead tr:first th:nth-child(2)').css('width', '54px');
+            }
+
+            function setInvoiceNumber() {
+                if (productTable.cell(0, 0).data() != "" || products.cell(0, 0).data() != "") {
+                    var jsonData = { cId: $("#CompanyList").val(), issueDate: $("#issueDate").val() };
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("GenerateInvoiceNumber", "Invoice")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(jsonData),
+                        dataType: "json",
+                        success: function (data) {
+                            $("#invoice_no_generate").val(data.InvoiceNo);
+                        },
+                    });
+                } else
+                    $("#invoice_no_generate").val('0000-' + pad($("#CompanyList").val(), 5) + '-000-00000');
+                invoiceNoChange();
+            }
+
+            $('input:radio[value=0]').prop('checked', true);
+
+            $('#productTable tbody').on('click', 'tr', function () {
+                if (productTable.cell($(this), 0).data() != "") {
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                        if ($('#new_radio').is(':checked'))
+                            $("#go").prop('disabled', true);
+                        else if ($("#existing_radio").is(':checked')) {
+                            $("#labels").val('');
+                            commentTableClear();
+                            blankPrices();
+                            $("#issueDate").val(toDate);
+                            $("#invoice_no_generate").val('0000-' + pad($("#CompanyList").val(), 5) + '-000-00000');
+                            $("#show").prop('disabled', true);
+                            invoiceNoChange();
+                        }
+                    } else {
+                        productTable.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                        if ($('#new_radio').is(':checked')) {
+                            $("#go").prop('disabled', false);
+                            $('#invoicePrice').val(productTable.cell($(this), 8).data().toFixed(2));
+                        } else if ($("#existing_radio").is(':checked')) {
+                            $("#show").prop('disabled', false);
+                            var jsonData = { id: productTable.cell($(this), 1).data() };
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("GetProductsDetails", "Invoice")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(jsonData),
+                                dataType: "json",
+                                success: function (data) {
+                                    commentTable.clear().draw();
+                                    if (data.length != 0) {
+                                        $("#labels").val(data[0].CompanyName);
+                                        $("#invoicePrice, #totalPrice").val(parseInt(data[0].FullPayment).toFixed(2));
+                                        $("#invoice_no_generate").val(data[0].InvoiceNo);
+                                        $("#issueDate").val(data[0].InvSendDt);
+                                        $.each(data, function (key, value) {
+                                            commentTable.row.add([value.Comments, value.TAmount.toFixed(2), value.Id]).draw();
+                                        });
+                                    } else {
+                                        $("#labels").val('');
+                                        blankPrices();
+                                        $("#issueDate").val(toDate);
+                                        var st = productTable.cell('tr.selected', 0).data().split(' ');
+                                        $("#invoice_no_generate").val(st[1]);
+                                    }
+
+                                    if (data.length < 7) {
+                                        for (var j = 1; j <= 7 - data.length; j++) {
+                                            commentTable.row.add(["", "", ""]).draw();
+                                        }
+                                    }
+
+                                    $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th.sorting').css('width', '288px');
+                                    $('#commentTable_wrapper').find('.dataTables_scrollHeadInner').children('table:first').find('thead tr:first th:nth-child(2)').css('width', '54px');
+                                    $('#commentTable').find('tbody tr td:nth-child(1),thead tr:first th.sorting').css('width', '288px');
+                                    $('#commentTable').find('tbody tr td:nth-child(2),thead tr:first th:nth-child(2)').css('width', '54px');
+
+                                    $("#deleteComment").prop('disabled', true);
+                                    for (var k = 1; k <= commentTable.rows().data().length; k++) {
+                                        if (commentTable.cell(k - 1, 0).data() != "") {
+                                            $('#commentTable tr:nth-child(' + k + ') td:nth-child(1)').editable(function (value, settings) {
+                                                var schId = commentTable.cell($(this).parents("tr"), 2).data();
+                                                var amount = commentTable.cell($(this).parents("tr"), 1).data();
+                                                var newStr = "";
+                                                for (var i = 0; i < value.length; i++) {
+                                                    var c = value[i];
+                                                    if (value[i] == "'")
+                                                        c = "`";
+                                                    newStr += c;
+                                                }
+                                                updateDeleteComments('U', schId, productTable.cell('tr.selected', 1).data(), amount, newStr);
+                                                return (value);
+                                            }, {
+                                                type: 'textarea',
+                                                submit: 'ok',
+                                                cancel: '<input type="button" id="cancelBtn" style="margin-left: 5px;"  value="Cancel" >',
+                                                event: "dblclick",
+                                                tooltip: "Double click to edit",
+                                            });
+
+                                            $('#commentTable tr:nth-child(' + k + ') td:not(:nth-child(1))').editable(function (value, settings) {
+                                                var changeAmount = +commentTable.cell($(this).parents("tr"), 1).data() - +value;
+                                                var newPrice = +$("#invoicePrice").val() - +changeAmount;
+                                                $("#invoicePrice, #totalPrice").val(newPrice.toFixed(2));
+                                                updateDeleteComments('U', commentTable.cell($(this).parents("tr"), 2).data(), productTable.cell('tr.selected', 1).data(), value, commentTable.cell($(this).parents("tr"), 0).data());
+                                                return (value);
+                                            }, {
+                                                type: 'text',
+                                                cssclass: 'someclass',
+                                                event: "dblclick",
+                                                submit: 'ok',
+                                                cancel: '<input type="button" style="margin-left: 2px; width: 37px; padding: 0;"  value="Cancel" >',
+                                                tooltip: "Double click to edit",
+                                                onsubmit: function (settings, td) {
+                                                    var inp = $(td).find('input');
+                                                    if ($.isNumeric(inp.val() && inp.val() > 0)) {
+                                                        return true;
+                                                    } else {
+                                                        var msg = new Messi('Invalid or Wrong input. Input must be positive number',
+                                                        {
+                                                            title: 'Confirm',
+                                                            modal: true,
+                                                            buttons: [
+                                                                { id: 0, label: 'OK', val: 'X' }
+                                                            ]
+                                                        });
+                                                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                                        return false;
+                                                    }
+                                                }
+
+                                            });
+                                        }
+                                    }
+
+                                },
+                            });
+                        }
+
+                    }
+                }
+            });
+
+            function updateDeleteComments(action, invSchId, invoiceId, amount, comments) {
+                var jsonData = { action: action, invSchId: invSchId, invoiceId: invoiceId, amount: amount, comments: comments };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("UpdateDeleteComments", "Invoice")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        var str = "";
+                        if (action == 'U')
+                            str = "Comment is updated successfully.";
+                        else if (action == 'D')
+                            str = "Comment is deleted successfully.";
+                        else
+                            str = "Comment is updated successfully.";
+                        var msg = new Messi(str,
+                        {
+                            title: 'Success',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    },
+                });
+
+            }
+
+
+            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+            function getFormattedDate(stringDate) {
+                var msg = stringDate.split('/');
+                var str = months[msg[0] - 1] + " " + pad(msg[1], 2) + ", " + msg[2];
+                return str;
+            }
+
+            $('#products tbody').on('click', 'tr', function () {
+                if (products.cell($(this), 0).data() != "") {
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                        $("#comments").val('');
+                        $("#updateComment").prop('disabled', true);
+                    } else {
+                        products.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                        $("#back").prop('disabled', false);
+                        var comments = "";
+                        var gLedgerId = -1; //Here Online Id is replacing gLedgerId
+                        var data = products.cell($(this), 7).data();
+                        if (data == "" || data == null || data.length < 110) {
+                            if (products.cell($(this), 1).data() == gLedgerId)
+                                comments = "Payment for '" + products.cell($(this), 4).data() + "' at the classified section of Bdjobs.com from " + getFormattedDate(products.cell($(this), 5).data()) + " to " + getFormattedDate(products.cell($(this), 6).data()) + " for the following job position(s):\n\n" + products.cell($(this), 2).data();
+                            else if (products.cell($(this), 1).data() == 18)
+                                comments = "Payment for 'Job Announcement Display' at the Home Page of Bdjobs.com from " + getFormattedDate(products.cell($(this), 5).data()) + " to " + getFormattedDate(products.cell($(this), 6).data()) + " for the following position(s):\n\n" + products.cell($(this), 2).data();
+                            else
+                                comments = "Payment for Web Listing (" + products.cell($(this), 2).data() + ") at the classified section of www.bdjobs.com from " + getFormattedDate(products.cell($(this), 5).data()) + " to " + getFormattedDate(products.cell($(this), 6).data()) + " for the following position:\n\n" + products.cell($(this), 2).data();
+                        } else
+                            comments = data;
+                        $("#comments").val(comments);
+                        $("#updateComment").prop('disabled', false);
+                    }
+                }
+            });
+
+            $('#commentTable tbody').on('click', 'tr', function () {
+                if (commentTable.cell($(this), 0).data() != "") {
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                        $("#deleteComment").prop('disabled', true);
+                    } else {
+                        commentTable.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                        $("#deleteComment").prop('disabled', false);
+                    }
+                }
+            });
+
+            $("#deleteComment").on('click', function () {
+                var ct = 0;
+                var msg = new Messi('Are you sure to delete comments?',
+                {
+                    title: 'Confirm',
+                    modal: true,
+                    buttons: [
+                        { id: 0, label: 'Yes', val: 'Y' },
+                        { id: 1, label: 'No', val: 'N' }
+                    ],
+                    callback: function (val) {
+                        if (ct == 1)
+                            return false;
+                        if (val == 'Y') {
+                            ct = 1;
+                            updateDeleteComments('D', commentTable.cell('tr.selected', 2).data(), productTable.cell('tr.selected', 1).data(), commentTable.cell('tr.selected', 1).data(), '');
+                            var newPrice = +$("#invoicePrice").val() - +commentTable.cell('tr.selected', 1).data();
+                            commentTable.row('.selected').remove().draw(false);
+                            $("#invoicePrice, #totalPrice").val(newPrice.toFixed(2));
+                            $("#deleteComment").prop('disabled', true);
+                            if (commentTable.rows().data().length < 7) {
+                                for (var j = 1; j <= 7 - commentTable.rows().data().length; j++) {
+                                    commentTable.row.add(["", "", ""]).draw();
+                                }
+                            }
+                        }
+                        return true;
+                    }
+                });
+
+            });
+
+            $("#updateComment").on('click', function () {
+                var c = 0;
+                var msg = new Messi('Are you sure to update comments?',
+                {
+                    title: 'Confirm',
+                    modal: true,
+                    buttons: [
+                        { id: 0, label: 'Yes', val: 'Y' },
+                        { id: 1, label: 'No', val: 'N' }
+                    ],
+                    callback: function (val) {
+                        if (c == 1)
+                            return false;
+                        if (val == 'Y') {
+                            c = 1;
+                            updateDeleteComments('C', products.cell('tr.selected', 1).data(), 0, 0, $("#comments").val());
+                        }
+                        return true;
+                    }
+                });
+            });
+
+            $("#go").on('click', function () {
+                products.row.add([productTable.cell('.selected', 0).data(), productTable.cell('.selected', 1).data(), productTable.cell('.selected', 2).data(), productTable.cell('.selected', 3).data(), productTable.cell('.selected', 4).data(), productTable.cell('.selected', 5).data(), productTable.cell('.selected', 6).data(), productTable.cell('.selected', 7).data(), productTable.cell('.selected', 8).data(), productTable.cell('.selected', 9).data()]).draw();
+                var newprice = +productTable.cell('.selected', 8).data() + +$('#totalPrice').val();
+                productTable.row('.selected').remove().draw(false);
+                $('#totalPrice').val(newprice.toFixed(2));
+                $(this).prop('disabled', true);
+                if (productTable.rows().data().length < 6) {
+                    for (var j = 1; j <= 6 - productTable.rows().data().length; j++) {
+                        productTable.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
+                    }
+                }
+            });
+            $("#back").on('click', function () {
+                if (products.rows().data().length != 0) {
+                    productTable.row.add([products.cell('.selected', 0).data(), products.cell('.selected', 1).data(), products.cell('.selected', 2).data(), products.cell('.selected', 3).data(), products.cell('.selected', 4).data(), products.cell('.selected', 5).data(), products.cell('.selected', 6).data(), products.cell('.selected', 7).data(), products.cell('.selected', 8).data(), products.cell('.selected', 9).data()]).draw();
+                    var newprice = +$('#totalPrice').val() - +products.cell('.selected', 8).data();
+                    $('#totalPrice').val(newprice.toFixed(2));
+                    products.row('.selected').remove().draw(false);
+                    $(this).prop('disabled', true);
+                    $("#comments").val('');
+                    if (products.rows().data().length < 6) {
+                        for (var j = 1; j <= 6 - products.rows().data().length; j++) {
+                            products.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
+                        }
+                    }
+                    productTable.fnSort([[0, 'asc']]);
+                }
+            });
+
+
+            $('input:radio').on('change', function () {
+                if ($(this).val() == 1) {
+                    $("#make").hide();
+                    $("#view").show();
+                    $("#makeProducts, #go, #back").prop('disabled', true);
+                    $("#show").prop('disabled', true);
+                } else {
+                    $("#make").show();
+                    $("#view").hide();
+                    $("#makeProducts").prop('disabled', false);
+                    $("#labels").val('');
+                    commentTableClear();
+                }
+                $("#updateComment, #deleteComment").prop('disabled', true);
+                $("#comments").val('');
+
+                if ($('#companies').val() != "") {
+                    var isExist = false;
+                    $.each($('#CompanyList option'), function () {
+                        if ($(this).text() == $('#companies').val()) {
+                            $(this).prop('selected', true);
+                            isExist = true;
+                            return false;
+                        }
+                        return true;
+                    });
+                    if (isExist == true)
+                        $(document).fillProducts();
+                }
+                $("#issueDate").val(toDate);
+            });
+            $("#generateInvoice").on('click', function () {
+                if (products.cell(0, 0).data() != "" || productTable.cell(0, 0).data() != "")
+                    setInvoiceNumber();
+            });
+            $("#invoice_no_generate").on('focusout', function (e) {
+                invoiceNoChange();
+            });
+            $("#show").on('click', function () {
+                var jsonData = { invoiceNo: productTable.cell('.selected', 4).data(), isRequested: $('#request').is(':checked'), isColor: $("#print").is(':checked') };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("InvoiceReport", "Invoice")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        if (data == true) {
+                            window.open('.././ReportingForms/CRViewer.aspx');
+                        }
+                    },
+                });
+            });
+
+
+            $("#save").on('click', function () {
+                if ('@accessRights.Contains("1")' != 'True') {
+                    var mm0 = new Messi("Sorry, You have no permission to save a record.",
+                    {
+                        title: 'User Access Control',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var co = 0;
+                    var msg = new Messi('Did you update the comments?',
+                    {
+                        title: 'Alert',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'Yes', val: 'Y' },
+                            { id: 1, label: 'No', val: 'N' }
+                        ],
+                        callback: function (val) {
+                            if (co == 1)
+                                return false;
+                            if (val == 'Y') {
+                                co = 1;
+                                if ($("#invoice_no_generate").val().substr(0, 4) == "0000" || $("#invoice_no_generate").val() == "") {
+                                    var m0 = new Messi("You must give a valid invoice number. It must be follow the format:<br/><br/>'yymm-company code(4 digit)-company invoice no(3 digit)-total invoice no(5 digit)'.",
+                                    {
+                                        title: 'Information',
+                                        modal: true,
+                                        buttons: [
+                                            { id: 0, label: 'OK', val: 'X' }
+                                        ]
+                                    });
+                                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                    $("#invoice_no_generate").focus();
+                                } else if ($("#invoice_no_generate").val().length < 20) {
+                                    var m = new Messi("You must give a valid invoice number which must be follow the format:<br/><br/>'yymm-company code(4 digit)-company invoice no(3 digit)-total invoice no(5 digit)'.",
+                                    {
+                                        title: 'Information',
+                                        modal: true,
+                                        buttons: [
+                                            { id: 0, label: 'OK', val: 'X' }
+                                        ]
+                                    });
+                                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                    $("#invoice_no_generate").focus();
+                                } else {
+                                    if ($("#new_radio").is(':checked')) {
+                                        var tno = "";
+                                        for (var i = 0; i < products.rows().data().length; i++) {
+                                            if (products.cell(i, 9).data() != "")
+                                                tno += "," + products.cell(i, 9).data();
+                                        }
+                                        var tnolist = tno.substring(1, tno.length);
+                                        if (tnolist == "") {
+                                            var mm60 = new Messi("There are no products to save.",
+                                            {
+                                                title: 'Empty Product',
+                                                modal: true,
+                                                buttons: [
+                                                    { id: 0, label: 'OK', val: 'X' }
+                                                ]
+                                            });
+                                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                            return false;
+                                        }
+                                        var jsonData = { cId: $("#CompanyList").val(), tnolist: tnolist };
+                                        $.ajax({
+                                            type: "Post",
+                                            url: '@Url.Action("CheckOnlineJobs", "Invoice")',
+                                            contentType: "application/json; charset=utf-8",
+                                            data: JSON.stringify(jsonData),
+                                            dataType: "json",
+                                            success: function (data) {
+                                                if (data.Online < data.Total) {
+                                                    var p = 0;
+                                                    var ms = new Messi("Total Online job posted " + data.Total + ".<br/>You select for making invoice " + data.Online + " jobs.<br/>You need another " + (data.Total - data.Online) + " job(s).<br/><br/>Do you want to make invoice without adding remaining job(s)?",
+                                                    {
+                                                        title: 'Confirm',
+                                                        modal: true,
+                                                        buttons: [
+                                                            { id: 0, label: 'Yes', val: 'Y' },
+                                                            { id: 1, label: 'No', val: 'N' }
+                                                        ],
+                                                        callback: function (v) {
+                                                            if (p == 1)
+                                                                return false;
+                                                            if (v == 'Y') {
+                                                                v = 1;
+                                                                forBoth();
+                                                            }
+                                                            return true;
+                                                        }
+                                                    });
+                                                } else {
+                                                    forBoth();
+                                                }
+                                            },
+                                        });
+                                    } else {
+                                        forBoth();
+                                    }
+
+                                }
+
+                            }
+                            return true;
+                        }
+                    });
+                }
+            });
+
+            function finalCheck() {
+                var id = "";
+                for (var i = 0; i < products.rows().data().length; i++) {
+                    if (products.cell(i, 1).data() != "")
+                        id += "," + products.cell(i, 1).data();
+                }
+                var idList = id.substring(1, id.length);
+                var f = 0;
+                var m11 = new Messi("Do you finally want to proceed with invoice number " + $('#invoice_no_generate').val() + " ?",
+                {
+                    title: 'Confirm',
+                    modal: true,
+                    buttons: [
+                        { id: 0, label: 'Yes', val: 'Y' },
+                        { id: 1, label: 'No', val: 'N' }
+                    ],
+                    callback: function (v11) {
+                        if (f == 1)
+                            return false;
+                        if (v11 == 'Y') {
+                            f = 1;
+                            var action;
+                            if ($("#new_radio").is(':checked'))
+                                action = 'Make';
+                            else
+                                action = 'View';
+                            var json = { action: action, cId: $("#CompanyList").val(), invoice: $("#invoice_no_generate").val(), issueDate: $("#issueDate").val(), totalprice: $("#totalPrice").val(), idList: idList };
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("SaveInvoice", "Invoice")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(json),
+                                dataType: "json",
+                                success: function (data) {
+                                    var finalBox = new Messi("Invoice information is successfully saved.",
+                                    {
+                                        title: 'Success',
+                                        modal: true,
+                                        buttons: [
+                                            { id: 0, label: 'OK', val: 'X' }
+                                        ]
+                                    });
+                                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                    $("#existing_radio").prop('checked', true);
+                                    $("#make").hide();
+                                    $("#view").show();
+                                    $("#makeProducts, #go, #back").prop('disabled', true);
+                                    $("#show").prop('disabled', true);
+                                    $(document).fillProducts();
+                                    $("#issueDate").val(toDate);
+                                },
+                            });
+                        } else {
+                            $("#invoice_no_generate").focus();
+                        }
+                        return true;
+                    }
+                });
+            }
+
+
+            function checkInvoice() {
+                var invoiceNo = $("#invoice_no_generate").val();
+                var jsonData = { invoiceNo: invoiceNo };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("CheckInvoiceNo", "Invoice")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        if (data == true) {
+                            var a = 0;
+                            var m1 = new Messi("The invoice Number is already exist. Do you want to make invoice with this existing invoice Number?.",
+                            {
+                                title: 'Confirm',
+                                modal: true,
+                                buttons: [
+                                    { id: 0, label: 'Yes', val: 'Y' },
+                                    { id: 1, label: 'No', val: 'N' }
+                                ],
+                                callback: function (v1) {
+                                    if (a == 1)
+                                        return false;
+                                    if (v1 == 'Y') {
+                                        a = 1;
+                                        finalCheck();
+                                    } else {
+                                        a = 1;
+                                        $("#invoice_no_generate").focus();
+                                    }
+                                    return true;
+                                }
+                            });
+                        } else {
+                            finalCheck();
+                        }
+                    },
+                });
+            }
+
+
+            function forBoth() {
+                checkInvoice();
+            }
+
+
+            function invoiceNoChange() {
+                change = true;
+            }
+
+            if ('@ViewBag.Companyid' != "" && '@ViewBag.Companyid' != null && '@ViewBag.Companyid' != 'NULL') {
+                $('#CompanyList option[value="@ViewBag.Companyid"]').prop('selected', true);
+                $('#companies').val($('#CompanyList option[value="@ViewBag.Companyid"]').text());
+                $("#new_radio").prop('checked', true);
+                $(document).fillProducts();
+                commentTableClear();
+                $("#labels").val('');
+                $("#comments").val('');
+                $("#make").show();
+                $("#view").hide();
+            }
+            //$(document).myPlugin(productTable, products, commentTable);
+        });
+    </script>
+
+    @*@if (ViewBag.Companyid != null)
+        {
+            <script>
+                (function ($) {
+                    $.fn.myPlugin = function (productTable, products, commentTable) {
+                        $("#CompanyList option[value='" + @ViewBag.Companyid + "'").prop('selected', true);
+                        $("#CompanyList option[value='']").remove();
+                        $("#existing_radio").prop('checked', true);
+                        fillProducts();
+                        commentTableClear();
+                        $("#labels").val('');
+                        $("#comments").val('');
+
+                        function fillProducts() {
+                            var type = $('input:radio:checked').val();
+                            var cId = $("#CompanyList").val();
+                            var query = "USP_GET_INVOICE_INVSCHEDULE '" + type + "','" + cId + "';";
+                            var jsonData = { query: query, type: type };
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("GetProductsForInvoice", "Invoice")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(jsonData),
+                                dataType: "json",
+                                success: function (data) {
+                                    productTable.clear().draw();
+                                    $.each(data, function (key, value) {
+                                        if (type == 0)
+                                            productTable.row.add([value.ListItem, value.Id, value.Product, value.LedgerId, value.SbName, value.SDate, value.EDate, value.Comments, value.Amount, value.TNO]).draw();
+                                        else {
+                                            productTable.row.add([value.ListItem, value.Id, 0, 0, value.SbName, value.SDate, 0, 0, value.Amount, 0]).draw();
+                                        }
+                                    });
+                                    if (data.length < 6) {
+                                        for (var i = 1; i <= 6 - data.length; i++) {
+                                            productTable.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
+                                        }
+                                    }
+                                    productsClear();
+                                    blankPrices();
+                                    if (data.length == 0) {
+                                        $("#invoice_no_generate").val('0000-' + pad(cId, 5) + '-000-00000');
+                                    } else {
+                                        setInvoiceNumber();
+                                    }
+                                    $("#show").prop('disabled', true);
+                                },
+                            });
+                        }
+
+                        function blankPrices() {
+                            $('#totalPrice').val('0.00');
+                            $('#invoicePrice').val('0.00');
+                        }
+
+                        function productTableClear() {
+                            productTable.clear().draw();
+                            for (var i = 1; i <= 6; i++) {
+                                productTable.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
+                            }
+                        }
+
+                        function productsClear() {
+                            products.clear().draw();
+                            for (var i = 1; i <= 6; i++) {
+                                products.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
+                            }
+                        }
+
+                        function commentTableClear() {
+                            commentTable.clear().draw();
+                            for (var i = 1; i <= 7; i++) {
+                                commentTable.row.add(["", "", ""]).draw();
+                            }
+                        }
+
+                        function setInvoiceNumber() {
+                            if (productTable.cell(0, 0).data() != "" || products.cell(0, 0).data() != "") {
+                                var query = "USP_SET_INVOICE_NUMBER " + $("#CompanyList").val() + ",'" + $("#issueDate").val() + "';";
+                                var jsonData = { query: query };
+                                $.ajax({
+                                    type: "Post",
+                                    url: '@Url.Action("GenerateInvoiceNumber", "Invoice")',
+                                    contentType: "application/json; charset=utf-8",
+                                    data: JSON.stringify(jsonData),
+                                    dataType: "json",
+                                    success: function (data) {
+                                        $("#invoice_no_generate").val(data.InvoiceNo);
+                                    },
+                                });
+                            } else
+                                $("#invoice_no_generate").val('0000-' + pad($("#CompanyList").val(), 5) + '-000-00000');
+                        }
+
+                        function pad(str, max) {
+                            str = str.toString();
+                            return str.length < max ? pad("0" + str, max) : str;
+                        }
+
+                    };
+                })(jQuery);
+            </script>*@
+}
+
+@if (!accessRights.Contains("1"))
+{
+    <script>
+        $("#save").addClass('disabled');
+    </script>
+}

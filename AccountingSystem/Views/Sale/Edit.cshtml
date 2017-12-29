@@ -1,0 +1,1386 @@
+﻿@using System.Web.UI.WebControls
+@using AccountingSystem.Models
+
+@{
+    ViewBag.Title = "Edit Sale";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+    var approveRight = user.ApproveRight.Split(',');
+}
+@section styles
+{
+    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/colorbox.css" rel="stylesheet" />
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <style>
+        .modal-header-ns {
+            color: #fff;
+            border-bottom: 1px solid #eee;
+            background-color: #005BF1;
+            -webkit-border-radius: 5px 5px 0px 0px;
+            -moz-border-radius: 5px 5px 0px 0px;
+            border-radius: 5px 5px 0px 0px;
+            padding: 0px 5px 0px 5px;
+            margin: -10px 0px 0px 0px;
+        }
+
+            .modal-header-ns h4 {
+                color: #fff;
+                line-height: 28px;
+                font-size: 15px;
+                margin: 2px 0px 0px 0px;
+            }
+
+            .modal-header-ns .close {
+                color: #fff;
+                font-size: 20px;
+                line-height: 28px;
+            }
+
+        .modal-header-usipj {
+            color: #fff;
+            border-bottom: 1px solid #eee;
+            background-color: #005BF1;
+            -webkit-border-radius: 5px 5px 0px 0px;
+            -moz-border-radius: 5px 5px 0px 0px;
+            border-radius: 5px 5px 0px 0px;
+            padding: 0px 5px 0px 5px;
+            margin: -10px 0px 0px 0px;
+        }
+
+            .modal-header-usipj h4 {
+                color: #fff;
+                line-height: 28px;
+                font-size: 15px;
+                margin: 2px 0px 0px 0px;
+            }
+
+            .modal-header-usipj .close {
+                color: #fff;
+                font-size: 20px;
+                line-height: 28px;
+            }
+
+        .usipjModal .modal-dialog {
+            width: 900px;
+        }
+
+        .table > thead > tr > th {
+            border-bottom: none;
+        }
+
+        .table tbody {
+            font-size: 12px;
+        }
+
+        .pagination {
+            margin: 5px 0px 0px 0px;
+            font-size: 12px;
+            height: 30px;
+        }
+
+        .usipjModal .modal-body {
+            background: #f0f0f0;
+        }
+
+            .usipjModal .modal-body label {
+                color: #0a0176;
+            }
+
+            .usipjModal .modal-body .row-top {
+                margin: -5px 0px 0px 0px;
+            }
+
+        .usipjModal .modal-footer {
+            background: #f0f0f0;
+            border-top: none;
+            margin: -15px 0px 0px 0px;
+        }
+
+        .modal-footer .btn {
+            padding: 5px 25px 5px 25px;
+        }
+
+        .usipjModal .modal-body {
+            background: #f0f0f0;
+        }
+
+            .usipjModal .modal-body table {
+                background: #fff;
+            }
+
+                .usipjModal .modal-body table th {
+                    background: #d1f1cc;
+                    text-align: center;
+                    font-size: 14px;
+                    border-right: 1px solid #ddd;
+                    color: #007c3e;
+                    font-weight: normal;
+                }
+
+        table {
+            table-layout: fixed;
+            border-radius: 0px 0px 0px 0px;
+        }
+
+        .div-table-content {
+            height: 141px;
+            overflow-y: auto;
+            border-radius: 0px 0px 0px 0px;
+            margin: -20px 0px 0px 0px;
+        }
+
+        .noresize {
+            resize: none;
+        }
+
+        legend.legendStyle {
+            padding: 0px 5px 0px 5px;
+            margin: 1px 0px 0px 0px;
+            font-size: 100%;
+            background-color: transparent;
+            color: #0b0084;
+            font-weight: bold;
+        }
+
+        legend.legendStyle_b {
+            padding: 0px 5px 0px 5px;
+            margin: 1px 0px 0px 0px;
+            font-size: 100%;
+            background-color: transparent;
+            color: #634d1c;
+        }
+
+        fieldset.fsStyle {
+            border: 1px solid #999999;
+            padding: 4px;
+            margin: 10px 0px 5px 0px;
+        }
+
+        .row-selected {
+            background: rgb(74, 185, 218);
+        }
+
+        legend {
+            border-bottom: 0px;
+            width: auto;
+        }
+
+        fieldset label {
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        .ui-datepicker {
+            z-index: 1151 !important;
+        }
+
+        #salesList tbody {
+            cursor: pointer;
+        }
+
+        #close {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            background: url(../images/close2.png) no-repeat -25px 0;
+            width: 30px;
+            height: 30px;
+            text-indent: -9999px;
+            padding: 0 10px 0 0;
+            cursor: pointer;
+            margin: -8px 0 0 0;
+        }
+    </style>
+}
+<!-- Modal -->
+<div class="modal usipjModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-header-usipj">
+                <div id="close" aria-hidden="true"></div>
+                <h4 class="nstitle"> <img alt="Edit_Sale_logo" src="~/image/Edit_Sale.png" width="20" height="20"> Update sales information and post journal</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="margin:-10px -15px 0px -15px;">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>Select a company</label>
+                                <select size="20" class="form-control" style="height:210px;" id="companyList">
+                                    @foreach (Company company in ViewBag.CompanyList)
+                                    {
+                                        <option value="@company.Id">@company.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="row" style="margin:0px -15px 0px -15px;">
+                            <div class="col-sm-12">
+                                <fieldset class="fsStyle">
+                                    <legend class="legendStyle">
+                                        Change of
+                                    </legend>
+                                    <div class="row">
+                                        <div class="col-sm-5">
+                                            Sales Price
+                                        </div>
+                                        <div class="col-sm-7">
+                                            <input id="amount" type="text" class="form-control input-sm text-right">
+                                        </div>
+                                    </div>
+
+                                    <div class="row" style="margin:5px -15px 0px -15px;">
+                                        <div class="col-sm-5">
+                                            VAT Amount
+                                        </div>
+                                        <div class="col-sm-7">
+                                            <input type="text" class="form-control input-sm text-right" id="tax">
+                                        </div>
+                                    </div>
+
+                                    <div class="row" style="margin:5px -15px 0px -15px;">
+                                        <div class="col-sm-2" style="padding-right: 0;">
+                                            <br>Duration
+                                        </div>
+                                        <div class="col-sm-4" style="padding-right: 3px;">
+                                            <label>From</label>
+                                                <input name="from" type="text" class="form-control input-sm select" id="dp1" style="padding-right: 0;">
+                                        </div>
+                                        <div class="col-sm-4" style="padding-right: 7px; margin-left: -10px;">
+                                            <label>To</label>
+                                                <input name="from" type="text" class="form-control input-sm select" id="dp2" style="padding-right: 0;">
+                                        </div>
+                                        <div class="col-sm-2" style="padding-left: 0;">
+                                            <label class="col-sm-12" style="padding: 0;">Duration</label>
+                                            <div class="col-sm-11" style="padding-left: 0; padding-right:5px; margin: 0;">
+                                                <input id="duration" type="text" class="form-control input-sm" disabled style="background: white; cursor: text;">
+                                            </div>
+                                            <span class="col-sm-1" style="padding-left: 0; padding-right: 0; margin: 0;">M</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="row" style="margin:5px -15px 0px -15px;">
+                                        <div class="col-sm-4">
+                                            Billing Contact
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <select class="form-control input-sm" id="contactPersons"></select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row" style="margin:5px -15px 0px -15px;">
+                                        <div class="col-sm-4">
+                                            Ref No.
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control input-sm text-right" id="refNo">
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin:0px -15px -10px -15px;">
+                    <div class="col-sm-12">
+                        <strong>Sales List:</strong> ( <span id="noofsales"></span> sales found )
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-4 pull-left text-left" style="margin-left:-15px; margin-top: 15px;padding-right: 0; margin-right: 0;">
+                            Show
+                            <select id="pagesize">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                                <option value="40">40</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            entries per page
+                        </div>
+                        <div class="col-sm-8 pull-right text-right" id="paging" style="padding-right: 0;padding-left: 0; margin-left: 0;">
+
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div style="margin: 0px 0px 0px 0px; padding-right: 17.5px; background: #d1f1cc; border-radius: 0px 0px 0px 0px; width: 100%">
+                            <table class="table table-condensed table-bordered header">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">SNo</th>
+                                        <th width="25%">Product name</th>
+                                        <th width="10%">From</th>
+                                        <th width="10%">To</th>
+                                        <th width="10%">Duration</th>
+                                        <th width="10%">Price(Tk)</th>
+                                        <th width="10%">Due(Tk)</th>
+                                        <th width="10%">Posted</th>
+                                        <th width="10%" style="border-right: none;">VAT(Tk)</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="div-table-content">
+                            <table class="table table-condensed table-bordered" id="salesList">
+                                <tbody>
+                                    @for (var i = 1; i <= 20; i++)
+                                    {
+                                        <tr>
+                                            <td width="5%">&nbsp;</td>
+                                            <td width="25%">&nbsp;</td>
+                                            <td width="10%">&nbsp;</td>
+                                            <td width="10%">&nbsp;</td>
+                                            <td width="10%">&nbsp;</td>
+                                            <td width="10%">&nbsp;</td>
+                                            <td width="10%">&nbsp;</td>
+                                            <td width="10%">&nbsp;</td>
+                                            <td width="10%">&nbsp;</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="margin: 0px 0px 0px 0px; padding-right: 17.5px; border-radius: 0px 0px 0px 0px; width: 100%;">
+                            <table class=" table table-condensed" style="border-top: none; border-bottom: none; margin: 0; background: #F0F0F0;">
+                                <tbody>
+                                    <tr>
+                                        <td width="5%"></td>
+                                        <td width="25%"></td>
+                                        <td width="10%"></td>
+                                        <td width="10%"></td>
+                                        <td width="10%" style="text-align: right; font-size: 14px; font-weight: bold; color: #007c3e;">Total:</td>
+                                        <td width="10%" style="padding: 0; border-right: 1px solid #ddd; border-left: 1px solid #ddd; border-bottom: 1px solid #ddd;"><input id="totalPrice" type="text" size="9" style="text-align: right; border:none; padding: 0 5px 0 0;" class="form-control input-sm"></td>
+                                        <td width="10%" style="padding: 0; border-right: 1px solid #ddd; border-left: 1px solid #ddd; border-bottom: 1px solid #ddd;"><input id="totalDues" type="text" size="9" style="text-align: right; border: none; padding: 0 5px 0 0;" class="form-control input-sm"></td>
+                                        <td width="10%"></td>
+                                        <td width="10%"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-horizontal" hidden id="view" style="width: 260px; height: 120px; z-index: 99999999999999; background: #BFC1FE; border: 1px solid gray;">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <select id="ledgers" size="6" style="height: 85px;width: 250px; border: 1px solid gray; margin-left: 4px; margin-top: 4px;"></select>
+                                </div>
+                            </div>
+                            <div class="form-group" style="padding-top: 0; margin-top: -12px;">
+                                <div class="col-sm-12" style="margin-left: 4px;">
+                                    <div class="col-sm-3" style="padding: 0 1px 0 0px; margin: 0; width: 62.5px;">
+                                        <button type="button" id="refresh" class="btn-block">Refresh</button>
+                                    </div>
+                                    <div class="col-sm-3" style="padding: 0 1px 0 0px; margin: 0; width: 62.5px;">
+                                        <button class='sub_window_new btn-block' width='788px' height='422px' path='@Url.Action("Create", "Ledger", new { page = "new" })'>New</button>
+                                    </div>
+                                    <div class="col-sm-3" style="padding: 0 1px 0 0; margin: 0; width: 62.5px;">
+                                        <button type="button" class="btn-block" id="ok2">Ok</button>
+                                    </div>
+                                    <div class="col-sm-3" style="padding: 0 0px 0 0px; margin: 0; width: 62.5px;">
+                                        <button type="button" class="btn-block" id="cancel">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="col-sm-8 pull-right text-right" id="pagingBottom" style="padding-right: 0;padding-left: 0; margin-left: 0;">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary pull-left" id="delete"><strong>Delete</strong></button>
+                <button type="button" class="btn btn-primary pull-left" id="update"><strong>Update</strong></button>
+                <button type="button" class="btn btn-primary pull-left" id="makeJournal"><strong>Make Journal</strong></button>
+                <button type="button" class="btn btn-primary pull-left" id="makeInvoice"><strong>Make Invoice</strong></button>
+                <button type="button" class="btn btn-primary pull-right" id="exit"><strong>Exit</strong></button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- Modal -->
+<!-- Modal -->
+<div class="modal nsModal" id="closejournal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 300px; margin-top: 200px;">
+        <div class="modal-content">
+            <div class="modal-header modal-header-ns">
+                <h4 class="nstitle">Journal Date</h4>
+            </div>
+            <div class="modal-body">
+                <p>Give the journal date.</p>
+
+                <input type="text" readonly id="journalDate" class="form-control input-sm picker" style="height: 25px; width: 200px; background: white; cursor: default;" />
+            </div>
+            <div class="modal-footer" style="margin-top: -20px;">
+                <div class="col-sm-offset-2 col-sm-4 pull-left" style="padding-left: 0;">
+                    <button type="button" class="btn btn-block btn-default" id="ok"><strong>Ok</strong></button>
+                </div>
+                <div class="col-sm-4 pull-left" style="padding-left: 0;padding-right: 0;">
+                    <button type="button" class="btn btn-block btn-default" data-dismiss="modal"><strong>Cancel</strong></button>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- Modal -->
+@section scripts
+{
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/jquery.colorbox.js"></script>
+    <script src="~/Scripts/js/jquery.bootpag.min.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#dp1').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                onSelect: function (text, event) {
+                    calculateDuration(text, $("#dp2").val());
+                }
+            });
+            $('#dp2').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                onSelect: function (text, event) {
+                    calculateDuration($("#dp1").val(), text);
+                }
+            });
+            $('#journalDate').datepicker({
+                changeMonth: true,
+                changeYear: true
+            });
+            $('#dp1, #journalDate, #dp2').on('keydown keypress keyup', function (e) {
+                return false;
+            }).css('cursor', 'default');
+            var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+            $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+            var tr;
+            var sbName;
+            var row;
+
+            function getLedgers() {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetLedgersWithBalance", "Journal")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#ledgers").html('');
+                        $.each(data, function (key, value) {
+                            $("#ledgers").append('<option value="' + value.Id + '" data-balance="' + value.Account + '">' + value.GroupName + '</option>');
+                        });
+                    },
+                });
+            }
+
+            function pad(str, max) {
+                str = str.toString();
+                return str.length < max ? pad("0" + str, max) : str;
+            }
+
+            var today = new Date();
+            var toDate = pad((today.getMonth() + 1), 2) + "/" + pad(today.getDate(), 2) + "/" + today.getFullYear();
+
+            $('#paging').bootpag({
+                total: 1,
+                page: 1,
+                maxVisible: 6,
+                firstLastUse: true,
+                first: 'start',
+                last: 'end',
+                leaps: true,
+                wrapClass: 'pagination',
+                activeClass: 'active',
+                disabledClass: 'disabled',
+                nextClass: 'next',
+                prevClass: 'prev',
+                lastClass: 'last',
+                firstClass: 'first'
+            }).on("page", function (event, num) {
+                getSales(num, $("#pagesize").val(), $("#companyList option:selected").val());
+            });
+            $("#refresh").on('click', function () {
+                getLedgers();
+            });
+            $('.sub_window_new').on('click', function () {
+                $("#view").hide();
+                $.colorbox({
+                    iframe: true,
+                    width: $(this).attr('width'),
+                    height: $(this).attr('height'),
+                    href: $(this).attr('path'),
+                    scrolling: true,
+                    innerWidth: '545px'
+                });
+            });
+            $('#cancel').on('click', function () {
+                $("#view").hide();
+            });
+            $('.div-table-content').bind('scroll', function () {
+                $("#view").hide();
+            });
+            $('#pagingBottom').bootpag({
+                total: 1,
+                page: 1,
+                maxVisible: 6,
+                firstLastUse: true,
+                first: 'start',
+                last: 'end',
+                leaps: true,
+                wrapClass: 'pagination',
+                activeClass: 'active',
+                disabledClass: 'disabled',
+                nextClass: 'next',
+                prevClass: 'prev',
+                lastClass: 'last',
+                firstClass: 'first'
+            });
+            $(window).on('load', function () {
+                $("#success").modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                $("#closejournal").modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                $("#closejournal").modal('hide');
+                centerSuccess();
+                $("#noofsales").html(0);
+                $("#makeJournal, #delete, #makeInvoice, #update").prop('disabled', true);
+                $("#journalDate").val(toDate);
+                $("#amount, #tax").val('0.00');
+                getLedgers();
+            });
+            //$(document).on('click', function () {
+            //    $("#success").modal('show');
+            //});
+            //$(document).on('keydown', function (e) {
+            //    if (e.keyCode == 27)
+            //        $("#success").modal('show');
+            //});
+            $("#exit, #close").on('click', function () {
+                $("#success").modal('hide');
+            });
+            $("#companyList").on('change', function () {
+                sbName = null;
+                row = null;
+                getContactPersons($(this).val());
+                getSales(1, $("#pagesize").val(), $("#companyList option:selected").val());
+                $("#makeInvoice").prop('disabled', false);
+                $("#update").prop('disabled', true);
+            });
+            $("#pagesize").on('change', function () {
+                getSales(1, $("#pagesize").val(), $("#companyList option:selected").val());
+            });
+
+            function clearInfo() {
+                $("#contactPersons, #refNo, #dp1, #dp2, #duration").val('');
+                $("#amount, #tax").val('0.00');
+            }
+
+            function getContactPersons(companyId) {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetContactPersonByCompanyId", "Company")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: JSON.stringify({ companyId: companyId }),
+                    success: function (data) {
+                        $("#contactPersons").html('');
+                        $("#contactPersons").append('<option value=""></option>');
+                        $.each(data, function (key, value) {
+                            $("#contactPersons").append('<option value="' + value.Id + '">' + value.Name + '</option>');
+                        });
+                    },
+                });
+            }
+
+            function getSales(pageNo, pageSize, companyId) {
+                clearInfo();
+                $("#delete, #makeJournal").prop('disabled', true);
+                var jsonData = { pageNo: pageNo, pageSize: pageSize, cId: companyId };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetSales", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: JSON.stringify(jsonData),
+                    success: function (data) {
+                        $("#salesList tbody").html('');
+                        var total = 0;
+                        var cnt = ((pageNo - 1) * pageSize) + 1;
+                        $.each(data.Sales, function (key, value) {
+                            var post = value.IsPosted ? 'Yes' : 'No';
+                            $("#salesList tbody").append('<tr>' +
+                                '<td width="5%" style="text-align: center;">' + cnt + '</td>' +
+                                '<td width="25%" style="text-align: left;">' + value.SbName + '</td>' +
+                                '<td width="10%" style="text-align: center;">' + value.FromDate + '</td>' +
+                                '<td width="10%" style="text-align: center;">' + value.ToDate + '</td>' +
+                                '<td width="10%" style="text-align: center;">' + value.Duration + '</td>' +
+                                '<td width="10%" style="text-align: right;">' + parseFloat(value.Amount).toFixed(2) + '</td>' +
+                                '<td width="10%" style="text-align: right;">' + parseFloat(value.AccReceivale).toFixed(2) + '</td>' +
+                                '<td width="10%" style="text-align: center;">' + post + '</td>' +
+                                '<td width="10%" style="text-align: right;">' + parseFloat(value.Tax).toFixed(2) + '</td>' +
+                                '<td hidden>' + value.BillingContactId + '</td>' +
+                                '<td hidden>' + value.RefNo + '</td>' +
+                                '<td hidden>' + value.Tno + '</td>' +
+                                '<td hidden>' + value.Id + '</td>' +
+                                '<td hidden>' + value.TaxId + '</td>' +
+                                '<td hidden></td>' +
+                                '</tr>');
+                            total = value.TotalRecords;
+                            cnt++;
+                        });
+                        if (data.Sales.length < 20) {
+                            for (var i = 1; i <= 20 - data.Sales.length; i++) {
+                                $("#salesList tbody").append('<tr>' +
+                                    '<td width="5%">&nbsp;</td>' +
+                                    '<td width="25%">&nbsp;</td>' +
+                                    '<td width="10%">&nbsp;</td>' +
+                                    '<td width="10%">&nbsp;</td>' +
+                                    '<td width="10%">&nbsp;</td>' +
+                                    '<td width="10%">&nbsp;</td>' +
+                                    '<td width="10%">&nbsp;</td>' +
+                                    '<td width="10%">&nbsp;</td>' +
+                                    '<td width="10%">&nbsp;</td>' +
+                                    '</tr>');
+                            }
+                        }
+                        $("#totalPrice").val(parseFloat(data.TotalAmount).toFixed(2));
+                        $("#totalDues").val(parseFloat(data.DuesAmount).toFixed(2));
+                        $("#noofsales").html(total);
+                        var pager = total / pageSize;
+                        pager = pager | 0;
+                        if (total % pageSize != 0)
+                            pager = pager + 1;
+                        $('#paging, #pagingBottom').bootpag({
+                            total: pager,
+                            page: pageNo,
+                            maxVisible: 6,
+                            firstLastUse: true,
+                            first: 'start',
+                            last: 'end',
+                            leaps: true,
+                            wrapClass: 'pagination',
+                            activeClass: 'active',
+                            disabledClass: 'disabled',
+                            nextClass: 'next',
+                            prevClass: 'prev',
+                            lastClass: 'last',
+                            firstClass: 'first'
+                        });
+                        $("#salesList tbody tr").on('click', function () {
+                            if ($(this).find('td:first').html() != '&nbsp;') {
+                                $("#delete, #update").prop('disabled', false);
+                                $("#salesList tbody tr").removeClass('row-selected');
+                                $(this).addClass('row-selected');
+                                $("#amount").val($(this).find('td:nth-child(6)').html());
+                                $("#tax").val($(this).find('td:nth-child(9)').html());
+                                $('#contactPersons option[value="' + $(this).find('td:nth-child(10)').html() + '"]').prop('selected', true);
+                                $("#refNo").val($(this).find('td:nth-child(11)').html());
+                                $("#dp1").val($(this).find('td:nth-child(3)').html());
+                                $("#dp2").val($(this).find('td:nth-child(4)').html());
+                                $("#duration").val($(this).find('td:nth-child(5)').html());
+                                if ($(this).find('td:nth-child(8)').html() == 'No')
+                                    $("#makeJournal").prop('disabled', false);
+                                else
+                                    $("#makeJournal").prop('disabled', true);
+                                if (sbName != "" && sbName != null) {
+                                    var sb = { Sl: row.find('td:nth-child(1)').html(), Name: row.find('td:nth-child(2)').html(), SId: row.find('td:nth-child(13)').html(), Tno: row.find('td:nth-child(12)').html() };
+                                    if (sb.Sl != $(this).find('td:nth-child(1)').html()) {
+                                        if (sb.Name != sbName.Name || sb.SId != sbName.SId) {
+                                            $("#view").hide();
+                                            update(row, sbName.Name, sb.Name, sbName.SId, sb.SId, sb.Tno);
+                                        }
+                                        sbName = { Sl: $(this).find('td:nth-child(1)').html(), Name: $(this).find('td:nth-child(2)').html(), SId: $(this).find('td:nth-child(13)').html(), Tno: $(this).find('td:nth-child(12)').html() };
+                                        row = $(this);
+                                    }
+                                } else {
+                                    sbName = { Sl: $(this).find('td:nth-child(1)').html(), Name: $(this).find('td:nth-child(2)').html(), SId: $(this).find('td:nth-child(13)').html(), Tno: $(this).find('td:nth-child(12)').html() };
+                                    row = $(this);
+                                }
+                            }
+                        });
+                        $('#salesList tbody tr td:nth-child(2)').on('click', function () {
+                            var button = $(this);
+                            if (button.html() != "&nbsp;") {
+                                $('#ledgers').find('option[value="' + button.parent('tr').find('td:nth-child(13)').html() + '"]').prop('selected', true);
+                                $("#ledgers").css('width', (button.width()) + 'px');
+                                $("#view").children('div:nth-child(2)').children('div:first').children('div').css('width', (button.width() / 4) + 'px').css('font-size', '10px');
+                                $("#view").css({
+                                    'width': (button.width() + 10) + 'px',
+                                    'top': (button.position().top + button.height() + 10) + 'px',
+                                    'left': button.position().left + 'px',
+                                    'position': 'absolute'
+                                }).show();
+                                $("#ledgers").focus();
+                                tr = button.parent('tr');
+                            }
+                        });
+                        $("#salesList tbody tr td:not(td:nth-child(2))").on('click', function () {
+                            $("#view").hide();
+                        });
+                    },
+                });
+            }
+
+            function update(rowNum, oldName, newName, oldSid, newSid, tno) {
+                var c = 0;
+                var msg1 = new Messi('You have changed product name.<br/>Do you want to change the product for this sale?',
+                {
+                    title: 'Alert',
+                    modal: true,
+                    buttons: [
+                        { id: 0, label: 'Yes', val: 'Y' },
+                        { id: 1, label: 'No', val: 'N' }
+                    ],
+                    callback: function (val) {
+                        if (c == 1)
+                            return false;
+                        if (val == 'Y') {
+                            c = 1;
+                            var json = { oldSid: oldSid, tno: tno, newSid: newSid }
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("UpdateProduct", "Sale")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(json),
+                                dataType: "json",
+                                success: function (d) {
+                                    if (d == true) {
+                                        var m5 = new Messi("<p style='text-align: justify;'>The product has been changed successfully.</p>",
+                                        {
+                                            title: 'Success',
+                                            modal: true,
+                                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                            ]
+                                        });
+                                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                    }
+                                },
+                            });
+                        } else {
+                            c = 1;
+                            rowNum.find('td:nth-child(2)').html(oldName);
+                            rowNum.find('td:nth-child(13)').html(oldSid);
+                        }
+                        return true;
+                    }
+                });
+            }
+
+            $("#amount, #tax").on('keydown', function (e) {
+                var kCode = (e.which || e.keyCode);
+                if (kCode == 190 || kCode == 110) {
+                    if ($(this).val().indexOf(".") > -1)
+                        e.preventDefault();
+                } else if (e.which === 86 && (e.ctrlKey || e.metaKey))
+                    e.preventDefault();
+                else if (e.keyCode < 96 || e.keyCode > 105) {
+                    if (e.keyCode != 8 && e.keyCode != 46) {
+                        if (!$.isNumeric(String.fromCharCode(e.which)))
+                            e.preventDefault();
+                    }
+                }
+            });
+
+            $("#amount, #tax").on('focusout', function () {
+                var value = $(this).val();
+                if (value != '0.00') {
+                    if (value == "" || value == ".") {
+                        $(this).val('0.00');
+                    } else {
+                        $(this).val(parseFloat(value).toFixed(2));
+                    }
+                }
+            });
+
+            $("#delete").on('click', function () {
+                if ('@accessRights.Contains("3")' != 'True') {
+                    var m0 = new Messi('Sorry, you have no access to delete a record.',
+                    {
+                        title: 'Success',
+                        modal: true,
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var c1 = 0;
+                    var msg1 = new Messi('Are you sure you want to delete this sale?',
+                    {
+                        title: 'Warning',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'Yes', val: 'Y' },
+                            { id: 1, label: 'No', val: 'N' }
+                        ],
+                        callback: function (val) {
+                            if (c1 == 1)
+                                return false;
+                            if (val == 'Y') {
+                                c1 = 1;
+                                $.ajax({
+                                    type: "Post",
+                                    url: '@Url.Action("DeleteSale", "Sale")',
+                                    contentType: "application/json; charset=utf-8",
+                                    dataType: "json",
+                                    data: JSON.stringify({ tno: $("#salesList tbody tr.row-selected").find('td:nth-child(12)').html() }),
+                                    success: function (data) {
+                                        if (data == "1") {
+                                            var m1 = new Messi('<p style="text-align: justify;">Can not delete.<br/>Cash has been collected for this sale. You must delete that Cash from Cash Collection form, then delete this sale.</p>',
+                                            {
+                                                title: 'Delete Abandoned',
+                                                modal: true,
+                                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                                ]
+                                            });
+                                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                        } else if (data == "2") {
+                                            var m2 = new Messi('<p style="text-align: justify;">Can not delete.<br/>Some of Sales journal is approved.</p>',
+                                            {
+                                                title: 'Delete Abandoned',
+                                                modal: true,
+                                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                                ]
+                                            });
+                                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                        } else if (data == "-1") {
+                                            var m3 = new Messi('<p style="text-align: justify;">Internal Database Error.</p>',
+                                            {
+                                                title: 'Database Error',
+                                                modal: true,
+                                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                                ]
+                                            });
+                                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                        } else if (data == 0) {
+                                            $("#salesList tbody tr.row-selected").remove();
+                                            var count = 0;
+                                            $.each($("#salesList tbodyn tr"), function () {
+                                                if ($(this).find('td:first').html() != '&nbsp;') {
+                                                    count++;
+                                                    $(this).find('td:first').html(count);
+                                                }
+                                            });
+                                            $("#noofsales").html(parseInt($("#noofsales").val()) - 1);
+                                            $("#salesList tbody").append('<tr>' +
+                                                '<td width="5%">&nbsp;</td>' +
+                                                '<td width="25%">&nbsp;</td>' +
+                                                '<td width="10%">&nbsp;</td>' +
+                                                '<td width="10%">&nbsp;</td>' +
+                                                '<td width="10%">&nbsp;</td>' +
+                                                '<td width="10%">&nbsp;</td>' +
+                                                '<td width="10%">&nbsp;</td>' +
+                                                '<td width="10%">&nbsp;</td>' +
+                                                '<td width="10%">&nbsp;</td>' +
+                                                '</tr>');
+                                            var m4 = new Messi('<p style="text-align: justify;">Delete operation has been completed successfully.</p>',
+                                            {
+                                                title: 'Success',
+                                                modal: true,
+                                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                                ]
+                                            });
+                                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                        }
+                                    },
+                                });
+                            }
+                            return true;
+                        }
+                    });
+                }
+            });
+            $("#makeJournal").on('click', function () {
+                if ('@accessRights.Contains("1")' != 'True') {
+                    var m0 = new Messi('Sorry, You have no permission to make a journal.',
+                    {
+                        title: 'Alert',
+                        modal: true,
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var d = 0;
+                    var msg1 = new Messi("Are you sure you want to make journal of this sale?",
+                    {
+                        title: 'Confirm',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'Yes', val: 'Y' },
+                            { id: 1, label: 'No', val: 'N' }
+                        ],
+                        callback: function (conf) {
+                            if (d == 1)
+                                return false;
+                            if (conf == 'Y') {
+                                d = 1;
+                                $("#closejournal").modal('show');
+                            }
+                            return true;
+                        }
+                    });
+                }
+            });
+
+            function calculateDuration(first, second) {
+                if (first != "" && second != "") {
+                    var date1 = first.split('/');
+                    var date2 = second.split('/');
+                    var date = new Date(date1[2], (date1[0] - 1), date1[1]);
+                    var nextdate = new Date(date2[2], (date2[0] - 1), date2[1]);
+                    var dif = (nextdate - date) / (1000 * 60 * 60 * 24);
+                    var m = parseInt(dif / 30);
+                    var r = dif % 30;
+                    if (r >= 15)
+                        m = (m + 1);
+                    if (m == 0)
+                        m = m + 1;
+                    $("#duration").val(m.toString());
+                }
+            }
+            function centerSuccess() {
+                $('#success').css('display', 'block');
+                var $dialog = $('#success').find(".modal-dialog");
+                var offset = ($(window).height() - $dialog.height()) / 2;
+                // Center modal vertically in window
+                if (offset >= 0)
+                    $dialog.css("margin-top", offset);
+            }
+            $("#ok").on('click', function () {
+                var fromDate = $("#journalDate").val();
+                var date1 = fromDate.split('/');
+                var from = new Date(date1[2], (parseInt(date1[0]) - 1), date1[1]);
+                var toDt = '@ViewBag.ClosingDate';
+                var date2 = toDt.split('/');
+                var to = new Date(date2[2], (parseInt(date2[0]) - 1), date2[1]);
+                if (from <= to) {
+                    var m0 = new Messi("<p style='text-align: justify;'>You cannot post journal on or before '<strong>" + toDt + "</strong>'.<br/>Please give another date.</p>",
+                    {
+                        title: 'Alert',
+                        modal: true,
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var jsonData = { sId: $("#salesList tbody tr.row-selected").find('td:nth-child(13)').html(), amount: $("#salesList tbody tr.row-selected").find('td:nth-child(6)').html(), jDate: $("#journalDate").val(), duration: $("#salesList tbody tr.row-selected").find('td:nth-child(5)').html(), tno: $("#salesList tbody tr.row-selected").find('td:nth-child(12)').html(), description: "Company: " + $("#companyList option:selected").text() + ", Item: " + $("#salesList tbody tr.row-selected").find('td:nth-child(2)').html(), salesdate: $("#salesList tbody tr.row-selected").find('td:nth-child(3)').html(), taxId: $("#salesList tbody tr.row-selected").find('td:nth-child(14)').html(), tax: $("#salesList tbody tr.row-selected").find('td:nth-child(9)').html(), userId: '@user.UserId' };
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("MakeJournalOfSale", "Sale")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(jsonData),
+                        dataType: "json",
+                        success: function (dt) {
+                            if (dt == true) {
+                                $("#closejournal").modal('hide');
+                                $("#companyList").trigger('change');
+                                var m1 = new Messi("<p style='text-align: justify;'>All Journal entry have been completed.</p>",
+                                {
+                                    title: 'Success',
+                                    modal: true,
+                                    buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                    ]
+                                });
+                                $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                            }
+                        },
+                    });
+                }
+            });
+            $("#makeInvoice").on('click', function () {
+                window.location = '../Invoice/Create?companyId=' + $("#companyList option:selected").val();
+            });
+            $("#ledgers").on('dblclick', function () {
+                setLedger();
+            });
+
+            function setLedger() {
+                $("#view").hide();
+                tr.find('td:nth-child(2)').html($('#ledgers').find('option:selected').text());
+                tr.find('td:nth-child(13)').html($('#ledgers').find('option:selected').val());
+            }
+
+            $("#ledgers").on('keydown', function (e) {
+                if (e.keyCode == 13) {
+                    setLedger();
+                }
+            });
+            $('#ok2').on('click', function () {
+                setLedger();
+            });
+            $("#update").on('click', function () {
+                if ('@accessRights.Contains("2")' != 'True') {
+                    var m0 = new Messi("<p style='text-align: justify;'>Sorry, You have no permission to update a record.</p>",
+                    {
+                        title: 'Alert',
+                        modal: true,
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    amountCheck();
+                }
+            });
+
+            function amountCheck() {
+                if ($("#amount").val() == '0.00') {
+                    var c0 = 0;
+                    var msg0 = new Messi("You have given no amount. Do you treat this product as free?",
+                    {
+                        title: 'Empty Amount',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'Yes', val: 'Y' },
+                            { id: 1, label: 'No', val: 'N' }
+                        ],
+                        callback: function (conf) {
+                            if (c0 == 1)
+                                return false;
+                            if (conf == 'Y') {
+                                c0 = 1;
+                                taxCheck();
+                            }
+                            return true;
+                        }
+                    });
+                } else {
+                    taxCheck();
+                }
+            }
+
+            function taxCheck() {
+                if ($("#tax").val() == '0.00') {
+                    var c1 = 0;
+                    var msg1 = new Messi("You have given no VAT amount. Do you treat this product has no VAT?",
+                    {
+                        title: 'Empty VAT',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'Yes', val: 'Y' },
+                            { id: 1, label: 'No', val: 'N' }
+                        ],
+                        callback: function (conf) {
+                            if (c1 == 1)
+                                return false;
+                            if (conf == 'Y') {
+                                c1 = 1;
+                                dateCheck();
+                            }
+                            return true;
+                        }
+                    });
+                } else {
+                    dateCheck();
+                }
+            }
+
+            function dateCheck() {
+                var datefrom = new Date($("#dp1").val());
+                var dateto = new Date($("#dp2").val());
+                if (datefrom > dateto) {
+                    var m1 = new Messi("<p style='text-align: justify;'>From-date is greater than To-date.</p>",
+                    {
+                        title: 'Error in Date',
+                        modal: true,
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    contactPersonCheck();
+                }
+            }
+
+            function contactPersonCheck() {
+                if ($("#contactPersons option:selected").val() == "" || $("#contactPersons option:selected").val() == null) {
+                    var m2 = new Messi("<p style='text-align: justify;'>You must select a billing contact person?</p>",
+                    {
+                        title: 'Alert',
+                        modal: true,
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    updateSale();
+                }
+            }
+
+            function updateSale() {
+                var sid = $("#salesList tbody tr.row-selected").find('td:nth-child(13)').html();
+                var vatId = $("#salesList tbody tr.row-selected").find('td:nth-child(14)').html();
+                var description = "Company: " + $("#companyList option:selected").text() + ", Item: " + $("#salesList tbody tr.row-selected").find('td:nth-child(2)').html();
+
+                var oldAmount = parseFloat($("#salesList tbody tr.row-selected").find('td:nth-child(6)').html());
+                var newAmount = parseFloat($("#amount").val());
+
+                var oldVatAmount = parseFloat($("#salesList tbody tr.row-selected").find('td:nth-child(9)').html());
+                var newVatAmount = parseFloat($("#tax").val());
+
+                var oldDuration = parseInt($("#salesList tbody tr.row-selected").find('td:nth-child(5)').html());
+                var newDuration = parseInt($("#duration").val());
+
+                var oldRefNo = $("#salesList tbody tr.row-selected").find('td:nth-child(11)').html().toString();
+                var newRefNo = $("#refNo").val().toString();
+
+                var tno = $("#salesList tbody tr.row-selected").find('td:nth-child(12)').html();
+                var AR = parseFloat(newAmount + newVatAmount);
+                var dtp = $("#dp1").val();
+                var dtp2 = $("#dp2").val();
+                var posted = $("#salesList tbody tr.row-selected").find('td:nth-child(8)').html();
+                if (oldAmount != newAmount || oldVatAmount != newVatAmount || oldDuration != newDuration) {
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("GetNumberOfId", "Sale")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ tno: tno }),
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.First > 0) {
+                                var m3 = new Messi("<p style='text-align: justify;'>Can not update.<br/>Cash has been collected for this sale. You must delete that Cash from Cash Collection form, then update this sale.</p>",
+                                {
+                                    title: 'Update Abandoned',
+                                    modal: true,
+                                    buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                    ]
+                                });
+                                $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                            } else if (data.Second > 0) {
+                                var m4 = new Messi("<p style='text-align: justify;'>Can not update.<br/>The Sales journal is approved.</p>",
+                                {
+                                    title: 'Update Abandoned',
+                                    modal: true,
+                                    buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                    ]
+                                });
+                                $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                            } else {
+                                var c2 = 0;
+                                var mssg1 = new Messi("Are you sure to update the change amount of the Sale?",
+                                {
+                                    title: 'Update Change',
+                                    modal: true,
+                                    buttons: [
+                                        { id: 0, label: 'Yes', val: 'Y' },
+                                        { id: 1, label: 'No', val: 'N' }
+                                    ],
+                                    callback: function (conf) {
+                                        if (c2 == 1)
+                                            return false;
+                                        if (conf == 'Y') {
+                                            c2 = 1;
+                                            $.ajax({
+                                                type: "Post",
+                                                url: '@Url.Action("UpdateSaleInfo", "Sale")',
+                                                contentType: "application/json; charset=utf-8",
+                                                data: JSON.stringify({ salesPrice: newAmount, accReceivable: AR, duration: newDuration, tax: newVatAmount, sDate: dtp, eDate: dtp2, tno: tno, contactId: $("#contactPersons option:selected").val(), refNo: $("#refNo").val() }),
+                                                dataType: "json",
+                                                success: function (dt) {
+                                                    if (dt == true) {
+                                                        if (posted == 'Yes') {
+                                                            $.ajax({
+                                                                type: "Post",
+                                                                url: '@Url.Action("UpdateSalesJournal", "Sale")',
+                                                                contentType: "application/json; charset=utf-8",
+                                                                data: JSON.stringify({ sid: sid, vatId: vatId, tno: tno, oldDuration: oldDuration, newDuration: newDuration, oldAmount: oldAmount, newAmount: newAmount, oldVatAmount: oldVatAmount, newVatAmount: newVatAmount, fromDate: dtp, description: description, userId: '@user.UserId' }),
+                                                                dataType: "json",
+                                                                success: function (dt1) {
+                                                                    if (dt1 == true) {
+                                                                        forTrialBalance(tno);
+                                                                    }
+                                                                },
+                                                            });
+                                                        } else {
+                                                            var c01 = 0;
+                                                            var msg01 = new Messi("Update completed successfully.<br/>You must post this entry to the Journal. Do you want to post this now?",
+                                                            {
+                                                                title: 'message',
+                                                                modal: true,
+                                                                buttons: [
+                                                                    { id: 0, label: 'Yes', val: 'Y' },
+                                                                    { id: 1, label: 'No', val: 'N' }
+                                                                ],
+                                                                callback: function (val1) {
+                                                                    if (c01 == 1)
+                                                                        return false;
+                                                                    if (val1 == 'Y') {
+                                                                        c01 = 1;
+                                                                        $.ajax({
+                                                                            type: "Post",
+                                                                            url: '@Url.Action("UpdateSalePosted", "Sale")',
+                                                                            contentType: "application/json; charset=utf-8",
+                                                                            data: JSON.stringify({ sid: sid, newAmount: newAmount, fromdate: dtp, newDuration: newDuration, tno: tno, description: description, dateFrom: dtp, vatId: vatId, newVatAmount: newVatAmount, userId: '@user.UserId' }),
+                                                                            dataType: "json",
+                                                                            success: function (dat) {
+                                                                                if (dat == true) {
+                                                                                    forTrialBalance(tno);
+                                                                                }
+                                                                            },
+                                                                        });
+                                                                    }
+                                                                    return true;
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                },
+                                            });
+                                            $("#companyList").trigger('change');
+                                        }
+                                        return true;
+                                    }
+                                });
+                            }
+                        },
+                    });
+                } else {
+                    var sb = { Sl: row.find('td:nth-child(1)').html(), Name: row.find('td:nth-child(2)').html(), SId: row.find('td:nth-child(13)').html(), Tno: row.find('td:nth-child(12)').html() };
+                    if (sb.Name != sbName.Name || sb.SId != sbName.SId) {
+                        $("#view").hide();
+                        //update(row, sbName.Name, sb.Name, sbName.SId, sb.SId, sb.Tno, 1);
+                        var q = 0;
+                        var msg1 = new Messi('You have changed product name.<br/>Do you want to change the product for this sale?',
+                        {
+                            title: 'Alert',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'Yes', val: 'Y' },
+                                { id: 1, label: 'No', val: 'N' }
+                            ],
+                            callback: function (v) {
+                                if (q == 1)
+                                    return false;
+                                if (v == 'Y') {
+                                    console.log(sbName);
+                                    q = 1;
+                                    var json = { oldSid: sbName.SId, tno: sb.Tno, newSid: sb.SId }
+                                    $.ajax({
+                                        type: "Post",
+                                        url: '@Url.Action("UpdateProduct", "Sale")',
+                                        contentType: "application/json; charset=utf-8",
+                                        data: JSON.stringify(json),
+                                        dataType: "json",
+                                        success: function (d) {
+                                            if (d == true) {
+                                                var m5 = new Messi("<p style='text-align: justify;'>The product has been changed successfully.</p>",
+                                                {
+                                                    title: 'Success',
+                                                    modal: true,
+                                                    buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                                    ]
+                                                });
+                                                $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+
+                                            }
+                                        },
+                                    });
+                                } else if (v == 'N') {
+                                    q = 1;
+                                    row.find('td:nth-child(2)').html(sbName.Name);
+                                    row.find('td:nth-child(13)').html(sbName.SId);
+                                }
+                                sbName = { Sl: $('#salesList tbody tr.row-selected').find('td:nth-child(1)').html(), Name: $('#salesList tbody tr.row-selected').find('td:nth-child(2)').html(), SId: $('#salesList tbody tr.row-selected').find('td:nth-child(13)').html(), Tno: $('#salesList tbody tr.row-selected').find('td:nth-child(12)').html() };
+                                row = $('#salesList tbody tr.row-selected');
+                                return true;
+                            }
+                        });
+                    } else {
+                        sbName = { Sl: $('#salesList tbody tr.row-selected').find('td:nth-child(1)').html(), Name: $("#salesList tbody tr.row-selected").find('td:nth-child(2)').html(), SId: $("#salesList tbody tr.row-selected").find('td:nth-child(13)').html(), Tno: $("#salesList tbody tr.row-selected").find('td:nth-child(12)').html() };
+                        row = $('#salesList tbody tr.row-selected');
+                        if ($("#salesList tbody tr.row-selected").find('td:nth-child(10)').html() != $("#contactPersons option:selected").val() || oldRefNo != newRefNo) {
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("UpdateSaleContactPersonAndRefNo", "Sale")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify({ personId: $("#contactPersons option:selected").val(), refNo: newRefNo, tno: tno }),
+                                dataType: "json",
+                                success: function (d1) {
+                                    if (d1 == true) {
+                                        var m55 = new Messi("<p style='text-align: justify;'>Update Sales successfully.</p>",
+                                        {
+                                            title: 'Success',
+                                            modal: true,
+                                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                            ]
+                                        });
+                                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                        $("#companyList").trigger('change');
+                                    }
+                                },
+                            });
+                        } else {
+                            var m66 = new Messi("<p style='text-align: justify;'>There are no changes to update.</p>",
+                            {
+                                title: 'Information',
+                                modal: true,
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        }
+                    }
+                }
+            }
+
+            function forTrialBalance(tnoNo) {
+                var c00 = 0;
+                var msg00 = new Messi("All Journal entry have been completed.<br/>Do you want to view these Journal now?",
+                {
+                    title: 'Information',
+                    modal: true,
+                    buttons: [
+                        { id: 0, label: 'Yes', val: 'Y' },
+                        { id: 1, label: 'No', val: 'N' }
+                    ],
+                    callback: function (val) {
+                        if (c00 == 1)
+                            return false;
+                        if (val == 'Y') {
+                            c00 = 1;
+                            /* go to Trial Balance*/
+                            $.colorbox({
+                                iframe: true,
+                                width: '1000px',
+                                height: '570px',
+                                href: '../Home/TrialBalance?tno=' + tnoNo,
+                                scrolling: true,
+                                innerWidth: '545px'
+                            });
+                        }
+                        return true;
+                    }
+                });
+            }
+        });
+    </script>
+}

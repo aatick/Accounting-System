@@ -1,0 +1,570 @@
+﻿@using AccountingSystem.Models
+@{
+    var user = (User)Session["loggedinUser"];
+    var accessReports = user.AccessReports.Split(',');
+    string part = ViewBag.AccordionId;
+    var parts = part.Split(',');
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <meta http-equiv="imagetoolbar" content="no">
+    <meta name="MSSmartTagsPreventParsing" content="true">
+    <title>@ViewBag.Title - Bdjobs.com Ltd.</title>
+    <link rel="icon" type="image/icon" href="~/images/bdjobslogo.gif">
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
+    <link type="text/css" href="~/Content/bootstrap-submenu.min.css" rel="stylesheet">
+    <link href="~/Content/font-awesome-4.3.0/css/font-awesome.min.css" rel="stylesheet" />
+    <style>
+        html {
+            position: relative;
+            min-height: 100%;
+        }
+
+        input[type=checkbox], input[type=radio] {
+            cursor: pointer;
+        }
+        select {
+            -moz-appearance: none;
+            -webkit-appearance: none;
+        }
+        select[size] {
+            -moz-appearance: listbox;
+            -webkit-appearance: listbox;
+            padding-right: 0px;
+        }
+                select[size] option:hover {
+                    background: #3399FF;
+                }
+            select.form-control {
+                    transition: none;
+                    box-shadow: none;
+                }
+                select.form-control:focus {
+                    box-shadow: none;
+                }
+            select.ui-datepicker-month, select.ui-datepicker-year, .dataTables_wrapper select {
+                -moz-appearance: menulist;
+                -webkit-appearance: menulist;
+            }
+        body {
+            /*margin-bottom:30px;*/
+            min-height: 100%;
+            background: #ddd;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20px;
+            background-color: #3a3a3c;
+        }
+
+            .footer p {
+                margin: 0px 0px 0px 20px;
+                color: #FFF;
+            }
+
+        .top_wrapper {
+            background: #3a3a3c;
+            color: #FFF;
+            margin: -20px 0px 0px 0px;
+        }
+
+        .header_wrapper {
+            background: #f0f1f2;
+            color: #333;
+            padding: 10px 10px 15px 10px;
+        }
+
+            .header_wrapper h3 {
+                line-height: 6px;
+            }
+
+        .topmenu_wrapper {
+            background: #063851;
+        }
+
+        .sidebar1 {
+            background-color: #ddd;
+        }
+
+        .sidebar2 {
+            /*background-color: #ffffe6;*/
+            /*height: 100%;*/
+        }
+
+        @@media only screen and (min-width:768px) {
+            .sidebar2 {
+                margin-bottom: -1%;
+                padding-bottom: 10px;
+            }
+        }
+
+        .sidebar1 .panel-group {
+            margin: 0px -15px 0px -15px;
+        }
+
+        .sidebar1 .panel-heading .panel-title > a {
+            position: relative;
+            display: block;
+            padding: 10px 10px;
+            margin: -10px -15px;
+            background-color: #6a6c6f;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        #accordion .glyphicon {
+            margin-right: 5px;
+        }
+
+        .sidebar1 .panel-collapse > .list-group .list-group-item:first-child {
+            border-top-right-radius: 0;
+            border-top-left-radius: 0;
+        }
+
+        .sidebar1 > .panel-collapse > .list-group .list-group-item {
+            border-width: 0px 0;
+            border-radius: 0;
+            padding: 10px 0px;
+        }
+
+        .sidebar1 > .panel-collapse > .list-group {
+            margin-bottom: 0;
+        }
+
+        a.list-group-item {
+            background-color: #868787;
+            color: #fff;
+            font-size: 13px;
+            padding: 5px 10px;
+        }
+
+            a.list-group-item:hover {
+                background-color: #f9f9f9;
+                color: #ff3300;
+                padding: 5px 10px;
+            }
+
+        .blue-background {
+            background: #063851;
+        }
+
+            .blue-background .nav .open > a, .nav .open > a:hover, .nav .open > a:focus {
+                background-color: #063851;
+                border-color: #063851;
+            }
+
+            .blue-background .nav-pills > li > a {
+                border-radius: 0px;
+                color: #fff;
+                background: #2c5a77;
+            }
+
+            .blue-background .nav > li > a {
+                display: block;
+                padding: 4px 15px;
+                position: relative;
+                color: #fff;
+            }
+
+            .blue-background .open > a {
+                outline: 0 none;
+                color: #fff;
+            }
+
+            .blue-background .open > .dropdown-menu {
+                display: block;
+                background: #063851;
+                color: #fff;
+            }
+
+                .blue-background .open > .dropdown-menu > li > a {
+                    color: #fff;
+                    background: #2c5a77;
+                    border-bottom: 1px solid #306382;
+                }
+
+                    .blue-background .open > .dropdown-menu > li > a:hover, .blue-background .open > .dropdown-menu > li > a:focus {
+                        color: #fff;
+                        background: #063851;
+                    }
+
+            .blue-background .open > .dropdown-sffubmenu > li > a {
+                color: #fff;
+            }
+
+        .icon-custome {
+            background-image: url(~/image/1.png);
+            background-position: center center;
+        }
+    </style>
+    @RenderSection("styles", required: false)
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 top_wrapper text-right">
+                Welcome, @user.Name [ <a href="@Url.Action("LogOut", "Home")" class="btn-link" style="color: yellow; ">Log Out</a> ]
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 header_wrapper">
+                <div class="row" style="margin:0px 0px 0px 0px;">
+                    <div class="col-sm-3 col-md-3">
+                        <img src="~/images/logo_bdjobs.gif" alt="bdjobs_logo" width="188" height="43" class="img-responsive" />
+                    </div>
+                    <div class="col-sm-9 col-md-9 text-center">
+                        <h3>Accounting Systems</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 blue-background">
+                <ul class="nav nav-pills">
+                    <li class="dropdown">
+                        <a tabindex="0" data-toggle="dropdown">Accounts<span class="caret"></span></a>
+
+                        <ul class="dropdown-menu" role="menu">
+                            <li class="dropdown-submenu">
+                                <a tabindex="0" data-toggle="dropdown">General Ledger</a>
+
+                                <ul class="dropdown-menu">
+                                    <li><a tabindex="0" href="@Url.Action("Create","Ledger")">Add New Ledger</a></li>
+                                    <li><a tabindex="0" href="@Url.Action("Edit","Ledger")">Edit Ledger</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown-submenu">
+                                <a tabindex="0" data-toggle="dropdown">Journal</a>
+
+                                <ul class="dropdown-menu">
+                                    <li><a tabindex="0" href="@Url.Action("Make","Journal")">Make Journal</a></li>
+                                    <li><a tabindex="0" href="@Url.Action("ListOfJournals","Journal")">View Journal</a></li>
+                                    <li><a tabindex="0" href="@Url.Action("Vouchers","Journal")">Journal Voucher</a></li>
+                                    <li><a tabindex="0" href="@Url.Action("Close","Journal")">Close Journal</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="drop">
+                        <a tabindex="0" data-toggle="dropdown">Display<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu" id="display">
+                            <li><a href="@Url.Action("ListOfJournals", "Journal")" tabindex="0">View Journal</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 13})" tabindex="0">Trial Balance</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 1})" tabindex="0">Income Statement</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 2})" tabindex="0">Cash Flow</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 3})" tabindex="0">Balance Sheet</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 4})" tabindex="0">Expense</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 5})" tabindex="0">Revenue</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 6})" tabindex="0">Account Receivables</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 7})" tabindex="0">Cash Collection</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 8})" tabindex="0">Profit &amp; Loss</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 9})" tabindex="0">Share Capital</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 10})" tabindex="0">Fixed Asset Schedule</a></li>
+                            <li><a href="@Url.Action("Reports","Company",new{reportId = 12})" tabindex="0">General Ledger</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a tabindex="0" data-toggle="dropdown">Fixed Assets<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a tabindex="0" href="@Url.Action("FixedAssets", "Sale")">Fixed Assets</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a tabindex="0" data-toggle="dropdown">Income<span class="caret"></span></a>
+
+                        <ul class="dropdown-menu" role="menu">
+                            <li class="dropdown-submenu">
+                                <a tabindex="0" data-toggle="dropdown">Sales</a>
+
+                                <ul class="dropdown-menu">
+                                    <li><a tabindex="0" href="@Url.Action("New", "Sale")">New Sale</a></li>
+                                    <li><a tabindex="0" href="@Url.Action("Edit","Sale")">Edit Sale</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="@Url.Action("CashCollection","Sale")" tabindex="0">Cash Collection</a></li>
+                            <li class="dropdown-submenu">
+                                <a tabindex="0" data-toggle="dropdown">Invoices</a>
+
+                                <ul class="dropdown-menu">
+                                    <li><a tabindex="0" href="@Url.Action("OutstandingInvoice", "Invoice")">Outstanding Invoices</a></li>
+                                    <li><a tabindex="0" href="@Url.Action("Create", "Invoice")">Make Invoice</a></li>
+                                    <li><a tabindex="0" href="@Url.Action("ListOfInvoices", "Invoice")">List Invoices</a></li>
+                                    <li><a tabindex="0" href="@Url.Action("Remarks", "Invoice")">Remarks</a></li>
+                                </ul>
+                            </li>
+                            <li><a tabindex="0" href="@Url.Action("OnlineJobs", "Sale")">Online Jobs</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a tabindex="0" data-toggle="dropdown">Misc<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a tabindex="0" href="@Url.Action("Index", "Company")">Company</a></li>
+                            <li><a tabindex="0" href="@Url.Action("CreateLabel", "Invoice")">Label Builder</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a tabindex="0" data-toggle="dropdown">Admin<span class="caret"></span></a>
+
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="@Url.Action("Administrator","Home")" id="admin" tabindex="0">Administrator</a></li>
+                            <li><a href="@Url.Action("ChangePassword","Home")" tabindex="0">Change Password</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container-fluid" style="padding-bottom: 0; margin-bottom: 0;">
+        <div class="row" style="margin: 0px -15px 0px -15px;">
+            <div class="col-sm-12">
+                <div class="row" style="margin:0px -15px 0px -15px; padding-bottom: 0;">
+                    <div class="col-sm-2 col-md-2 sidebar1" style="border-right: 3px solid #333;">
+
+
+                        <div class="panel-group" id="accordion">
+
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="nav-link" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                            <span class="glyphicon glyphicon-chevron-right">
+                                            </span>Account &amp; Journal
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseOne" class="panel-collapse collapse">
+                                    <div class="list-group">
+                                        <a href="@Url.Action("Create","Ledger")" class="list-group-item nav-link">
+                                            <span><img alt="Create_Ledger_logo" src="~/image/Ad_New_Ledger.png" width="25" height="25"></span>
+                                            Add New Ledger
+                                        </a>
+                                        <a href="@Url.Action("Edit","Ledger")" class="list-group-item nav-link">
+                                            <span><img alt="Edit_ledger_logo" src="~/image/Edit_Ledger.png" width="25" height="25"></span>
+                                            Edit Ledger
+                                        </a>
+                                        <a href="@Url.Action("Make","Journal")" class="list-group-item nav-link">
+                                            <span><img alt="Create_Journal_logo" src="~/image/Make_Journal.png" width="25" height="25"></span>
+                                            Make Journal
+                                        </a>
+                                        <a href="@Url.Action("ListOfJournals","Journal")" class="list-group-item nav-link">
+                                            <span><img alt="view_journal_logo" src="~/image/View_Journal.png" width="25" height="25"></span>
+                                            View Journal
+                                        </a>
+                                        <a href="@Url.Action("Vouchers","Journal")" class="list-group-item nav-link">
+                                            <span><img alt="journal_voucher_logo" src="~/image/Journal_Voucher.png" width="25" height="25"></span>
+                                            Journal Voucher
+                                        </a>
+                                        <a href="@Url.Action("Close","Journal")" class="list-group-item nav-link">
+                                            <span><img alt="close_journal_logo" src="~/image/Close_Journal.png" width="25" height="25"></span>
+                                            Close Journal
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="nav-link" data-toggle="collapse" data-parent="#accordion" href="#collapsetwo">
+                                            <span class="glyphicon glyphicon-chevron-right">
+                                            </span>Assets &amp; Sales
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapsetwo" class="panel-collapse collapse">
+                                    <div class="list-group">
+                                        <a href="@Url.Action("FixedAssets","Sale")" class="list-group-item nav-link">
+                                            <span><img alt="fixed_asset-logo" src="~/image/Fixed_Asset.png" width="25" height="25"></span>
+                                            Fixed Assets
+                                        </a>
+                                        <a href="@Url.Action("New","Sale")" class="list-group-item nav-link">
+                                            <span><img alt="new_sale-logo" src="~/image/New_sale.png" width="25" height="25"></span>
+                                            New Sale
+                                        </a>
+                                        <a href="@Url.Action("Edit","Sale")" class="list-group-item nav-link">
+                                            <span><img alt="edit_sale_logo" src="~/image/Edit_Sale.png" width="25" height="25"></span>
+                                            Edit Sale
+                                        </a>
+                                        <a href="@Url.Action("CashCollection","Sale")" class="list-group-item nav-link">
+                                            <span><img alt="cash_collection_logo" src="~/image/Cash_Collection.png" width="25" height="25"></span>
+                                            Cash Collection
+                                        </a>
+                                        <a href="@Url.Action("OutstandingInvoice", "Invoice")" class="list-group-item nav-link">
+                                            <span><img alt="outstanding_invoice_logo" src="~/image/Outstanding_Invoice.png" width="25" height="25"></span>
+                                            Outstanding Invoice
+                                        </a>
+                                        <a href="@Url.Action("Create", "Invoice")" class="list-group-item nav-link">
+                                            <span><img alt="create_invoice_logo" src="~/image/Make_Invoice.png" width="25" height="25"></span>
+                                            Make Invoice
+                                        </a>
+                                        <a href="@Url.Action("ListOfInvoices", "Invoice")" class="list-group-item nav-link">
+                                            <span><img alt="list_of_invoice_logo" src="~/image/List_Of_Invoice.png" width="25" height="25"></span>
+                                            List of Invoice
+                                        </a>
+                                        <a href="@Url.Action("Remarks", "Invoice")" class="list-group-item nav-link">
+                                            <span><img alt="remarks_logo" src="~/image/Remarks.png" width="25" height="25"></span>
+                                            Remarks
+                                        </a>
+                                        <a href="@Url.Action("OnlineJobs", "Sale")" class="list-group-item nav-link">
+                                            <span><img alt="online_jobs_logo" src="~/image/Online_Jobs.png" width="25" height="25"></span>
+                                            Online Jobs
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="nav-link" data-toggle="collapse" data-parent="#accordion" href="#collapsethree">
+                                            <span class="glyphicon glyphicon-chevron-right">
+                                            </span>Reports &amp; Misc
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapsethree" class="panel-collapse collapse">
+                                    <div class="list-group">
+                                        <a href="@Url.Action("Index", "Company")" class="list-group-item nav-link">
+                                            <span><img alt="company_logo" src="~/image/Company.png" width="25" height="25"></span>
+                                            Company
+                                        </a>
+                                        <a href="@Url.Action("CreateLabel", "Invoice")" class="list-group-item nav-link">
+                                            <span><img alt="label_creation_logo" src="~/image/Lebel_Builder.png" width="25" height="25"></span>
+                                            Label Builder
+                                        </a>
+                                        <a href="@Url.Action("Reports","Company")" class="list-group-item nav-link">
+                                            <span><img alt="reports_logo" src="~/image/Reports.png" width="25" height="25"></span>
+                                            Reports
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a class="nav-link" data-toggle="collapse" data-parent="#accordion" href="#collapsefour">
+                                            <span class="glyphicon glyphicon-chevron-right">
+                                            </span>Admin
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapsefour" class="panel-collapse collapse">
+                                    <div class="list-group">
+                                        <a href="@Url.Action("Administrator","Home")" id="administrator" class="list-group-item nav-link">
+                                            <span><img alt="administrator_logo" src="~/image/Administrator.png" width="25" height="25"></span>
+                                            Administrator
+                                        </a>
+                                        <a href="@Url.Action("ChangePassword","Home")" class="list-group-item nav-link">
+                                            <span><img alt="change_password_logo" src="~/image/Password.png" width="25" height="25"></span>
+                                            Change Password
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+                    <div class="col-sm-10 col-md-10 sidebar2">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-12" style="margin: 0px 0px 0px 0px; padding: 0px 0px 0px 0px; position: absolute;">
+        <div class="footer" style="margin: 0px 0px 0px 0px; padding: 0px 0px 0px 0px;">
+            <p>Bdjobs Accounting Systems</p>
+        </div>
+    </div>
+
+    <script src="~/Scripts/jquery-2.1.3.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/bootstrap-submenu.min.js"></script>
+    <script>
+        $(window).on('load', function () {
+            $(".sidebar1").css('height', $(window).height() - $('.sidebar1').offset().top - 1);
+        });
+
+        $(window).on('resize', function () {
+            $(".sidebar1").css('height', $(window).height() - $('.sidebar1').offset().top - 1);
+        });
+        $("#@parts[0]").addClass('in');
+        $('.list-group').find('a').css('background-color', '').css('color', '').css('padding', '');
+        $("#@parts[0]").find('.list-group').find('a:nth-child(@parts[1])').css('background-color', '#f9f9f9').css('color', '#ff3300').css('padding', '5px 10px');
+    </script>
+    @if (user.AccessReports != "All")
+    {
+        if (accessReports.Contains(string.Empty))
+        {
+            <script>
+                $('#display').children('li:not(li:nth-child(1))').find('a').css({ 'background-color': '#063851' }).css({ 'border-color': '#063851' }).css({ 'color': 'gray' }).css({ 'cursor': 'default' }).removeAttr("href").click(function () {
+                    return false;
+                }).mousedown(function (event) {
+                    event.preventDefault();
+                });
+            </script>
+        }
+        else
+        {
+            for (int i = 0; i <= 11; i++)
+            {
+                if (!accessReports.Contains(i.ToString()))
+                {
+                    var index = (i + 2);
+                    <script>
+                        $('#display').children('li:nth-child(@index)').find('a').css({ 'background-color': '#063851' }).css({ 'border-color': '#063851' }).css({ 'color': 'gray' }).css({ 'cursor': 'default' }).removeAttr("href").click(function () {
+                            return false;
+                        }).mousedown(function (event) {
+                            event.preventDefault();
+                        });
+                    </script>
+                }
+            }
+        }
+    }
+    @if (!user.CanModifyAdmin)
+    {
+        <script>
+            $("#admin").removeAttr("href").css({ 'background-color': '#063851' }).css({ 'border-color': '#063851' }).css({ 'color': 'gray' }).css('cursor', 'default').click(function () {
+                return false;
+            }).mousedown(function (event) {
+                event.preventDefault();
+            });
+            $('#administrator').removeAttr('href').hide();
+        </script>
+    }
+    @RenderSection("scripts", required: false)
+    <script>
+        var browser = ["firefox", "chrome"];
+        if (navigator.userAgent.toUpperCase().indexOf(browser[1].toUpperCase()) > -1) {
+            $('select:not(select[size],select.ui-datepicker-month,select.ui-datepicker-year)').css('padding', '0px 10px');
+        }
+        $('select:not(select[size],select.ui-datepicker-month,select.ui-datepicker-year),input.select').css('background', 'url(@Url.Content("~/images/down_arrow.png")) no-repeat right white');
+        $('select:not(select.form-control,select[size],select.ui-datepicker-month,select.ui-datepicker-year)').css('padding', '0px 15px 0px 2px').css('border', '1px solid gray');
+        $(window).trigger('resize');
+    </script>
+</body>
+</html>

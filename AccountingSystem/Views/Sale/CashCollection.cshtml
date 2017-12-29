@@ -1,0 +1,1264 @@
+﻿@using AccountingSystem.Models
+
+@{
+    ViewBag.Title = "Cash Collection";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+    var post = "";
+    if (Convert.ToInt32(ViewBag.Total) > 0)
+    {
+        post = "Post to Online (" + ViewBag.Total + ")";
+    }
+    else
+    {
+        post = "Post to Online";
+    }
+
+}
+@section styles
+{
+    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <style>
+        .modal-header-ns {
+            color: #fff;
+            border-bottom: 1px solid #eee;
+            background-color: #005BF1;
+            -webkit-border-radius: 5px 5px 0px 0px;
+            -moz-border-radius: 5px 5px 0px 0px;
+            border-radius: 5px 5px 0px 0px;
+            padding: 0px 5px 0px 5px;
+            margin: -10px 0px 0px 0px;
+        }
+
+            .modal-header-ns h4 {
+                color: #fff;
+                line-height: 28px;
+                font-size: 15px;
+                margin: 2px 0px 0px 0px;
+            }
+
+            .modal-header-ns .close {
+                color: #fff;
+                font-size: 20px;
+                line-height: 28px;
+            }
+
+        .nsModal .modal-dialog {
+            width: 800px;
+            margin-top: 2px;
+        }
+
+        .nsModal .modal-body .row-top {
+            margin: -10px 0px 0px 0px;
+        }
+
+            .nsModal .modal-body .row-top .panel {
+                margin: 0px -15px 10px -15px;
+                padding: 0px 0px 0px 0px;
+                border: 1px solid #666;
+            }
+
+        .nsModal .modal-footer {
+            border-top: none;
+        }
+
+        .modal-header-cc {
+            color: #fff;
+            border-bottom: 1px solid #eee;
+            background-color: #005BF1;
+            -webkit-border-radius: 5px 5px 0px 0px;
+            -moz-border-radius: 5px 5px 0px 0px;
+            border-radius: 5px 5px 0px 0px;
+            padding: 0px 5px 0px 5px;
+            margin: -10px 0px 0px 0px;
+        }
+
+            .modal-header-cc h4 {
+                color: #fff;
+                line-height: 28px;
+                font-size: 15px;
+                margin: 2px 0px 0px 0px;
+            }
+
+            .modal-header-cc .close {
+                color: #fff;
+                font-size: 20px;
+                line-height: 28px;
+            }
+
+        .ccModal .modal-dialog {
+            width: 800px;
+        }
+
+        .ccModal .modal-body {
+            background: #f0f0f0;
+        }
+
+            .ccModal .modal-body label {
+                font-weight: normal;
+            }
+
+            .ccModal .modal-body .row-top {
+                margin: -5px 0px 0px 0px;
+            }
+
+        .ccModal .modal-footer {
+            background: #f0f0f0;
+            border-top: none;
+        }
+
+        .modal-footer .btn {
+            padding: 5px 25px 5px 25px;
+        }
+
+        .ccModal .modal-body {
+            padding-bottom: 0;
+        }
+
+            .ccModal .modal-body table {
+                background: #fff;
+            }
+
+                .ccModal .modal-body table th {
+                    background: #dfdfdf;
+                    text-align: center;
+                    font-weight: normal;
+                    font-size: 12px;
+                }
+
+        table {
+            table-layout: fixed;
+            border-radius: 0px 0px 0px 0px;
+        }
+
+        .div-table-content {
+            height: 95px;
+            overflow-y: auto;
+            border-radius: 0px 0px 0px 0px;
+            margin: -20px 0px 0px 0px;
+        }
+
+            .div-table-content table th {
+                background: #dfdfdf;
+                text-align: center;
+            }
+
+        .noresize {
+            resize: none;
+        }
+
+        legend.legendStyle {
+            padding: 0px 5px 0px 5px;
+            margin: 1px 0px 0px 0px;
+            font-size: 100%;
+            background-color: transparent;
+            color: #0b0350;
+        }
+
+        legend.legendStyle_b {
+            padding: 0px 5px 0px 5px;
+            margin: 1px 0px 0px 0px;
+            font-size: 100%;
+            background-color: transparent;
+            color: #634d1c;
+        }
+
+        fieldset.fsStyle {
+            border: 1px solid #999999;
+            padding: 4px;
+            margin: 10px 0px 5px 0px;
+        }
+
+        legend {
+            border-bottom: 0px;
+            width: auto;
+        }
+
+        fieldset label {
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        .datepicker {
+            z-index: 1151 !important;
+        }
+
+        .btn-blue {
+            padding: 1px 0px 1px 0px;
+            margin: 0px 0px 2px 0px;
+            background: #cee8f5;
+            border: 1px solid #bce8f1;
+            color: #31708f;
+        }
+
+            .btn-blue:hover, .btn-blue:focus, .btn-blue:active {
+                padding: 1px 0px 1px 0px;
+                background: #31708f;
+                border: 1px solid #31708f;
+                color: #fff;
+            }
+
+        .payment_div {
+            text-align: left;
+            padding-left: 0;
+            cursor: pointer;
+        }
+
+        .modal-footer {
+            padding-bottom: 7px;
+        }
+
+        #invoices, #table {
+            font-size: 10px;
+            text-align: center;
+        }
+
+            #invoices tbody tr td:nth-child(1), #table tbody tr td:nth-child(1) {
+                width: 30px;
+            }
+
+            #invoices tbody tr td:nth-child(2) {
+                width: 170px;
+            }
+
+            #invoices tbody tr td:nth-child(3), #table tbody tr td:nth-child(2), #table tbody tr td:nth-child(3), #table tbody tr td:nth-child(4), #table tbody tr td:nth-child(5) {
+                width: 80px;
+            }
+
+            #invoices tbody tr td:nth-child(4) {
+                width: 70px;
+            }
+
+        #invoicesheader thead tr th:nth-child(1), #tableheader thead tr th:nth-child(1) {
+            width: 30px;
+        }
+
+
+
+        #invoicesheader thead tr th:nth-child(2) {
+            width: 170px;
+        }
+
+        #invoicesheader thead tr th:nth-child(3), #tableheader thead tr th:nth-child(2), #tableheader thead tr th:nth-child(3), #tableheader thead tr th:nth-child(4) {
+            width: 80px;
+        }
+
+        #invoicesheader thead tr th:nth-child(4) {
+            text-align: left;
+        }
+
+        /*#tableheader thead tr th:nth-child(5) {
+            border-bottom: 1px solid black;
+        }*/
+
+        #invoices tbody, #table tbody {
+            cursor: pointer;
+        }
+
+        #invoicesheader thead tr th, #tableheader thead tr th {
+            border: 1px solid #111;
+        }
+
+        #close {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            background: url(../images/close2.png) no-repeat -25px 0;
+            width: 30px;
+            height: 30px;
+            text-indent: -9999px;
+            padding: 0 10px 0 0;
+            cursor: pointer;
+            margin: -8px 0 0 0;
+        }
+    </style>
+}
+<!-- Modal -->
+<div class="modal ccModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-header-cc">
+                <div id="close"></div>
+                <h4 class="nstitle"> <img alt="Cash_Collection_logo" src="~/image/Cash_Collection.png" width="20" height="20"> Cash Collection</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="margin:-10px -15px 0px -15px;">
+                    <div class="col-sm-6">
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>List Of Companies</label>
+                                <select id="companyList" size="10" class="form-control" style="min-height:320px;">
+                                    @foreach (Company company in ViewBag.CompanyList)
+                                    {
+                                        <option value="@company.Id">@company.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin:5px -15px 0px -15px;">
+                            <div class="col-sm-6">
+                                &nbsp;
+                            </div>
+                            <div class="col-sm-6">
+                                <button type="button" class="btn btn-info btn-sm btn-block" id="unpaid">Unpaid</button>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin:5px -15px 0px -15px;">
+                            <div class="col-sm-12" style="margin-top: -20px;">
+                                <label>Payment list</label>
+                                <table class="table table-condensed table-bordered" id="tableheader">
+                                    <thead>
+                                        <tr>
+                                            <th>Sl#</th>
+                                            <th>Payment</th>
+                                            <th>Tax</th>
+                                            <th>Date</th>
+                                            <th>Posted</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+
+                                <div class="div-table-content">
+                                    <table class="table table-condensed table-bordered" id="table">
+                                        <tbody>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-12" style="margin-top: -10px;">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" id="due" checked value="0">Show due invoices
+                                    </label>
+                                    <label class="pull-right">
+                                        <input type="checkbox" id="paid" value="1">Show paid invoices
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12" style="margin-top: -10px;">
+                                <table class="table table-condensed table-bordered" id="invoicesheader">
+                                    <thead>
+                                        <tr>
+                                            <th>Sl#</th>
+                                            <th>Invoice No.</th>
+                                            <th>Amount</th>
+                                            <th>Uploaded</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <div class="div-table-content">
+                                    <table class="table table-condensed table-bordered" id="invoices">
+                                        <tbody>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                            <tr>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                                <td>&nbsp;</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin:10px -15px 0px -15px;">
+                            <div class="col-sm-offset-6 col-sm-6">
+                                <button type="button" class="btn btn-info btn-sm btn-block" id="collectionNote">Collection Note</button>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin:0px -15px 0px -15px;">
+                            <div class="col-sm-12" style="margin-top: -20px;">
+                                <label>Sales list</label>
+                                <select size="3" id="salesList" style="min-height: 60px;" class="form-control input-sm"></select>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin:0px -15px 0px -15px;">
+                            <div class="col-sm-12">
+                                <fieldset class="fsStyle">
+                                    <legend class="legendStyle">
+                                        Payment Nature
+                                    </legend>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div class="row">
+                                                        <div class="col-sm-4">Date</div>
+                                                        <div class="col-sm-8">
+                                                            <input name="price" type="text" class="form-control input-sm select" id="dp1" readonly style="background: white; text-align: left; cursor: default;padding: 0 0 0 5px;">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div class="row">
+                                                        <div class="col-sm-4">Amount</div>
+                                                        <div class="col-sm-8"><input type="text" class="form-control input-sm text-right" value="0.00" id="amount"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            Payment Status
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div style="height: 180px; overflow-y: scroll; overflow-x: hidden; border-top: 1px solid #999999; padding-top: 5px;">
+                                                <div class="row">
+                                                    <div class="col-sm-12" id="radios">
+                                                        <div class="col-sm-12" style="border-bottom: 1px solid #DDDDDD; padding: 0 0 2px 0;">
+                                                            <div class="payment_div col-sm-12" data-value="1" data-id="46">
+                                                                Cash
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12" style="border-bottom: 1px solid #DDDDDD; padding: 0 0 2px 0;">
+                                                            <div class="payment_div col-sm-12" data-value="2">
+                                                                <div class="col-sm-12" style="padding: 0;margin: 0;">
+                                                                    Cheque
+                                                                </div>
+                                                                <fieldset hidden class="col-sm-9 fsStyle" style="padding-top: 0; margin-top: -5px; margin-left: 50px;">
+                                                                    <legend class="legendStyle">
+                                                                        Bank Info
+                                                                    </legend>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12">
+                                                                            <div class="row">
+                                                                                <div class="col-sm-12">
+                                                                                    <select class="form-control input-sm" id="ledgerList">
+                                                                                        <option value=""></option>
+                                                                                        @foreach (Ledger ledger in ViewBag.Ledgers)
+                                                                                        {
+                                                                                            <option value="@ledger.Id">@ledger.GroupName</option>
+                                                                                        }
+                                                                                    </select>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row" style="margin-top: 3px;">
+                                                                                <div class="col-sm-5" style="padding-right: 0;">
+                                                                                    Cheque No.
+                                                                                </div>
+                                                                                <div class="col-sm-7" style="padding-left: 0;">
+                                                                                    <input name="cheq no" type="text" id="chequeNo" class="form-control input-sm">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </fieldset>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12" style="border-bottom: 1px solid #DDDDDD; padding: 0 0 2px 0;">
+                                                            <div class="payment_div col-sm-12" data-value="3">
+                                                                <div class="col-sm-12" style="padding: 0;margin: 0;">
+                                                                    VAT
+                                                                </div>
+                                                                <fieldset hidden class="col-sm-9 fsStyle" style="padding-top: 0; margin-top: -5px; margin-left: 50px;">
+                                                                    <legend class="legendStyle">
+                                                                        VAT Type
+                                                                    </legend>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12">
+                                                                            <select class="form-control input-sm" id="vattype">
+                                                                                <option value=""></option>
+                                                                                <option value="847">VAT</option>
+                                                                                <option value="1189">AIT</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                </fieldset>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12" style="border-bottom: 1px solid #DDDDDD; padding: 0 0 2px 0;">
+                                                            <div class="payment_div col-sm-12" data-value="4">
+                                                                Bad Debt
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12" style="border-bottom: 1px solid #DDDDDD; padding: 0 0 2px 0;">
+                                                            <div class="payment_div col-sm-12" data-value="5" data-id="848">
+                                                                Brac Bank Marchant A/C
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12" style="border-bottom: 1px solid #DDDDDD; padding: 0 0 2px 0;">
+                                                            <div class="payment_div col-sm-12" data-value="6" data-id="849">
+                                                                SSL Marchant A/C
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12" style="border-bottom: 1px solid #DDDDDD; padding: 0 0 2px 0;">
+                                                            <div class="payment_div col-sm-12" data-value="7" data-id="1030">
+                                                                bKash Marchant A/C
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-12" style="border-bottom: 1px solid #DDDDDD; padding: 0 0 2px 0;">
+                                                            <div class="payment_div col-sm-12" data-value="8" data-id="850">
+                                                                Discount of Sales
+                                                            </div>
+                                                        </div>
+                                                        <div class="payment_div col-sm-12" data-value="9">
+                                                            Online Collection Charges
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </fieldset>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: -10px;">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-primary pull-left" id="update"><strong>Update</strong></button>
+                        <button type="button" class="btn btn-primary pull-left" id="insert"><strong>Insert</strong></button>
+                        <button type="button" class="btn btn-primary pull-left"><strong>@post</strong></button>
+                        <button type="button" class="btn btn-primary pull-right" id="exit"><strong>Exit</strong></button>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- Modal -->
+<input type="hidden" id="payment" />
+<input type="hidden" id="invoiceNo" />
+<input type="hidden" id="paymentId" />
+<input type="hidden" id="accountReceivable" />
+
+<!-- Modal -->
+<div class="modal nsModal" id="anotherModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 500px; margin-top: 200px;">
+        <div class="modal-content">
+            <div class="modal-header modal-header-ns">
+                <h4 class="nstitle">Unpaid item</h4>
+            </div>
+            <div class="modal-body" style="margin-left: 10px;">
+                <div class="row">
+                    <p class="col-sm-12" style="padding-top: 0; margin-top: 0;"><strong>Select the item for unpaid from the list below.</strong></p>
+                </div>
+                <div class="row">
+                    <p class="col-sm-3 text-left">Unpaid item</p>
+                    <div class="col-sm-5">
+                        <select id="items" class="form-control input-sm">
+                            @{
+                                var list = (List<Ledger>)ViewBag.Ledgers;
+                                list.Add(new Ledger { Id = 46, GroupName = "Cash" });
+                                list = list.OrderBy(x => x.GroupName).ToList();
+                            }
+                            @foreach (Ledger ledger in list)
+                            {
+                                if (ledger.Id == 0)
+                                {
+                                    <option value="@ledger.Id" selected>@ledger.GroupName</option>
+                                }
+                                else
+                                {
+                                    <option value="@ledger.Id">@ledger.GroupName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-2" style="padding-left: 0;">
+                        <button type="button" class="btn btn-block btn-primary btn-sm" id="ok"><strong>Ok</strong></button>
+                    </div>
+                    <div class="col-sm-2" style="padding-left: 0;">
+                        <button type="button" class="btn btn-block btn-primary btn-sm" data-dismiss="modal"><strong>Cancel</strong></button>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- Modal -->
+@section scripts
+{
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(window).on('load', function () {
+                setTimeout(loadModal(), 1000);
+            });
+
+            function loadModal() {
+                $("#success").modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                $('#anotherModal').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                $("#anotherModal").modal('hide');
+            }
+            var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+
+            $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+            var invoice;
+            var sl = 0;
+            var today = new Date();
+            var datestr = (today.getMonth() + 1) + "/" + today.getDate() + "/" + today.getFullYear();
+            var invoices = [];
+            centerSuccess();
+            var tablerow;
+            $('#ledgerList option[value="411"]').prop('selected', true);
+            $("#update, #insert, #unpaid").prop('disabled', true);
+
+            function centerSuccess() {
+                $('#success').css('display', 'block');
+                var $dialog = $('#success').find(".modal-dialog");
+                var offset = ($(window).height() - $dialog.height()) / 2;
+                // Center modal vertically in window
+                if (offset >= 0)
+                    $dialog.css("margin-top", offset);
+            }
+
+            $("#close, #exit").on('click', function () {
+                $("#success").modal('hide');
+            });
+            //$(document).click(function () {
+            //    $('#success').modal('show');
+            //});
+            //$(document).on('keydown', function (e) {
+            //    if (e.keyCode == 27)
+            //        $('#success').modal('show');
+            //});
+            $('#dp1').datepicker({
+                changeMonth: true,
+                changeYear: true
+            });
+            $('#radios').on('click', 'div.payment_div', function () {
+                $("#radios div.payment_div").css('background', '').css('color', '');
+                $("#radios legend").css('color', '');
+                $("#radios fieldset").css('color', '').hide();
+                $(this).css('background', '#006699').css('color', 'white');
+                if ($(this).data('value') == "2" || $(this).data('value') == "3") {
+                    $(this).find('fieldset').css('color', 'white').show();
+                    $(this).find('legend').css('color', 'white');
+                }
+                $("#payment").val($(this).data('value'));
+                $("#paymentId").val($(this).data('id'));
+            });
+            $("#refresh").on('click', function () {
+                alert($("#payment").val());
+            });
+            initialSetup();
+
+            function initialSetup() {
+                $("#radios div.payment_div:first").css('background', '#006699').css('color', 'white');
+                $("#dp1").val(datestr);
+            }
+
+            $("#amount").on('focusout', function () {
+                var value = $(this).val();
+                if (value == "" || value == ".") {
+                    $(this).val('0.00');
+                } else
+                    $(this).val(parseFloat(value).toFixed(2));
+            });
+            $("#amount").on('keydown', function (e) {
+                var kCode = (e.which || e.keyCode);
+                if (kCode == 190 || kCode == 110) {
+                    if ($(this).val().indexOf(".") > -1)
+                        e.preventDefault();
+                } else if (e.which === 86 && (e.ctrlKey || e.metaKey))
+                    e.preventDefault();
+                else if (e.keyCode < 96 || e.keyCode > 105) {
+                    if (e.keyCode != 8 && e.keyCode != 46) {
+                        if (!$.isNumeric(String.fromCharCode(e.which)))
+                            e.preventDefault();
+                    }
+                }
+            });
+            $("#companyList").on('change', function () {
+                getInvoices();
+            });
+
+            function getInvoices() {
+                sl = 0;
+                var str;
+                if ($('#due').is(':checked') && !$("#paid").is(':checked'))
+                    str = "" + $("#companyList").val() + ", 0, 0";
+                else if (!$('#due').is(':checked') && $("#paid").is(':checked'))
+                    str = "" + $("#companyList").val() + ", 1";
+                else if ($('#due').is(':checked') && $("#paid").is(':checked'))
+                    str = "" + $("#companyList").val() + ", null, 0";
+                else
+                    str = "";
+                if (str != "") {
+                    sl = 0;
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GetInvoicesForCashCollection", "Sale")',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: JSON.stringify({ query: str }),
+                        success: function (data) {
+                            invoices = [];
+                            $.each(data, function (key, value) {
+                                invoices.push({ Id: value.Id, InvoiceNo: value.InvoiceNo, TAmount: value.TAmount, FullPayment: value.FullPayment, PostedNature: value.PostedNature, UploadedPaymentStatus: value.UploadedPaymentStatus });
+                            });
+                            fillInvoices(invoices);
+                        },
+                    });
+                } else {
+                    $("#invoices tbody").html('');
+                    for (var i = 1; i <= 4; i++) {
+                        $("#invoices tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
+                    }
+                }
+            }
+
+            function fillInvoices(list) {
+                $("#invoices tbody").html('');
+                var count = 0;
+                $.each(list, function () {
+                    count++;
+                    $("#invoices tbody").append('<tr><td>' + count + '</td><td>' + this.InvoiceNo + '</td><td>' + parseFloat(this.TAmount).toFixed(2) + '</td><td>' + this.UploadedPaymentStatus + '</td><td hidden>' + this.Id + '</td></tr>');
+                });
+                if (count < 4) {
+                    for (var j = 1; j <= 4 - count; j++) {
+                        $("#invoices tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
+                    }
+                }
+                $("#salesList").html('');
+                $("#table tbody").html('');
+                for (var i = 1; i <= 4; i++) {
+                    $("#table tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
+                }
+                $("#update, #insert, #unpaid").prop('disabled', true);
+            }
+            $("#invoices tbody").on('click', 'tr', function (e) {
+                if ($(this).find('td:nth-child(1)').html() != '&nbsp;') {
+                    //alert($(this).css('background-color'));
+                    var cnt = 0;
+                    $.each($("#invoices tbody tr"), function () {
+                        cnt++;
+                        if ($(this).css('background-color').toString() == "rgb(74, 185, 218)")
+                            $(this).css('background', '');
+                        if (sl == cnt) {
+                            $(this).css('background', 'rgb(31, 241, 243)');
+                        }
+                    });
+                    if (!e.ctrlKey) {
+                        if ($(this).css('background-color') == "rgb(31, 241, 243)") {
+                            sl = $(this).find('td:first').html();
+                        } else {
+                            sl = -100;
+                        }
+                        $(this).css('background', 'rgb(74, 185, 218)');
+                    } else {
+                        if ($(this).css('background-color') == "rgb(31, 241, 243)")
+                            $(this).css('background', 'rgb(74, 185, 218)');
+                        else
+                            $(this).css('background', 'rgb(31, 241, 243)');
+                    }
+                    $("#invoiceNo").val($(this).find('td:nth-child(2)').html());
+                    invoice = $(this);
+                    var no = $(this).find('td:nth-child(2)').html();
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GetSalesInfo", "Sale")',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: JSON.stringify({ invoiceNo: no }),
+                        success: function (data) {
+                            $("#salesList").html('');
+                            var c = 0;
+                            $.each(data, function (key, value) {
+                                c++;
+                                $("#salesList").append('<option value="' + value.Id + '" data-tno="' + value.Tno + '" data-comment="' + value.Comment + '" data-amount="' + value.Amount + '" data-sbname="' + value.SbName + '" >' + c + '. ' + value.SbName + ' Tk. ' + value.Amount + '</option>');
+                            });
+                            if (c > 0) {
+                                $("#salesList option:first").prop('selected', true);
+                                $("#salesList").focus();
+                                fillTable($("#salesList option:first").val());
+                            } else {
+                                $("#table tbody").html('');
+                                for (var i = 1; i <= 4; i++) {
+                                    $("#table tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
+                                }
+                                $('#insert').prop('disabled', true);
+                            }
+                        },
+                    });
+                }
+            });
+
+            //$("#salesList").on('click', function () {
+            //    alert('fire');
+            //});
+
+            $("#salesList").on('click', function () {
+                fillTable($(this).val());
+            });
+
+            function fillTable(id) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetCashCollection", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: JSON.stringify({ id: id }),
+                    success: function (data) {
+                        $("#table tbody").html('');
+                        var count = 0;
+                        var total = 0.00;
+                        $.each(data, function (key, value) {
+                            count++;
+                            var post = value.Posted == true ? 'Yes' : 'No';
+                            if (value.BadDebt == true)
+                                $("#table tbody").append('<tr style="background: #FF8080;"><td>' + count + '</td><td>Tk. ' + parseFloat(value.Cash).toFixed(2) + '</td><td>Tk. ' + parseFloat(value.SalesTax).toFixed(2) + '</td><td>' + value.ReceivedDate + '</td><td>' + post + '</td><td hidden>' + value.Id + '</td><td hidden>' + value.PaymentType + '</td><td hidden>' + value.BankId + '</td><td hidden>' + value.BadDebt + '</td><td hidden>' + value.ChequeDetails + '</td></tr>');
+                            else
+                                $("#table tbody").append('<tr><td>' + count + '</td><td>Tk. ' + parseFloat(value.Cash).toFixed(2) + '</td><td>Tk. ' + parseFloat(value.SalesTax).toFixed(2) + '</td><td>' + value.ReceivedDate + '</td><td>' + post + '</td><td hidden>' + value.Id + '</td><td hidden>' + value.PaymentType + '</td><td hidden>' + value.BankId + '</td><td hidden>' + value.BadDebt + '</td><td hidden>' + value.ChequeDetails + '</td></tr>');
+                            total += (parseFloat(value.Cash) + parseFloat(value.SalesTax));
+                        });
+                        if (count < 4) {
+                            for (var i = 1; i <= 4 - count; i++) {
+                                $("#table tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
+                            }
+                        }
+                        $("#accountReceivable").val(parseFloat(parseFloat($("#salesList option:selected").data('amount')) - total).toFixed(2));
+                        $("#amount").val(parseFloat(parseFloat($("#salesList option:selected").data('amount')) - total).toFixed(2));
+                        $("#radios div.payment_div").css('background', '').css('color', '');
+                        $("#radios legend").css('color', '');
+                        $("#radios fieldset").css('color', '').hide();
+                        $("#radios div.payment_div:first").css('background', '#006699').css('color', 'white');
+                        $("#payment").val($(this).data('value'));
+                        $("#paymentId").val($(this).data('id'));
+                        $("#update, #unpaid").prop('disabled', true);
+                        $("#insert").prop('disabled', false);
+                    },
+                });
+            }
+
+            $("#table tbody").on('click', 'tr', function () {
+                if ($(this).find('td:nth-child(1)').html() != '&nbsp;') {
+                    $("#table tbody tr").css('background', '');
+                    $.each($("#table tbody tr"), function () {
+                        if ($(this).find('td:nth-child(9)').html() == 'true') {
+                            $(this).css('background', '#FF8080');
+                        }
+                    });
+                    $(this).css('background', '#4AB9DA');
+                    tablerow = $(this);
+                    $("#amount").val(parseFloat(parseFloat($(this).find('td:nth-child(2)').html().substring(4, $(this).find('td:nth-child(2)').html().length)) + parseFloat($(this).find('td:nth-child(3)').html().substring(4, $(this).find('td:nth-child(3)').html().length))).toFixed(2));
+                    $("#dp1").val($(this).find('td:nth-child(4)').html());
+                    $("#update, #unpaid").prop('disabled', false);
+                    $("#insert").prop('disabled', true);
+                    var val = "";
+                    var bankId = 0;
+                    var cheque = "";
+                    var vattype = "";
+                    if ($(this).find('td:nth-child(9)').html() == 'true')
+                        val = "4";
+                    else if ($(this).find('td:nth-child(7)').html() == "" || $(this).find('td:nth-child(7)').html() == null || $(this).find('td:nth-child(7)').html() == "Cash")
+                        val = "1";
+                    else if ($(this).find('td:nth-child(7)').html() == "VAT" || $(this).find('td:nth-child(7)').html() == "AIT") {
+                        val = "3";
+                        vattype = $(this).find('td:nth-child(7)').html();
+                    } else if ($(this).find('td:nth-child(8)').html() != "0") {
+                        val = "2";
+                        bankId = $(this).find('td:nth-child(8)').html();
+                        cheque = $(this).find('td:nth-child(10)').html();
+                    } else if ($(this).find('td:nth-child(7)').html() == "SSL")
+                        val = "6";
+                    else if ($(this).find('td:nth-child(7)').html() == "Brac")
+                        val = "5";
+                    else if ($(this).find('td:nth-child(7)').html() == "Discount")
+                        val = "8";
+                    else if ($(this).find('td:nth-child(7)').html() == "OnlineCharges")
+                        val = "9";
+                    else if ($(this).find('td:nth-child(7)').html() == "bKash")
+                        val = "7";
+                    if (val != "") {
+                        $.each($("#radios div.payment_div"), function () {
+                            if ($(this).data('value') == val) {
+                                $("#radios div.payment_div").css('background', '').css('color', '');
+                                $("#radios legend").css('color', '');
+                                $("#radios fieldset").css('color', '').hide();
+                                $(this).css('background', '#006699').css('color', 'white');
+                                if ($(this).data('value') == "2" || $(this).data('value') == "3") {
+                                    $(this).find('fieldset').css('color', 'white').show();
+                                    $(this).find('legend').css('color', 'white');
+                                }
+                                if ($(this).data('value') == "2") {
+                                    $('#ledgerList option[value="' + bankId + '"]').prop('selected', true);
+                                    $(this).find('input:text').val(cheque);
+                                }
+                                if ($(this).data('value') == "3") {
+                                    $('#vattype option[text="' + vattype + '"]').prop('selected', true);
+                                }
+                                $("#payment").val($(this).data('value'));
+                                $("#paymentId").val($(this).data('id'));
+                            }
+                        });
+                    }
+                }
+            });
+            $("#due, #paid").on('change', function () {
+                if ($("#companyList").val() != "" && $("#companyList").val() != null) {
+                    getInvoices();
+                }
+            });
+            $("#insert, #update").on('click', function () {
+                var amount = $("#amount").val();
+                var date1 = new Date($("#dp1").val());
+                var date2 = new Date('@ViewBag.ClosingDate');
+                var isvalid = true;
+                var action = $(this).text().toUpperCase();
+                if (action == 'INSERT') {
+                    if ('@accessRights.Contains("1")' != 'True') {
+                        var m00 = new Messi('Sorry, You have no access to insert a record.',
+                        {
+                            modal: true,
+                            title: 'Alert',
+                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        isvalid = false;
+                    }
+                } else {
+                    if ('@accessRights.Contains("2")' != 'True') {
+                        var m01 = new Messi('Sorry, You have no access to update a record.',
+                        {
+                            modal: true,
+                            title: 'Alert',
+                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        isvalid = false;
+                    }
+                }
+                if (isvalid == true) {
+                    if (amount == "" || amount == '0.00') {
+                        var m0 = new Messi('Balance is 0, so it is no need to insert this amount.',
+                        {
+                            modal: true,
+                            title: 'Alert',
+                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else if ($("#payment").val() == "2" && ($("#ledgerList").val() == "" || $("#ledgerList").val() == null)) {
+                        var m1 = new Messi('You must select a Bank Account.',
+                        {
+                            modal: true,
+                            title: 'Alert',
+                            closebutton: true
+                        });
+                    } else if ($("#payment").val() == "2" && $("#chequeNo").val() == "") {
+                        var m2 = new Messi('You must give the cheque number.',
+                        {
+                            modal: true,
+                            title: 'Alert',
+                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else if ($("#payment").val() == "3" && ($("#vattype").val() == "" || $("#vattype").val() == null)) {
+                        var m3 = new Messi('You must select a Tax type.',
+                        {
+                            modal: true,
+                            title: 'Alert',
+                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else if (date1 < date2) {
+                        var m4 = new Messi('Date must be given after journal Closing date.',
+                        {
+                            modal: true,
+                            title: 'Alert',
+                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else if (action == 'INSERT' && parseFloat(amount) > parseFloat($("#accountReceivable").val())) {
+                        var m5 = new Messi('The amount that you have given is greater than the balance of the sales.<br/>You must give the correct amount.',
+                        {
+                            modal: true,
+                            title: 'Alert',
+                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else if (action == 'UPDATE' && parseFloat(parseFloat(amount) - parseFloat(tablerow.find('td:nth-child(2)').html().substring(4, tablerow.find('td:nth-child(2)').html().length)) + parseFloat(tablerow.find('td:nth-child(3)').html().substring(4, tablerow.find('td:nth-child(3)').html().length))) > parseFloat($("#accountReceivable").val())) {
+                        var m111 = new Messi('The amount that you have given is greater than the balance of the sales.<br/>You must give the correct amount.',
+                        {
+                            modal: true,
+                            title: 'Alert',
+                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else {
+                        var cheque = $("#payment").val() == 2 ? $("#chequeNo").val() : '';
+                        var ledgerId = $("#paymentId").val();
+                        if ($("#payment").val() == "2") {
+                            ledgerId = $("#ledgerList option:selected").val();
+                        } else if ($("#payment").val() == "3") {
+                            ledgerId = $("#vattype option:selected").val();
+                        }
+                        if (action == 'INSERT') {
+                            var jsonData = { type: parseInt(parseInt($("#payment").val()) - 1), userId: '@user.UserId', invoiceNo: $("#invoiceNo").val(), cash: amount, date: $("#dp1").val(), tno: $("#salesList option:selected").data('tno'), invoiceShedulerId: $("#salesList option:selected").val(), ledgerId: ledgerId, chequeDetails: cheque, companyName: $("#companyList option:selected").text() };
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("InsertCashCollection", "Sale")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(jsonData),
+                                dataType: "json",
+                                success: function (dt) {
+                                    if (dt == true) {
+                                        $("#table tbody").html('');
+                                        for (var i = 1; i <= 4; i++) {
+                                            $("#table tbody").append('<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>');
+                                        }
+                                        $("#salesList").html('');
+                                        getInvoices();
+                                        $("#radios div.payment_div").css('background', '').css('color', '');
+                                        $("#radios legend").css('color', '');
+                                        $("#radios fieldset").css('color', '').hide();
+                                        $("#radios div.payment_div:first").css('background', '#006699').css('color', 'white');
+                                        $("#payment").val($(this).data('value'));
+                                        $("#paymentId").val($(this).data('id'));
+                                        var m6 = new Messi('Cash Collection Successfull',
+                                        {
+                                            modal: true,
+                                            title: 'Success',
+                                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                            ]
+                                        });
+                                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                    }
+                                },
+                            });
+                        } else {
+                            var json = { type: parseInt(parseInt($("#payment").val()) - 1), userId: '@user.UserId', invoiceNo: $("#invoiceNo").val(), cash: amount, date: $("#dp1").val(), tno: $("#salesList option:selected").data('tno'), invoiceShedulerId: $("#salesList option:selected").val(), ledgerId: ledgerId, chequeDetails: cheque, companyName: $("#companyList option:selected").text(), cashCollectionId: tablerow.find('td:nth-child(6)').html() };
+                            $.ajax({
+                                type: "POST",
+                                url: '@Url.Action("UpdateCashCollection", "Sale")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(json),
+                                dataType: "json",
+                                success: function (dat) {
+                                    if (dat == true) {
+                                        var m6 = new Messi('Update Successfull.',
+                                        {
+                                            modal: true,
+                                            title: 'Success',
+                                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                            ]
+                                        });
+                                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                    }
+                                },
+                            });
+                        }
+                    }
+                }
+            });
+            $("#unpaid").on('click', function () {
+                var ct = 0;
+                var msg = new Messi('This operation will reverse the selected collection information.<br/>Do you want to do this?',
+                {
+                    title: 'Confirm',
+                    modal: true,
+                    buttons: [
+                        { id: 0, label: 'Yes', val: 'Y' },
+                        { id: 1, label: 'No', val: 'N' }
+                    ],
+                    callback: function (val) {
+                        if (ct == 1)
+                            return false;
+                        if (val == 'Y') {
+                            ct = 1;
+                            $('#anotherModal').modal('show');
+                        }
+                        return true;
+                    }
+                });
+            });
+            $('#ok').on('click', function () {
+                var userId = '@user.UserId';
+                var ledgerId = $("#items option:selected").val();
+                var tno = $("#salesList option:selected").data('tno');
+                var invoiceNo = invoice.find('td:nth-child(2)').html();
+                var invoiceId = invoice.find('td:nth-child(5)').html();
+                var collectionid = tablerow.find('td:nth-child(6)').html();
+                var amount = parseFloat(tablerow.find('td:nth-child(2)').html().substring(4, tablerow.find('td:nth-child(2)').html().length)) + parseFloat(tablerow.find('td:nth-child(3)').html().substring(4, tablerow.find('td:nth-child(3)').html().length));
+                var companyName = $("#companyList option:selected").text();
+                var jsonData = { userId: userId, ledgerId: ledgerId, tno: tno, invoiceId: invoiceId, invoiceNo: invoiceNo, collectionid: collectionid, amount: amount, companyName: companyName };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UnpaidCashCollection", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (dat) {
+                        if (dat == true) {
+                            $('#anotherModal').modal('hide');
+                            fillTable($("#salesList").val());
+                            var m66 = new Messi('Unpaid Successfull.',
+                            {
+                                modal: true,
+                                title: 'Success',
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        }
+                    },
+                });
+            });
+            $("#collectionNote").on('click', function () {
+                var str = [];
+                $.each($("#invoices tbody tr"), function () {
+                    if ($(this).css('background-color') == 'rgb(31, 241, 243)')
+                        str.push($(this).find('td:nth-child(5)').html());
+                });
+                if (str == "") {
+                    var m66 = new Messi("No invoice(s) selected to make Money Receipt.<br/>You must select an invoice by pressing '<strong>ctrl</strong>' key",
+                    {
+                        modal: true,
+                        title: 'Success',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var idList = str.join(',');
+                    var st;
+                    if ($("#payment").val() == 2)
+                        st = 'by Cheque (Cheque No - ' + $("#chequeNo").val() + ')';
+                    else
+                        st = 'by Cash';
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GetMoneyReceipt", "Sale")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ invoices: idList, str: st }),
+                        dataType: "json",
+                        success: function (data) {
+                            if (data == true) {
+                                window.open('../ReportingForms/CRViewer.aspx');
+                            }
+                        },
+                    });
+                }
+            });
+        });
+    </script>
+}
+

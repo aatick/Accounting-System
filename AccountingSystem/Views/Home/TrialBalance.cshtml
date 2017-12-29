@@ -1,0 +1,810 @@
+﻿@using AccountingSystem.Models
+@{
+    Layout = null;
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+    var approveRight = user.ApproveRight.Split(',');
+}
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trial balance || Bdjobs.com Ltd.</title>
+    <link rel="icon" type="image/icon" href="~/images/bdjobslogo.gif">
+    <link type="text/css" href="~/Content/bootstrap.css" rel="stylesheet">
+    <link type="text/css" href="~/Content/bootstrap-theme.css" rel="stylesheet">
+    <link href="~/Content/css/colorbox.css" rel="stylesheet" />
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <style type="text/css">
+        select{
+            -moz-appearance: none;
+            -webkit-appearance: none;
+        }
+
+            select[size] {
+                -moz-appearance: listbox;
+                -webkit-appearance: listbox;
+            }
+
+            select.form-control {
+                transition: none;
+                box-shadow: none;
+            }
+
+                select.form-control:focus {
+                    box-shadow: none;
+                }
+
+            select[size] option:hover {
+                background: #3399FF;
+            }
+            select.ui-datepicker-month, select.ui-datepicker-year {
+                -moz-appearance: menulist;
+                -webkit-appearance: menulist;
+            }
+
+        legend.legendStyle {
+            padding: 0px 5px 0px 5px;
+            margin: 1px 0px 0px 0px;
+            font-size: 100%;
+            background-color: transparent;
+            color: #24721e;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        fieldset.fsStyle {
+            border: 1px solid #999999;
+            padding: 4px;
+            margin: 10px 0px 5px 0px;
+        }
+
+        legend {
+            border-bottom: 0px;
+            width: auto;
+        }
+
+        fieldset label {
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        table th {
+            background: #fffde0;
+            text-align: center;
+            font-weight: normal;
+            color: #666;
+        }
+
+        table {
+            table-layout: fixed;
+            border-radius: 0px 0px 0px 0px;
+        }
+
+        .div-table-content {
+            overflow-y: auto;
+            border-radius: 0px 0px 0px 0px;
+            margin: 0px 0px 0px 0px;
+        }
+
+        .div-table-content-2 {
+            border-radius: 0px 0px 0px 0px;
+            margin: 0px 0px 0px 0px;
+            /*padding-right: 17.5%;*/
+        }
+
+        .header thead tr th {
+            background: #d1f1cc;
+            text-align: center;
+            font-size: 14px;
+            color: #007c3e;
+            border-right: 1px solid #ddd;
+        }
+
+        .row.no-gutter [class*='col-']:not(:first-child):not(:last-child) {
+            padding-right: 5px;
+            padding-left: 5px;
+        }
+
+        .purple_Label {
+            background-color: #7c80fd;
+            color: #ece9d8;
+            display: block;
+            text-align: center;
+            padding: 5px 0px 5px 0px;
+            font-size: 14px;
+        }
+
+        .ui-datepicker {
+            z-index: 1151 !important;
+        }
+
+        .table > thead > tr > th {
+            border-bottom: none;
+        }
+
+        #header2 > thead > tr > th {
+            border-bottom: none;
+            border-top: none;
+        }
+
+        .input-disable {
+            background: white;
+        }
+
+        table tbody tr td input[type="text"], #table tbody tr td textarea {
+            border: none;
+            resize: none;
+        }
+
+        #journals tbody tr td {
+            padding: 0;
+        }
+
+        .table tbody {
+            font-size: 12px;
+        }
+
+        .pagination {
+            margin: 5px 0px 0px 0px;
+            font-size: 12px;
+            height: 30px;
+        }
+
+        .row-selected {
+            background: rgb(74, 185, 218);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+
+        <div class="row" style="background:#0153e7; color:#fff;">
+            <div class="col-sm-12">
+                <img alt="Trial_Balance_logo" src="~/image/Online_Jobs.png" width="20" height="20" style="margin-left: -10px; margin-right: 10px;">Trial Balance
+            </div>
+        </div>
+
+        <div class="row no-gutter">
+            <div class="col-sm-2">
+                <div class="row no-gutter">
+                    <div class="col-sm-12">
+                        <fieldset class="fsStyle">
+                            <legend class="legendStyle">
+                                Show journals
+                            </legend>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="radio" id="optionsRadios4" value="0"> by date
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="radio" id="optionsRadios4" value="1" checked> by sale
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row no-gutter">
+                    <div class="col-sm-12">
+                        <select class="form-control input-sm" id="type">
+                            <option>All</option>
+                            <option>Asset</option>
+                            <option>Capital</option>
+                            <option>Expense</option>
+                            <option>Liability</option>
+                            <option>Revenue</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-8" id="saleDiv">
+                <div class="col-sm-4 pull-left text-left" style="margin-left:-15px; margin-top: 15px;padding-right: 0; margin-right: 0;">
+                    Show
+                    <select id="pagesize1">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="40">40</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    entries per page
+                </div>
+                <div class="col-sm-8 pull-right text-right" id="paging" style="padding-right: 0;padding-left: 0; margin-left: 0;">
+
+                </div>
+                <div class="row no-gutter">
+                    <div class="col-sm-12" id="doDisable">
+                        <div style="margin: 0px 0px 0px 0px; padding-right: 17.5px; background: #d1f1cc; border-radius: 0px 0px 0px 0px; width: 100%; ">
+                            <table class="table table-condensed header" style="margin-bottom: 0px; width: 100%; border-right: none;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 10%;">Sl#</th>
+                                        <th style="width: 40%;">Company</th>
+                                        <th style="width: 28%;">Product name</th>
+                                        <th style="width: 10%;">Amount</th>
+                                        <th style="border-right: none; width: 12%; font-size: 12px;">Sales Date</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="div-table-content" style="height: 141px;">
+                            <table class="table table-condensed table-bordered" id="sales">
+                                <tbody>
+                                    @for (var i = 1; i <= 20; i++)
+                                    {
+                                        <tr><td style="width: 10%;">&nbsp;</td><td style="width: 40%;">&nbsp;</td><td style="width: 28%;">&nbsp;</td><td style="width: 10%;">&nbsp;</td><td style="width: 12%;">&nbsp;</td></tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-2">
+                <div class="row no-gutter" style="margin-top:15px;">
+                    <div class="col-sm-12">
+                        <label class="label label-default purple_Label">From</label>
+                        <input name="from" type="text" style="padding: 0;" class="form-control input-sm select" id="dp1" disabled>
+                    </div>
+                </div>
+                <div class="row no-gutter" style="margin-top:15px;">
+                    <div class="col-sm-12">
+                        <label class="label label-default purple_Label">To</label>
+                        <input name="from" type="text" class="form-control input-sm select" style="padding: 0;" id="dp2" disabled>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row no-gutter">
+            <div class="col-sm-12">
+                <div class="col-sm-5 pull-left text-left" style="margin-top: 15px; margin-left: -15px;">
+                    Show
+                    <select id="pagesize2">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="40">40</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    entries per page
+                </div>
+                <div class="col-sm-7 pull-right text-right" id="paging2" style="padding-right: 0;">
+
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <p style="border: 1px solid #ddd; color: #007c3e; border-bottom: none; text-align: center; background: #d1f1cc; padding: 0; margin: 0; ">Trial Balance of sold item 'Online job posting (Basic) for .net computer and Information technology</p>
+                <div style="margin: 0px 0px 0px 0px; padding-right: 17.5px; background: #d1f1cc; border-top: 1px solid #ddd; border-radius: 0px 0px 0px 0px; width: 100%; ">
+                    <table class="table table-condensed header" style="margin-bottom: 0px; width: 100%; border-right: none;">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">Sl#</th>
+                                <th style="width: 10%;">Id</th>
+                                <th style="width: 20%;">Ledger name</th>
+                                <th style="width: 32%;">Description</th>
+                                <th style="width: 10%;">Debt</th>
+                                <th style="width: 10%;">Credit</th>
+                                <th style="width: 13%; border-right: none;">Date</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                <div class="div-table-content" style="height: 169px;">
+                    <table class="table table-condensed table-bordered" id="journals">
+                        <tbody>
+                            @for (var i = 1; i <= 20; i++)
+                            {
+                                <tr><td style="width: 5%">&nbsp;</td><td style="width: 10%">&nbsp;</td><td style="width: 20%"><input type="text" class="input-disable" style="width: 100%; height: 20px; padding: 0; cursor: default;" disabled /></td><td style="width: 32%"><input type="text" class="input-disable" style="width: 100%; height: 20px; padding: 0; cursor: default;" disabled /></td><td style="width: 10%"><input type="text" class="input-disable" style="width: 100%; height: 100%; padding: 0; cursor: default;" disabled /></td><td style="width: 10%"><input type="text" class="input-disable" style="width: 100%; height: 100%; padding: 0; cursor: default;" disabled /></td><td style="width: 13%"><input type="text" class="input-disable" style="width: 100%; height: 100%; padding: 0; cursor: default;" disabled /></td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-horizontal" hidden id="view" style="width: 260px; height: 120px; z-index: 99999999999999; background: #BFC1FE; border: 1px solid gray;">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <select id="ledgers" size="6" style="height: 85px;width: 250px; border: 1px solid gray; margin-left: 4px; margin-top: 4px;"></select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="padding-top: 0; margin-top: -12px;">
+                        <div class="col-sm-12" style="margin-left: 4px;">
+                            <div class="col-sm-3" style="padding: 0 1px 0 0px; margin: 0; width: 62.5px;">
+                                <button type="button" id="refresh" class="btn-block">Refresh</button>
+                            </div>
+                            <div class="col-sm-3" style="padding: 0 1px 0 0px; margin: 0; width: 62.5px;">
+                                <button class='sub_window_new btn-block' width='788px' height='422px' path='@Url.Action("Create", "Ledger", new { page = "new" })'>New</button>
+                            </div>
+                            <div class="col-sm-3" style="padding: 0 1px 0 0; margin: 0; width: 62.5px;">
+                                <button type="button" class="btn-block" id="ok">Ok</button>
+                            </div>
+                            <div class="col-sm-3" style="padding: 0 0px 0 0px; margin: 0; width: 62.5px;">
+                                <button type="button" class="btn-block" id="cancel">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="div-table-content-2">
+                    <div class="pull-right" style="width: 14.5%;padding: 0;">&nbsp;</div>
+                    <div class="pull-right" style="width: 9.75%;padding: 0;margin:0;">
+                        <input id="credit" type="text" maxlength="10" size="10" class="form-control input-sm" style="border-radius: 0; border-top: none; text-align: right;padding: 0; background: white; cursor: text;" disabled />
+                    </div>
+                    <div class="pull-right" style="width: 9.75%; padding: 0;">
+                        <input id="debt" type="text" maxlength="10" size="10" class="form-control input-sm" style="border-radius: 0; border-top: none; border-right: none; text-align: right; padding: 0; background: white; cursor: text;" disabled />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top:5px;">
+            <div class="col-sm-2 pull-left">
+                <button type="button" class="btn btn-primary btn-sm btn-block" id="preview"><strong>Show Preview</strong></button>
+            </div>
+            <div class="col-sm-2 pull-right">
+                <button type="button" class="btn btn-primary btn-sm btn-block" id="exit"><strong>Exit</strong></button>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="tno" />
+    <script src="~/Scripts/jquery-2.1.3.js"></script>
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/jquery.colorbox.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script src="~/Scripts/bootstrap.js" type="text/jscript"></script>
+    <script src="~/Scripts/js/jquery.bootpag.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#dp1').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                onSelect: function (text, event) {
+                    getJournals(1, $("#pagesize2").val(), -1, text, $("#dp2").val());
+                }
+            });
+            $('#dp2').datepicker({
+                changeMonth: true,
+                changeYear: true,
+                onSelect: function (text, event) {
+                    getJournals(1, $("#pagesize2").val(), -1, $("#dp1").val(), text);
+                }
+            });
+            $(window).on('load', function () {
+                getSales(1, 10, '@ViewBag.Tno');
+                getLedgers();
+            });
+            function pad(str, max) {
+                str = str.toString();
+                return str.length < max ? pad("0" + str, max) : str;
+            }
+
+            var today = new Date();
+            var toDate = pad((today.getMonth() + 1), 2) + "/" + pad(today.getDate(), 2) + "/" + today.getFullYear();
+            var selectedJournal;
+            var selectedRow;
+            $("#dp1,#dp2").val(toDate).css('text-align', 'center');
+            $('#paging').bootpag({
+                total: 1,
+                page: 1,
+                maxVisible: 6,
+                firstLastUse: true,
+                first: 'start',
+                last: 'end',
+                leaps: true,
+                wrapClass: 'pagination',
+                activeClass: 'active',
+                disabledClass: 'disabled',
+                nextClass: 'next',
+                prevClass: 'prev',
+                lastClass: 'last',
+                firstClass: 'first'
+            }).on("page", function (event, num) {
+                getSales(num, $("#pagesize1").val());
+            });
+            $('#paging2').bootpag({
+                total: 1,
+                page: 1,
+                maxVisible: 5,
+                firstLastUse: true,
+                first: 'start',
+                last: 'end',
+                leaps: true,
+                wrapClass: 'pagination',
+                activeClass: 'active',
+                disabledClass: 'disabled',
+                nextClass: 'next',
+                prevClass: 'prev',
+                lastClass: 'last',
+                firstClass: 'first'
+            }).on("page", function (event, num) {
+                if ($('input:radio[name="radio"]:checked').val() == 1)
+                    getJournals(num, $("#pagesize2").val(), $("#tno").val(), '', '');
+                else
+                    getJournals(num, $("#pagesize2").val(), -1, $("#dp1").val(), $("#dp2").val());
+            });
+            function getLedgers() {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetLedgersWithBalance", "Journal")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#ledgers").html('');
+                        $.each(data, function (key, value) {
+                            $("#ledgers").append('<option value="' + value.Id + '" data-balance="' + value.Account + '">' + value.GroupName + '</option>');
+                        });
+                    },
+                });
+            }
+            $("#pagesize1").on('change', function () {
+                getSales(1, $(this).val());
+            });
+            $("#pagesize2").on('change', function () {
+                if ($('input:radio[name="radio"]:checked').val() == 1)
+                    getJournals(1, $("#pagesize2").val(), $("#tno").val(), '', '');
+                else
+                    getJournals(1, $("#pagesize2").val(), -1, $("#dp1").val(), $("#dp2").val());
+            });
+            function getSales(pageNo, pageSize, tno) {
+                var jsonData = { pageNo: pageNo, pageSize: pageSize, tno: tno };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetSales", "Journal")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: JSON.stringify(jsonData),
+                    success: function (data) {
+                        $('#sales tbody').html('');
+                        var cnt = ((pageNo - 1) * pageSize) + 1;
+                        var total = 0;
+                        $.each(data, function (key, value) {
+                            $('#sales tbody').append('<tr><td style="width: 10%; text-align: center;">' + cnt + '</td><td style="width: 40%; padding: 0;"><input type="text" class="input-disable" style="height: 100%; width: 100%;" value="' + value.CompanyName + '"  /></td><td style="width: 28%;">' + value.SbName + '</td><td style="width: 10%; text-align: right;">' + parseFloat(value.Amount).toFixed(2) + '</td><td style="width: 12%;">' + value.SDate + '</td><td hidden>' + value.Tno + '</td></tr>');
+                            total = value.TotalRecords;
+                            cnt++;
+                        });
+                        if (data.length < 20) {
+                            for (var l = 1; l <= 20 - data.length; l++) {
+                                $('#sales tbody').append('<tr><td style="width: 10%;">&nbsp;</td><td style="width: 40%;">&nbsp;</td><td style="width: 28%;">&nbsp;</td><td style="width: 10%;">&nbsp;</td><td style="width: 12%;">&nbsp;</td></tr>');
+                            }
+                        }
+                        var pager = total / pageSize;
+                        pager = pager | 0;
+                        if (total % pageSize != 0)
+                            pager = pager + 1;
+                        $('#paging').bootpag({
+                            total: pager,
+                            page: pageNo,
+                            maxVisible: 5,
+                            firstLastUse: true,
+                            first: 'start',
+                            last: 'end',
+                            leaps: true,
+                            wrapClass: 'pagination',
+                            activeClass: 'active',
+                            disabledClass: 'disabled',
+                            nextClass: 'next',
+                            prevClass: 'prev',
+                            lastClass: 'last',
+                            firstClass: 'first'
+                        });
+                        $("#sales tbody tr").find('input:text').on('keydown', function (e) {
+                            if (e.keyCode == 37 || e.keyCode == 39)
+                                return true;
+                            return false;
+                        });
+                        $("#sales tbody tr:not(tr.input-disable), #sales tbody tr td input:text").css('cursor', 'pointer');
+                        $("#sales tbody tr:not(tr.input-disable)").on('click', function () {
+                            $("#sales tbody tr").css('background', '').find('input:text').css('background', '');
+                            $(this).css('background', 'rgb(74, 185, 218)').find('input:text').css('background', 'rgb(74, 185, 218)');
+                        });
+                        $("#sales tbody tr:not(tr.input-disable)").on('dblclick', function () {
+                            $("#tno").val($(this).find('td:nth-child(6)').html());
+                            getJournals(1, $("#pagesize2").val(), $(this).find('td:nth-child(6)').html(), '', '');
+                        });
+                    },
+                });
+            }
+            var tr;
+            function getJournals(pageNo, pageSize, tno, fromDate, endDate) {
+                var json = { pageNo: pageNo, pageSize: pageSize, tno: tno, fromDate: fromDate, endDate: endDate };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetJournalsForTrialBalance", "Journal")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: JSON.stringify(json),
+                    success: function (dt) {
+                        $("#journals tbody").html('');
+                        $("#debt").val(parseFloat(dt.TotalDebt).toFixed(2));
+                        $("#credit").val(parseFloat(dt.TotalCredit).toFixed(2));
+                        var c = ((pageNo - 1) * pageSize) + 1;
+                        var sum = 0;
+                        $.each(dt.Journals, function (key, value) {
+                            $("#journals tbody").append('<tr><td style="width: 5%; text-align: center;">' + c + '</td><td style="width: 10%; text-align: center;">' + value.Id + '</td><td style="width: 20%; text-align: left;" class="view">' + value.AccType + '</td><td style="width: 32%"><input type="text" class="input-disable" row="2" style="width: 100%; height: 20px; padding: 0; cursor: default;  text-align: left;" value="' + value.Description + '"></td><td style="width: 10%"><input type="text" class="input-disable" style="width: 100%; height: 20px; padding: 0; cursor: default; text-align: right;" value="' + parseFloat(value.Debt).toFixed(2) + '" /></td><td style="width: 10%"><input type="text" class="input-disable" style="width: 100%; height: 20px; padding: 0; cursor: default;  text-align: right;" value="' + parseFloat(value.Credit).toFixed(2) + '"/></td><td style="width: 13%"><input type="text" class="input-disable datepick" style="width: 100%; height: 20px; padding: 0; cursor: default; text-align: center;" value="' + value.Journaldate + '"/></td><td hidden>' + value.SId + '</td><td hidden>' + value.Notify + '</td></tr>');
+                            sum = value.TotalRecord;
+                            c++;
+                        });
+                        if (dt.Journals.length < 20) {
+                            for (var i = 1; i <= 20 - dt.Journals.length; i++) {
+                                $("#journals tbody").append('<tr><td style="width: 5%; text-align: center;">&nbsp;</td><td style="width: 10%; text-align: center;">&nbsp;</td><td style="width: 20%; text-align: left;" class="view">&nbsp;</td><td style="width: 32%"><input type="text" class="input-disable" row="2" style="width: 100%; height: 20px; padding: 0; cursor: default;  text-align: left;" disabled/></td><td style="width: 10%"><input type="text" class="input-disable" style="width: 100%; height: 20px; padding: 0; cursor: default; text-align: right;" disabled/></td><td style="width: 10%"><input type="text" class="input-disable" style="width: 100%; height: 20px; padding: 0; cursor: default;  text-align: right;" disabled/></td><td style="width: 13%"><input type="text" class="input-disable datepick" style="width: 100%; height: 20px; padding: 0; cursor: default; text-align: center;" disabled/></td></tr>');
+                            }
+                        }
+                        var pager = sum / pageSize;
+                        pager = pager | 0;
+                        if (sum % pageSize != 0)
+                            pager = pager + 1;
+                        $('#paging2').bootpag({
+                            total: pager,
+                            page: pageNo,
+                            maxVisible: 5,
+                            firstLastUse: true,
+                            first: 'start',
+                            last: 'end',
+                            leaps: true,
+                            wrapClass: 'pagination',
+                            activeClass: 'active',
+                            disabledClass: 'disabled',
+                            nextClass: 'next',
+                            prevClass: 'prev',
+                            lastClass: 'last',
+                            firstClass: 'first'
+                        });
+
+                        $('#journals tbody tr td:nth-child(3)').on('click', function () {
+                            var button = $(this);
+                            if (button.html() != "&nbsp;") {
+                                $('#ledgers').find('option[value="' + button.parent('tr').find('td:nth-child(8)').html() + '"]').prop('selected', true);
+                                $("#ledgers").css('width', (button.width() - 10) + 'px');
+                                $("#view").children('div:nth-child(2)').children('div:first').children('div').css('width', ((button.width() - 10) / 4) + 'px').css('font-size', '10px');
+                                $("#view").css({
+                                    'width': button.width() + 'px',
+                                    'top': (button.position().top + button.height()) + 'px',
+                                    'left': button.position().left + 'px',
+                                    'position': 'absolute'
+                                }).show();
+                                $("#ledgers").focus();
+                                tr = button.parent('tr');
+                            }
+                        });
+                        $("#journals tbody tr td:not(td:nth-child(3))").on('click', function () {
+                            $("#view").hide();
+                        });
+                        $('#journals tbody tr td:nth-child(5) input:text, #journals tbody tr td:nth-child(6) input:text').on('keydown', function (e) {
+                            var kCode = (e.which || e.keyCode);
+                            if (kCode == 190 || kCode == 110) {
+                                if ($(this).val().indexOf(".") > -1)
+                                    e.preventDefault();
+                            } else if (e.which === 86 && (e.ctrlKey || e.metaKey))
+                                e.preventDefault();
+                            else if (e.keyCode < 96 || e.keyCode > 105) {
+                                if (e.keyCode != 8 && e.keyCode != 46) {
+                                    if (!$.isNumeric(String.fromCharCode(e.which)))
+                                        e.preventDefault();
+                                }
+                            }
+                        });
+                        $('#journals tbody tr td:nth-child(5) input:text,#journals tbody tr td:nth-child(6) input:text').on('focusout', function () {
+                            var value = $(this).val();
+                            if (value != '0.00') {
+                                if (value == "" || value == ".") {
+                                    $(this).val('0.00');
+                                } else {
+                                    $(this).val(parseFloat(value).toFixed(2));
+                                }
+                            }
+                        });
+                        $("#journals tbody tr td:nth-child(7) input:text").on('keydown keypress keyup', function () {
+                            return false;
+                        });
+                        $("#journals tbody tr td:nth-child(7) input:text").datepicker({
+                            changeMonth: true,
+                            changeYear: true
+                        });
+                        $("#journals tbody tr").on('click', function () {
+                            var row = $(this);
+                            $("#journals tbody tr").removeClass('row-selected');
+                            $("#journals tbody tr").find('input:text').removeClass('row-selected').addClass('input-disable');
+                            row.addClass('row-selected');
+                            row.find('input:text').removeClass('input-disable').addClass('row-selected');
+                            if (selectedJournal != "" && selectedJournal != null) {
+                                var journal = { Sl: selectedRow.find('td:nth-child(1)').html(), Id: selectedRow.find('td:nth-child(2)').html(), LedgerName: selectedRow.find('td:nth-child(3)').html(), Description: selectedRow.find('td:nth-child(4)').find('input:text, textarea').val(), Debit: selectedRow.find('td:nth-child(5)').find('input:text').val(), Credit: selectedRow.find('td:nth-child(6)').find('input:text').val(), Journaldate: selectedRow.find('td:nth-child(7)').find('input:text').val(), Sid: selectedRow.find('td:nth-child(8)').html(), Notify: selectedRow.find('td:nth-child(9)').html() };
+                                if (journal.Sl != row.find('td:nth-child(1)').html()) {
+                                    if (journal.LedgerName != selectedJournal.LedgerName || journal.Description != selectedJournal.Description || journal.Debit != selectedJournal.Debit || journal.Credit != selectedJournal.Credit || journal.Journaldate != selectedJournal.Journaldate || journal.Sid != selectedJournal.Sid) {
+                                        var c1 = 0;
+                                        var msg1 = new Messi('You have changed some information of Journal No. ' + journal.Id + ".<br/>Do you want to save changed information?",
+                                        {
+                                            title: 'Warning',
+                                            modal: true,
+                                            buttons: [
+                                                { id: 0, label: 'Yes', val: 'Y' },
+                                                { id: 1, label: 'No', val: 'N' }
+                                            ],
+                                            callback: function (val) {
+                                                if (c1 == 1)
+                                                    return false;
+                                                if (val == 'Y') {
+                                                    c1 = 1;
+                                                    var debt = journal.Debit - selectedJournal.Debit;
+                                                    var credit = journal.Credit - selectedJournal.Credit;
+                                                    $("#debt").val(parseFloat(debt + parseFloat($("#debt").val())).toFixed(2));
+                                                    $("#credit").val(parseFloat(credit + +parseFloat($("#credit").val())).toFixed(2));
+                                                    updateJournal(journal.Id, journal.Sid, journal.Description, journal.Debit, journal.Credit, journal.Journaldate, journal.Notify);
+                                                } else {
+                                                    c1 = 1;
+                                                    selectedRow.find('td:nth-child(3)').html(selectedJournal.LedgerName);
+                                                    selectedRow.find('td:nth-child(4)').find('input:text').val(selectedJournal.Description);
+                                                    selectedRow.find('td:nth-child(5)').find('input:text').val(selectedJournal.Debit);
+                                                    selectedRow.find('td:nth-child(6)').find('input:text').val(selectedJournal.Credit);
+                                                    selectedRow.find('td:nth-child(7)').find('input:text').val(selectedJournal.Journaldate);
+                                                    selectedRow.find('td:nth-child(8)').html(selectedJournal.Sid);
+                                                    selectedRow.find('td:nth-child(9)').html(selectedJournal.Notify);
+                                                }
+                                                selectedJournal = { Sl: row.find('td:nth-child(1)').html(), Id: row.find('td:nth-child(2)').html(), LedgerName: row.find('td:nth-child(3)').html(), Description: row.find('td:nth-child(4)').find('input:text').val(), Debit: row.find('td:nth-child(5)').find('input:text').val(), Credit: row.find('td:nth-child(6)').find('input:text').val(), Journaldate: row.find('td:nth-child(7)').find('input:text').val(), Sid: row.find('td:nth-child(8)').html(), Notify: row.find('td:nth-child(9)').html() };
+                                                selectedRow = row;
+                                                return true;
+                                            }
+                                        });
+                                    } else {
+                                        selectedJournal = { Sl: row.find('td:nth-child(1)').html(), Id: row.find('td:nth-child(2)').html(), LedgerName: row.find('td:nth-child(3)').html(), Description: row.find('td:nth-child(4)').find('input:text').val(), Debit: row.find('td:nth-child(5)').find('input:text').val(), Credit: row.find('td:nth-child(6)').find('input:text').val(), Journaldate: row.find('td:nth-child(7)').find('input:text').val(), Sid: row.find('td:nth-child(8)').html(), Notify: row.find('td:nth-child(9)').html() };
+                                        selectedRow = row;
+                                    }
+                                }
+                            } else {
+                                selectedJournal = { Sl: row.find('td:nth-child(1)').html(), Id: row.find('td:nth-child(2)').html(), LedgerName: row.find('td:nth-child(3)').html(), Description: row.find('td:nth-child(4)').find('input:text').val(), Debit: row.find('td:nth-child(5)').find('input:text').val(), Credit: row.find('td:nth-child(6)').find('input:text').val(), Journaldate: row.find('td:nth-child(7)').find('input:text').val(), Sid: row.find('td:nth-child(8)').html(), Notify: row.find('td:nth-child(9)').html() };
+                                selectedRow = row;
+                            }
+                        });
+                    },
+                });
+            }
+
+            $("#refresh").on('click', function () {
+                getLedgers();
+            });
+
+            function updateJournal(id, sid, description, debt, credit, jdate, notify) {
+                var jsonData = { id: id, sid: sid, description: description, debt: debt, credit: credit, jdate: jdate, updatedBy: '@user.UserId', updatedDate: toDate, notify: notify };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("UpdateJournal", "Journal")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    data: JSON.stringify(jsonData),
+                    success: function (data) {
+                        if (data == true) {
+                            var m0 = new Messi('Journal is Updated Successfully.',
+                            {
+                                title: 'Success',
+                                modal: true,
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        }
+                    },
+                });
+            }
+
+            $('.sub_window_new').on('click', function () {
+                $("#view").hide();
+                $.colorbox({
+                    iframe: true,
+                    width: $(this).attr('width'),
+                    height: $(this).attr('height'),
+                    href: $(this).attr('path'),
+                    scrolling: true,
+                    innerWidth: '545px'
+                });
+            });
+            $("#exit").on('click', function () {
+                parent.$.colorbox.close();
+            });
+            $('#cancel').on('click', function () {
+                $("#view").hide();
+            });
+            $('.div-table-content').bind('scroll', function () {
+                $("#view").hide();
+            });
+            $('input:radio[name="radio"]').on('change', function () {
+                if ($(this).val() == '1') {
+                    $("#dp1,#dp2").prop('disabled', true);
+                    $("#saleDiv").css('z-index', '').css('color', '');
+                    $("#journals tbody").html('');
+                    for (var i = 1; i <= 20; i++) {
+                        $("#journals tbody").append('<tr><td style="width: 5%; text-align: center;">&nbsp;</td><td style="width: 10%; text-align: center;">&nbsp;</td><td style="width: 20%; text-align: left;" class="view">&nbsp;</td><td style="width: 32%"><input type="text" class="input-disable" row="2" style="width: 100%; height: 20px; padding: 0; cursor: default;  text-align: left;"></td><td style="width: 10%"><input type="text" class="input-disable" style="width: 100%; height: 20px; padding: 0; cursor: default; text-align: right;"/></td><td style="width: 10%"><input type="text" class="input-disable" style="width: 100%; height: 20px; padding: 0; cursor: default;  text-align: right;"/></td><td style="width: 13%"><input type="text" class="input-disable datepick" style="width: 100%; height: 20px; padding: 0; cursor: default; text-align: center;"/></td></tr>');
+                    }
+                }
+                else {
+                    $("#dp1,#dp2").prop('disabled', false);
+                    $("#saleDiv").css('z-index', '-1').css('color', 'lightgray');
+                    getJournals(1, $("#pagesize2").val(), -1, $("#dp1").val(), $("#dp2").val());
+                }
+                $("#sales tbody tr, #sales tbody tr td input:text").css('background', '');
+            });
+            $("#preview").on('click', function () {
+                var c = 0;
+                var msg1 = new Messi("<p style='text-align: justify;'>Are you sure you want to view the journals preview of the group '" + $("#type option:selected").text() + "' between the dates '" + $('#dp1').val() + "' and '" + $('#dp2').val() + "'?</p>",
+                {
+                    title: 'Alert',
+                    modal: true,
+                    buttons: [
+                        { id: 0, label: 'Yes', val: 'Y' },
+                        { id: 1, label: 'No', val: 'N' }
+                    ],
+                    callback: function (val) {
+                        if (c == 1)
+                            return false;
+                        if (val == 'Y') {
+                            c = 1;
+                            var jsonData = { type: $("#type option:selected").text(), fromdate: $("#dp1").val(), endDate: $("#dp2").val() };
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("GetPreviewReport", "Journal")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(jsonData),
+                                dataType: "json",
+                                success: function (data) {
+                                    if (data == true)
+                                        window.open('.././ReportingForms/CRViewer.aspx');
+                                },
+                            });
+                        }
+                        return true;
+                    }
+                });
+
+            });
+            $("#ledgers").on('dblclick', function () {
+                setLedger();
+            });
+
+            function setLedger() {
+                $("#view").hide();
+                tr.find('td:nth-child(3)').html($('#ledgers').find('option:selected').text());
+                tr.find('td:nth-child(8)').html($('#ledgers').find('option:selected').val());
+                var st = tr.find('td:nth-child(9)').html();
+                if ($('#ledgers').find('option:selected').text() == "Account Receivables")
+                    tr.find('td:nth-child(9)').html('AR');
+                else {
+                    if (st == "AR")
+                        st = "";
+                    tr.find('td:nth-child(9)').html(st);
+                }
+            }
+            $("#ledgers").on('keydown', function (e) {
+                if (e.keyCode == 13) {
+                    setLedger();
+                }
+            });
+            $('#ok').on('click', function () {
+                setLedger();
+            });
+        });
+    </script>
+    <script>
+        var browser = ["firefox", "chrome"];
+        if (navigator.userAgent.toUpperCase().indexOf(browser[1].toUpperCase()) > -1) {
+            $('select:not(select[size],select.ui-datepicker-month,select.ui-datepicker-year)').css('padding', '0px 10px');
+        }
+        $('select:not(select[size],select.ui-datepicker-month,select.ui-datepicker-year),input.select').css('background', 'url(@Url.Content("~/images/down_arrow.png")) no-repeat right white');
+        $('select:not(select.form-control,select[size],select.ui-datepicker-month,select.ui-datepicker-year)').css('padding', '0px 15px 0px 2px').css('border', '1px solid gray');
+    </script>
+</body>
+</html>

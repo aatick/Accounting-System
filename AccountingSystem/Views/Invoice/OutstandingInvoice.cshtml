@@ -1,0 +1,345 @@
+﻿@using AccountingSystem.Models
+@{
+    ViewBag.Title = "Outstanding Invoice";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+}
+@section styles
+{
+    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <style>
+        legend {
+            width: auto;
+            border-bottom: 0px;
+            color: inherit;
+        }
+
+        fieldset.schedule-border {
+            font-family: Verdana, Arial, sans-serif;
+            font-size: small;
+            font-weight: normal;
+            border: 1px solid #999999;
+            padding: 0;
+            padding-bottom: 10px;
+        }
+
+        legend.schedule-border {
+            font-size: 90%;
+            color: #888888;
+            background-color: transparent;
+            font-weight: bold;
+            padding-left: 5px;
+            padding-right: 5px;
+            margin: 0;
+        }
+
+
+        .form-horizontal .control-label {
+            text-align: left;
+        }
+
+        .aright {
+            text-align: right;
+        }
+
+        .acenter {
+            text-align: center;
+        }
+
+        #example tbody tr:hover {
+            cursor: pointer;
+        }
+
+        #example tr {
+            height: 20px;
+        }
+
+        table.dataTable {
+            border-collapse: collapse;
+        }
+
+        #example thead tr th {
+            border: 1px solid #111;
+        }
+
+        #example tbody tr:last-child td {
+            border-bottom: 1px solid #111;
+        }
+
+        #example tbody tr td:first-child {
+            border-left: 1px solid #111;
+        }
+
+        #example tbody tr td:last-child {
+            border-right: 1px solid #111;
+        }
+    </style>
+}
+<div class="form-horizontal" style="padding: 0px 0px 5px 0px; margin-top: -10px; margin-bottom: 20px;" id="outstanding">
+    <div class="form-group" style="padding: 0; margin-bottom: 0; margin-top: 15px;">
+        <div class="col-sm-12">
+            <div class="col-sm-12" style="background-color: #6A6C6F;">
+                <center><h3 style="padding-top: 0; margin-top: 0; padding-bottom: 0; margin-bottom: 0; color: white;">List Of Scheduled Invoice<img alt="cross_img" src="~/images/cross-button.jpg" height="20" width="20" class="pull-right" style="padding: 0; margin: 3px -12px 0 0; cursor: pointer;" id="cross" /></h3></center>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-6" style="padding-left: 0;">
+            <div class="col-sm-12">
+                <label class="control-label">List Of Companies</label>
+            </div>
+            <div class="col-sm-12">
+                @Html.DropDownList("CompanyList", null, "All", new { @class = "form-control", @size = "6", @style = "height: 110px;" })
+            </div>
+        </div>
+        <div class="col-sm-6" style="margin-top: 10px;">
+            <fieldset class="col-sm-12 schedule-border">
+                <legend class="schedule-border input-sm">Show Scheduled Invoices</legend>
+                <div class="col-sm-4" style="padding-left: 0;margin-left: 0;margin-right: 0; padding-right: 0;">
+                    <label class="control-label col-sm-12" style="text-decoration: underline;">Show as</label>
+                    <div class="col-sm-12" style="margin-top: 15px; padding-right: 0; margin-right: 0; ">
+                        <label class="control-label" style="padding: 0;margin: 0; font-size: 12px; cursor: pointer;">
+                            <input type="radio" id="outstanding_radio" name="outstanding_radio" value="o" />
+                            Outstanding
+                        </label>
+                    </div>
+                    <div class="col-sm-12">
+                        <label class="control-label" style="cursor: pointer;">
+                            <input type="radio" id="all_radio" name="outstanding_radio" value="a" />
+                            All
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-8" style="margin: 0;">
+                    <div class="col-sm-12" style="margin: 0;">
+                        <div class="col-sm-12" style="padding-right: 0;">
+                            <label class="control-label">Select a date to retrieve outstanding invoices:</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="col-sm-6" style="padding-right: 0;">
+                            <input type="text" class="form-control input-sm select" id="date" style="cursor: default; padding: 0 0 0 5px; text-align: left;" />
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </div>
+    </div>
+    <div class="form-group" style="margin-top: -15px;">
+        <div class="col-sm-12" style="padding-left: 0;padding-right: 0;">
+            <div class="col-sm-12">
+                <label class="control-label">List of outstanding scheduled invoice information</label>
+            </div>
+        </div>
+        <div class="col-sm-12" style="padding-left: 0;padding-right: 0;">
+            <div class="col-sm-12">
+                <table id="example" class="table table-striped table-bordered" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>SL.</th>
+                            <th>Company</th>
+                            <th>Product</th>
+                            <th>S.Price</th>
+                            <th>Isdl.No.</th>
+                            <th>Sch.Date</th>
+                            <th>Amount</th>
+                            <th>CompanyId</th>
+                            <th>Id</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="form-group" style="margin-bottom: 0; padding-bottom: 0;">
+        <div class="col-sm-12" style="padding-left: 0; padding-right: 0; margin-top: -10px;margin-bottom: 0; padding-bottom: 0;">
+            <div class="col-sm-2 pull-left">
+                <input type="button" id="make" class="btn btn-block btn-primary" value="Make Invoice" />
+            </div>
+            <div class="col-sm-2 pull-left">
+                <input type="button" id="delete" class="btn btn-block btn-primary" value="Delete Schedule" />
+            </div>
+            <div class="col-sm-2 pull-right">
+                <a role="button" id="close" class="btn btn-block btn-primary">Exit</a>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#date").datepicker({
+                changeYear: true,
+                changeMonth: true,
+                onSelect: function (text, event) {
+                    var companyId = $("#CompanyList").val();
+                    var showAs = $('input:radio[name=outstanding_radio]:checked').val();
+                    var date = text;
+                    fillTable(companyId, showAs, date);
+                }
+            });
+            $("#close,#cross").on('click', function () {
+                $("#outstanding").remove();
+            });
+
+            //var off = $(window).height() - $('#example').offset().top - 20;
+            //$('#example').parent('div').css('height', off + 'px');
+            //alert(off);
+            var table = $('#example').DataTable({
+                columnDefs: [
+                    { visible: false, targets: [7, 8] },
+                    { className: "aright", targets: [3, 6] },
+                    { className: "acenter", targets: [0, 4, 5] },
+                    //{ sortable: false, targets: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
+                    { "width": "5%", "targets": [0] },
+                    { "width": "40%", "targets": [1] },
+                    { "width": "23%", "targets": [2] },
+                    { "width": "8%", "targets": [3] },
+                    { "width": "8%", "targets": [4] },
+                    { "width": "8%", "targets": [5] },
+                    { "width": "8%", "targets": [6] }
+                ],
+            });
+
+            $('#example tbody').on('click', 'tr', function () {
+                if ($(this).hasClass('selected')) {
+                    $(this).removeClass('selected');
+                    $("#delete").prop('disabled', true);
+                    $("#make").prop('disabled', true);
+                } else {
+                    table.$('tr.selected').removeClass('selected');
+                    $(this).addClass('selected');
+                    $("#delete").prop('disabled', false);
+                    $("#make").prop('disabled', false);
+                }
+            });
+            $("#delete").prop('disabled', true);
+            $("#make").prop('disabled', true);
+            var today = new Date();
+            var todayDate = (today.getMonth() + 1) + "/" + today.getDate() + "/" + today.getFullYear();
+            $("#outstanding_radio").prop('checked', true);
+            $("#date").val(todayDate);
+            $("#CompanyList option[value='']").prop('selected', true);
+
+            fillTable(0, "o", todayDate);
+
+            $("#delete").on('click', function () {
+                if ('@accessRights.Contains("3")' != 'True') {
+                    var mm0 = new Messi("Sorry, You have no permission to delete a record.",
+                    {
+                        title: 'User Access Control',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var q = 0;
+                    var msg = new Messi("Are you sure to delete the invoice schedule '" + table.cell('.selected', 2).data() + "'?",
+                    {
+                        title: 'Confirm',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'Yes', val: 'Y' },
+                            { id: 1, label: 'No', val: 'N' }
+                        ],
+                        callback: function (val) {
+                            if (q == 1)
+                                return false;
+                            if (val == 'Y') {
+                                q = 1;
+                                var invoiceId = table.cell('.selected', 8).data();
+                                var jsonData = { invoiceId: invoiceId };
+                                $.ajax({
+                                    type: "Post",
+                                    url: '@Url.Action("DeleteSchedule", "Invoice")',
+                                    contentType: "application/json; charset=utf-8",
+                                    data: JSON.stringify(jsonData),
+                                    dataType: "json",
+                                    success: function (data) {
+                                        if (data == true) {
+                                            table.row('.selected').remove().draw(false);
+                                            $("#delete").prop('disabled', true);
+                                            $("#make").prop('disabled', true);
+                                        }
+                                    },
+                                });
+                            }
+                            return true;
+                        }
+                    });
+                }
+            });
+
+            $("#CompanyList").on('change', function () {
+                var companyId = $("#CompanyList").val();
+                var showAs = $('input:radio[name=outstanding_radio]:checked').val();
+                var date = $('#date').val();
+                fillTable(companyId, showAs, date);
+            });
+
+            function fillTable(companyId, showAs, date) {
+                if (companyId == "")
+                    companyId = 0;
+                var jsonData = { companyId: companyId, showAs: showAs, date: date };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetScheduledInvoicesByCompanyId", "Invoice")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        var count = 0;
+                        table.clear().draw();
+                        $.each(data, function (key, value) {
+                            count++;
+                            table.row.add([count, value.Name, value.SbName, value.SalesPrice.toFixed(2), value.InvshdlNo, value.ScheduleDate, value.Amount.toFixed(2), value.CId, value.Id]).draw();
+                        });
+                        $('.footer').css('margin-bottom', '-15px');
+                        $('.sidebar1').css('height', ($('.footer').offset().top - $('.sidebar1').offset().top) + 'px');
+                        if (companyId != 0) {
+                            table.column(1).visible(false);
+                        } else {
+                            table.column(1).visible(true);
+                        }
+                    },
+                });
+            }
+
+            $("#outstanding_radio").on('change', function () {
+                $("#date").val(todayDate);
+                $("#date").prop('disabled', false);
+                fillTable($("#CompanyList").val(), 'o', $("#date").val());
+            });
+            $("#all_radio").on('change', function () {
+                $("#date").val('');
+                $("#date").prop('disabled', true);
+                fillTable($("#CompanyList").val(), 'a', todayDate);
+            });
+            $("#date").on('keydown', function (e) {
+                return false;
+            });
+            $(window).on('load', function () {
+                setTimeout(resize(), 1000);
+            });
+
+            function resize() {
+                $('.footer').css('margin-bottom', '-15px');
+                $('.sidebar1').css('height', ($('.footer').offset().top - $('.sidebar1').offset().top) + 'px');
+            }
+
+            $("#make").on('click', function () {
+                window.open('../Invoice/Create?companyId=' + table.cell('.selected', 7).data());
+            });
+        });
+    </script>
+}

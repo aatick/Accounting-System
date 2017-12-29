@@ -1,0 +1,580 @@
+﻿@using AccountingSystem.Models
+@model IEnumerable<AccountingSystem.Models.Ledger>
+@{
+    ViewBag.Title = "Edit Ledger";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+    ViewBag.GroupList = new SelectList(Model.OrderBy(x => x.GroupName).ToList(), "Id", "GroupName");
+    ViewBag.AllGroups = new SelectList(Model.Where(p => !p.IsLedgerAccount).OrderBy(x => x.GroupName).ToList(), "Id", "GroupName");
+    ViewBag.Category = new SelectList(Model.Take(5).OrderBy(x => x.GroupName).ToList(), "Id", "GroupName");
+}
+
+@section styles
+{
+    <link href="~/Content/css/stylesheet.css" rel="stylesheet" />
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <style>
+        .border_red {
+            border-color: red;
+        }
+
+        #close, .clz {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            background: url(../images/close2.png) no-repeat -25px 0;
+            width: 30px;
+            height: 30px;
+            text-indent: -9999px;
+            padding: 0 10px 0 0;
+            cursor: pointer;
+            margin: 0px 0 0 0;
+        }
+    </style>
+}
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title list-group-item" style="padding-left: 10px;" id="myModalLabel"><img alt="edit_ledger_logo" src="~/images/Edit_Ledger.png" height="20" width="20" /><span class="header_text" style="margin-left: 10px;">Groups / Ledger Update</span></h4><div id="close"></div>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm-5">
+                            <div class="form-group">
+                                <label class="control-label col-sm-12">Select a Group/Ledger from the list</label>
+                                <div class="col-sm-12">
+                                    @Html.DropDownList("GroupList", null, new { @class = "form-control", @style = "height:210px;", @size = 10 })
+                                </div>
+                                <div class="col-sm-12">
+                                    <span style="color: red" id="groupNameError">Please select a group</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label col-sm-2">Search</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" id="search" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4" style="padding-left: 0;">
+                            <div class="form-group">
+                                <label class="control-label col-sm-12">Name of Group/Ledger</label>
+                                <div class="col-sm-12">
+                                    <input type="text" id="name" class="form-control" />
+                                </div>
+                                <div class="col-sm-12">
+                                    <span style="color: red;" id="nameError">Please give a group name</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-12">Category</label>
+                                <div class="col-sm-12">
+                                    @Html.DropDownList("Category", null, "", new { @class = "form-control" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label col-sm-12">Under Name</label>
+                                <div class="col-sm-12">
+                                    @Html.DropDownList("AllGroups", null, "", new { @class = "form-control" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    
+                                    <label class="control-label" style="cursor: pointer;"><input type="checkbox" class="checkbox checkbox-inline" id="IsLedger" style="margin-right: 5px;" />Ledger Account</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3" style="padding-left: 0;">
+                            <div class="form-group" style="margin-top: 28px;">
+                                <div class="col-sm-12">
+                                    <button type="button" id="update" class="btn btn-block btn-info">Update</button>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 20px;">
+                                <div class="col-sm-12">
+                                    <button type="button" id="delete" class="btn btn-block btn-info">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="col-sm-3 pull-right">
+                    <button type="button" id="exit" class="btn btn-block btn-primary">Exit</button>
+                </div>
+                <div class="col-sm-3 pull-right">
+                    <button type="button" id="viewSubgroups" class="btn btn-block btn-primary">View Subgroups</button>
+                </div>
+                <div class="col-sm-3 pull-right">
+                    <a role="button" id="save" href="@Url.Action("Create","Ledger")" class="btn btn-block btn-primary">Insert Groups / ledger</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title list-group-item" style="padding-left: 10px;" id="myModalLabel"><img src="~/images/Edit_Ledger.png" height="20" width="20" /><span class="header_text" style="margin-left: 10px;">Group Details</span></h4><div class="clz"></div>
+            </div>
+            <div class="modal-body">
+                <div class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">Group Name:</label>
+                                <label class="control-label col-sm-8" id="groupName"></label>
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">Subgroups:</label>
+                                <label class="control-label col-sm-8" id="subgroupNo"></label>
+                            </div>
+                            <div class="col-sm-12" style="padding-left: 0; padding-right: 0;">
+                                <select id="Subgroups" class="form-control" style="height: 250px;" size="8"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6" style="padding-left: 0;">
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">Under:</label>
+                                <label class="control-label col-sm-8" id="under"></label>
+                                <input type="hidden" id="underId" />
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label col-sm-4">Ledgers:</label>
+                                <label class="control-label col-sm-8" id="ledgerNo"></label>
+                            </div>
+                            <div class="col-sm-12" style="padding-left: 0; padding-right: 0;">
+                                <select id="Ledgers" class="form-control" style="height: 250px;" size="8"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding-right: 0;">
+                <div class="col-sm-3 pull-right">
+                    <button type="button" id="exit2" class=" col-sm-12 btn btn-primary">Exit</button>
+                </div>
+                <div class="col-sm-3 pull-right">
+                    <button type="button" id="up" class=" col-sm-12 btn btn-primary">Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#myModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+            $('#viewModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+            $("#viewModal").modal('hide');
+            $('#viewSubgroups').addClass('disabled');
+            $("#nameError").hide();
+            $("#groupNameError").hide();
+            //$('#myModal').on('click', function () {
+            //    $('#myModal').modal('show');
+            //});
+            $('#close, #exit').on('click', function () {
+                $('#myModal').modal('hide');
+            });
+            $(".clz, #exit2").on('click', function () {
+                $('#viewModal').modal('hide');
+            });
+            centerSuccess();
+
+            function centerSuccess() {
+                var $dialog = $('.modal').find(".modal-dialog");
+                var offset = ($(window).height() - $dialog.height()) / 2;
+                // Center modal vertically in window
+                $dialog.css("margin-top", offset);
+            }
+
+            $(window).on("resize", function () {
+                centerSuccess();
+            });
+            $("#Category").on('change', function () {
+                $("#Category option[value='']").remove();
+                var mainGroup = $("#Category option:selected").text();
+                fill(mainGroup, -1);
+            });
+
+            function fill(maingroup, under) {
+                var jsonData = { mainGroup: maingroup };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetSubgroups", "Ledger")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        $("#AllGroups").html("");
+                        $.each(data, function (key, value) {
+                            if (under == 0) {
+                                $("#AllGroups option").append('<option value="" selected="true></option>');
+                            } else {
+                                if (value.Id != under)
+                                    $("#AllGroups").append('<option value="' + value.Id + '">' + value.GroupName + '</option>');
+                                else
+                                    $("#AllGroups").append('<option value="' + value.Id + '" selected="true">' + value.GroupName + '</option>');
+                            }
+                        });
+                    },
+                });
+            }
+
+            function checkAllAreSpaces(str) {
+                var isSpace = true;
+                for (var l = 0; l < str.length; l++) {
+                    var ch = str[l];
+                    if (ch != " ")
+                        isSpace = false;
+                }
+                return isSpace;
+            }
+
+            function fillDropdown(groupId) {
+                var jsonData = { groupId: groupId };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetGroup", "Ledger")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        $("#name").val("");
+                        $("#name").val(data.GroupName);
+                        var under = data.Under.split(",");
+                        var gId = under[0];
+                        if (under[0] == 0)
+                            gId = data.Id;
+                        sortDropdown('Category', gId, data.MaingroupName);
+                        fill(data.MaingroupName, under[under.length - 1]);
+                        $("#IsLedger").prop('checked', data.IsLedgerAccount);
+                    },
+                });
+            }
+
+
+            function isMainGroup(groupId) {
+                var ismain = false;
+                for (var i = 1; i <= 5; i++) {
+                    if (groupId == i) {
+                        ismain = true;
+                        var msg = "You can't update/delete this item. Because this is the Head item of this group.";
+                        new Messi(msg,
+                        {
+                            modal: true,
+                            title: 'Error',
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        break;
+                    }
+                }
+                if (ismain)
+                    enable(false);
+                else
+                    enable(true);
+            }
+
+            function enable(enabled) {
+                if (enabled == true) {
+                    $("#update").prop('disabled', false);
+                    $("#delete").prop('disabled', false);
+                } else {
+                    $("#update").prop('disabled', true);
+                    $("#delete").prop('disabled', true);
+                }
+                $("#name").prop('disabled', !enabled);
+                $("#Category").prop('disabled', !enabled);
+                $("#AllGroups").prop('disabled', !enabled);
+            }
+
+            $("#search").on("keyup", function (e) {
+                var name = $("#search").val();
+                var jsonData = { name: name };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetGroupByName", "Ledger")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        sortDropdown('GroupList', data.Id, data.GroupName);
+                        isMainGroup(data.Id);
+                        fillDropdown($("#GroupList option[value='" + data.Id + "']").val());
+                        $("#viewSubgroups").removeClass('disabled');
+                    },
+                });
+            });
+            $("#name").on('click', function () {
+                $("#nameError").hide();
+                $(this).css('border-color', '');
+            });
+            $("#GroupList").on('change', function () {
+                $("#groupNameError").hide();
+                $("#nameError").hide();
+                $(this).css('border-color', '');
+                $("#name").css('border-color', '');
+                $("#viewSubgroups").removeClass('disabled');
+                var groupId = $("#GroupList option:selected").val();
+                fillDropdown(groupId);
+                isMainGroup(groupId);
+            });
+
+            $("#update").on('click', function () {
+                var groupName = $("#name").val();
+                var groupId = $("#GroupList").val();
+                if ('@accessRights.Contains("2")' != 'True') {
+                    var g = new Messi('Sorry, You have no permission to update a ledger.',
+                    {
+                        modal: true,
+                        title: 'Access Denied',
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    if (groupName == "" || checkAllAreSpaces(groupName)) {
+                        $("#name").css('border-color', 'red');
+                        $("#nameError").show();
+                    }
+
+                    if (groupId == null || checkAllAreSpaces(groupId)) {
+                        $("#GroupList").css('border-color', 'red');
+                        $("#groupNameError").show();
+                    }
+
+                    if (groupName != "" && groupId != null && !checkAllAreSpaces(groupName) && !checkAllAreSpaces(groupId)) {
+                        var st = "Are you sure to Update this group/ledger '" + groupName + "'?";
+                        var t = 0;
+                        var msg = new Messi(st,
+                        {
+                            title: 'Confirm',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'Yes', val: 'Y' },
+                                { id: 1, label: 'No', val: 'N' }
+                            ],
+                            callback: function (val) {
+                                if (t == 1)
+                                    return false;
+                                if (val == 'Y') {
+                                    t = 1;
+                                    update();
+                                }
+                                return true;
+                            }
+                        });
+                    }
+                }
+            });
+
+            function update() {
+                var groupName = $("#name").val();
+                var groupId = $("#GroupList option:selected").val();
+                var under = $("#AllGroups option:selected").val();
+                var mainGroup = $("#Category option:selected").text();
+                var isLedger = $("#IsLedger").is(':checked');
+                var jsonData = { group: groupName, groupId: groupId, underId: under, mainGroup: mainGroup, isLedger: isLedger };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Update", "Ledger")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        if (data == true) {
+                            sortDropdown('GroupList', groupId, groupName);
+                            new Messi("'" + groupName + "' is successfully updated.",
+                            {
+                                modal: true,
+                                title: 'Success',
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        }
+                    },
+                });
+            }
+
+            function sortDropdown(dropdownId, groupId, groupName) {
+
+                $("#" + dropdownId + " option[value='" + groupId + "']").remove();
+                $("#" + dropdownId).append('<option value="' + groupId + '" selected="true">' + groupName + '</option>');
+
+                $("#" + dropdownId).html($('#' + dropdownId + ' option').sort(function (x, y) {
+                    return $(x).text() < $(y).text() ? -1 : 1;
+                }));
+            }
+
+            function deleteLedger() {
+                var groupId = $("#GroupList option:selected").val();
+                var gName = $("#GroupList option:selected").text();
+                var jsonData = { groupId: groupId, gName: gName };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Delete", "Ledger")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        if (data == true) {
+                            $("#GroupList").val("");
+                            $("#name").val("");
+                            $("#GroupList option[value='" + groupId + "']").remove();
+                            new Messi("'" + gName + "' is deleted Successfully",
+                            {
+                                modal: true,
+                                title: 'Success',
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        } else {
+                            new Messi(data,
+                            {
+                                modal: true,
+                                title: 'Error',
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        }
+                    },
+                });
+            }
+
+            $("#delete").on('click', function () {
+                var groupId = $("#GroupList option:selected").val();
+                if ('@accessRights.Contains("3")' != 'True') {
+                    var g = new Messi('Sorry, You have no permission to delete a ledger.',
+                    {
+                        modal: true,
+                        title: 'Access Denied',
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else if (groupId == null) {
+                    $("#groupNameError").show();
+                    $("#GroupList").css('border-color', 'red');
+                } else {
+                    var st = "Are you sure to Delete the group/ledger '" + $("#GroupList option:selected").text() + "'?";
+                    var p = 0;
+                    var msg = new Messi(st,
+                    {
+                        title: 'Confirm',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'Yes', val: 'Y' },
+                            { id: 1, label: 'No', val: 'N' }
+                        ],
+                        callback: function (val) {
+                            if (p == 1)
+                                return false;
+                            if (val == 'Y') {
+                                p = 1;
+                                deleteLedger();
+                            }
+                        }
+                    });
+                }
+            });
+
+            $("#viewSubgroups").on('click', function () {
+                var groupId = $("#GroupList option:selected").val();
+                getSubGroups(groupId);
+            });
+
+            function getSubGroups(groupId) {
+                var jsonData = { groupId: groupId };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetSubGroupsWithLedger", "Ledger")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        $("#Subgroups").html("");
+                        $("#Ledgers").html("");
+                        $("#groupName").html("");
+                        $("#under").html("");
+                        $("#subgroupNo").html("");
+                        $("#ledgerNo").html("");
+                        $.each(data, function (key, value) {
+                            var under = value.Under.split(",");
+                            var ledger = false;
+                            for (var count = 0; count < under.length; count++) {
+                                if (under[count] == groupId) {
+                                    ledger = true;
+                                    break;
+                                }
+                            }
+                            if (value.IsLedgerAccount && ledger == true) {
+                                $("#Ledgers").append('<option value="' + value.Id + '">' + value.GroupName + '</option>');
+                            }
+                            if (!value.IsLedgerAccount && ledger == true)
+                                $("#Subgroups").append('<option value="' + value.Id + '">' + value.GroupName + '</option>');
+                            if (value.Id == groupId) {
+                                $("#groupName").html(value.GroupName);
+                                $.each(data, function (k, v) {
+                                    if (v.Id == under[under.length - 1]) {
+                                        $("#under").html(v.GroupName);
+                                        $("#underId").val(v.Id);
+                                    }
+                                });
+                            }
+                        });
+                        $("#Subgroups").html($('#Subgroups option').sort(function (x, y) {
+                            return $(x).text() < $(y).text() ? -1 : 1;
+                        }));
+                        $("#subgroupNo").html($("#Subgroups option").length + " subgroups found");
+                        $("#ledgerNo").html($("#Ledgers option").length + " ledgers found");
+                        $("#viewModal").modal('show');
+                    },
+                });
+            }
+
+            $("#up").on('click', function () {
+                var groupId = $("#underId").val();
+                getSubGroups(groupId);
+            });
+            $("#Subgroups").on('change', function () {
+                var groupId = $("#Subgroups option:selected").val();
+                getSubGroups(groupId);
+            });
+        });
+    </script>
+}
+
+

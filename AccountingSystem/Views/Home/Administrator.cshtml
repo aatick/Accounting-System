@@ -1,0 +1,1040 @@
+﻿@using AccountingSystem.Models
+
+@{
+    ViewBag.Title = "Administrator";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+}
+@section styles
+{
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <style>
+        .modal-header-ac {
+            color: #fff;
+            border-bottom: 1px solid #eee;
+            background-color: #005BF1;
+            -webkit-border-radius: 5px 5px 0px 0px;
+            -moz-border-radius: 5px 5px 0px 0px;
+            border-radius: 5px 5px 0px 0px;
+            padding: 0px 5px 0px 5px;
+            margin: -10px 0px 0px 0px;
+        }
+
+            .modal-header-ac h4 {
+                color: #fff;
+                line-height: 28px;
+                font-size: 15px;
+                margin: 2px 0px 0px 0px;
+            }
+
+            .modal-header-ac .close {
+                color: #fff;
+                font-size: 20px;
+                line-height: 28px;
+            }
+
+        .acModal .modal-dialog {
+            width: 800px;
+        }
+
+        .acModal .modal-body {
+            background: #f0f0f0;
+            padding-bottom: 0px;
+        }
+
+            .acModal .modal-body label {
+                font-weight: normal;
+            }
+
+        legend.legendStyle {
+            padding: 0px 5px 0px 5px;
+            margin: 1px 0px 0px 0px;
+            font-size: 100%;
+            background-color: transparent;
+            color: #0b0350;
+        }
+
+        legend.legendStyle_b {
+            padding: 0px 5px 0px 5px;
+            margin: 1px 0px 0px 0px;
+            font-size: 100%;
+            background-color: transparent;
+            color: #634d1c;
+        }
+
+        fieldset.fsStyle {
+            border: 1px solid #999999;
+            padding: 4px 4px 4px 4px;
+            margin: 10px 0px 5px 0px;
+        }
+
+        legend {
+            border-bottom: 0px;
+            width: auto;
+        }
+
+        fieldset label {
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        .panel-body {
+            padding: 0px 10px 0px 10px;
+            border-radius: 0px;
+        }
+
+        .datepicker {
+            z-index: 1151 !important;
+        }
+
+        .label_margin_left {
+            margin-left: 10px;
+        }
+
+        .label_margin_left2 {
+            width: 200px;
+        }
+
+        .checkbox {
+            margin-top: 0;
+            margin-bottom: 2px;
+        }
+
+        .light_ash {
+            background: #f0f0f0;
+            border: 1px solid #a0a0a0;
+            border-radius: 0px;
+            margin: 5px 0px 0px 0px;
+        }
+
+        @@media only screen and (min-width: 641px) {
+            .bottomBox {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+            }
+        }
+        #close {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            background: url(../images/close2.png) no-repeat -25px 0;
+            width: 30px;
+            height: 30px;
+            text-indent: -9999px;
+            padding: 0 10px 0 0;
+            cursor: pointer;
+            margin: -8px 0px 0 0px;
+        }
+    </style>
+}
+<div class="container">
+    <!-- Modal -->
+    <div class="modal acModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-header-ac">
+                    <div id="close"></div>
+                    <h4 class="nstitle"> <img alt="Administrator_logo" src="~/image/Administrator.png" width="20" height="20">  Administrative control</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="col-sm-offset-1 col-sm-8">
+                                <div class="col-sm-12" style="margin: -28px 0px 0px 0px;">
+                                    <fieldset class="fsStyle">
+                                        <legend class="legendStyle">
+                                            List of Users
+                                        </legend>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="col-sm-4">
+                                                    <div class="radio">
+                                                        <label><input name="radio" id="radio1" value='1' type="radio" checked>Active Users</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-8">
+                                                    <select id="user" class="form-control input-sm pull-right"></select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="col-sm-4">
+                                                    <div class="radio">
+                                                        <label><input name="radio" id="radio2" value='0' type="radio" />Inactive Users</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-8">
+                                                    <button type="button" class="btn btn-info btn-block" id="activate" value="0" disabled><strong>Deactivate control</strong></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="col-sm-10" style="margin:-15px 0px 0px 0px;">
+                                <fieldset class="fsStyle">
+                                    <legend class="legendStyle">
+                                        Personal Information
+                                    </legend>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-6">
+                                                <div class="row">
+                                                    <div class="col-sm-4">Full name</div>
+                                                    <div class="col-sm-8"><input class="form-control input-sm" type="text" id="fullname"></div>
+                                                </div>
+                                                <div class="row" style="margin:5px -15px 0px -15px;">
+                                                    <div class="col-sm-4">Designation</div>
+                                                    <div class="col-sm-8"><input class="form-control input-sm" type="text" id="designation"></div>
+                                                </div>
+                                                <div class="row" style="margin:-1px -15px 0px -15px;">
+                                                    <div class="col-sm-4">&nbsp;</div>
+                                                    <div class="col-sm-8">
+                                                        <div class="checkbox">
+                                                            <label>
+                                                                <input type="checkbox" name="account"> Accounts Department
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <fieldset class="fsStyle" style="margin:-5px 0px 0px 0px;">
+                                                    <legend class="legendStyle_b">
+                                                        Login Information
+                                                    </legend>
+                                                    <div class="row" style="margin:0px 0px 0px 0px;">
+                                                        <div class="col-sm-12">
+                                                            <div class="row">
+                                                                <div class="col-sm-5">User name</div>
+                                                                <div class="col-sm-7"><input class="form-control input-sm" type="text" id="username"></div>
+                                                            </div>
+                                                            <div class="row" style="margin:5px -15px 5px -15px;">
+                                                                <div class="col-sm-5">Password</div>
+                                                                <div class="col-sm-7"><input class="form-control input-sm" type="password" id="password"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col-sm-2">
+                                <div style="margin:13px 0px 0px 0px;">
+                                    <button type="button" class="btn btn-info btn-block input-sm" id="clear">Clear</button>
+                                    <button type="button" class="btn btn-info btn-block input-sm" id="update">Update</button>
+                                    <button type="button" class="btn btn-info btn-block input-sm" id="save">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="col-sm-10" style="margin:-15px 0px 0px 0px;">
+                                <fieldset class="fsStyle">
+                                    <legend class="legendStyle">
+                                        List of Access control
+                                    </legend>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-4">
+                                                <div class="checkbox" style="margin:-2px 0px 0px 0px;">
+                                                    <label>
+                                                        <input type="checkbox" id="accessright" checked>Access right for Data Entry forms
+                                                    </label>
+                                                    <label>
+                                                        <input type="checkbox" name="admin">Admin
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-8">
+                                                <div class="panel panel-default" style="overflow-x:scroll; overflow-y:hidden; white-space:nowrap !important; width:370px;">
+                                                    <div class="panel-body">
+                                                        <div class="checkbox">
+                                                            <label class="label_margin_left2">
+                                                                <input name="access[]" type="checkbox" value="0" checked>Only Read
+                                                            </label>
+                                                            <label class="label_margin_left2">
+                                                                <input name="access[]" type="checkbox" value="1">Read & Insert
+                                                            </label>
+                                                            <label class="label_margin_left2">
+                                                                <input name="access[]" type="checkbox" value="2">Read & Update
+                                                            </label>
+                                                            <label class="label_margin_left2">
+                                                                <input name="access[]" type="checkbox" value="3">Read & Delete
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="panel panel-default light_ash" style="margin-top: 0px;">
+                                                <div class="panel-body" style="padding: 0px 0px 5px 0px;">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="col-sm-4">
+                                                                <div class="checkbox">
+                                                                    <label>
+                                                                        <input type="checkbox" name="ledger">Can Approve
+                                                                    </label>
+                                                                    <label>
+                                                                        <input type="radio" name="ledgers" value="1" checked> All Ledger
+                                                                    </label>
+                                                                    <label>
+                                                                        <input type="radio" name="ledgers" value="0"> Selected Ledger
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-8">
+                                                                <div class="panel panel-default" style="overflow-x: hidden; overflow-y: scroll; white-space: nowrap !important; width: 370px; margin: 3px -15px 0px 0px; height: 120px;">
+                                                                    <div class="panel-body" id="ledgerPanel">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="panel panel-default light_ash">
+                                                <div class="panel-body" style="padding: 0px 0px 5px 0px;">
+                                                    <div class="row">
+                                                        <div class="col-sm-12">
+                                                            <div class="col-sm-4">
+                                                                <div class="checkbox">
+                                                                    <label>
+                                                                        <input type="checkbox" name="report">Reports
+                                                                    </label>
+                                                                    <label>
+                                                                        <input type="radio" name="reports" value="1" checked> All Reports
+                                                                    </label>
+                                                                    <label>
+                                                                        <input type="radio" name="reports" value="0"> Specified Reports
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-8">
+                                                                <div class="panel panel-default" style="overflow-x: scroll; overflow-y: hidden; white-space: nowrap !important; width: 370px; margin: 3px -15px 0px 0px; padding: 0 0 0 0; height: 72px;">
+                                                                    <div class="panel-body" id="reportPanel">
+                                                                        <div class="checkbox">
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="0" name="report[]">Trial Balance
+                                                                            </label>
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="3" name="report[]">Balance Sheet
+                                                                            </label>
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="6" name="report[]">Account Receivable
+                                                                            </label>
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="9" name="report[]">Share Capital
+                                                                            </label>
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="12" name="report[]">General Ledger
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="checkbox">
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="1" name="report[]">Income statement
+                                                                            </label>
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="4" name="report[]">Expense
+                                                                            </label>
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="7" name="report[]">Cash Collection
+                                                                            </label>
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="10" name="report[]">Fixed Asset Schedule
+                                                                            </label>
+                                                                        </div>
+                                                                        <div class="checkbox">
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="2" name="report[]">Cash Flow
+                                                                            </label>
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="5" name="report[]">Revenue
+                                                                            </label>
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="8" name="report[]">Profit & Loss Statement
+                                                                            </label>
+                                                                            <label class="label_margin_left2">
+                                                                                <input type="checkbox" value="11" name="report[]">Bank/Cash Book
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="col-sm-2 bottomBox">
+                                <div style="margin: 0px 0px 10px 0px;">
+                                    <button type="button" class="btn btn-info btn-block input-sm" id="exit">Exit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- Modal -->
+@section scripts
+{
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(window).on('load', function () {
+                getUsersAndLedgers(true, -10);
+                $("#success").modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            });
+
+            centerSuccess();
+
+            function centerSuccess() {
+                $('.modal').css('display', 'block');
+                var $dialog = $('.modal').find(".modal-dialog");
+                var offset = ($(window).height() - $dialog.height()) / 2;
+                // Center modal vertically in window
+                $dialog.css("margin-top", offset);
+            }
+
+            $(window).on("resize", function () {
+                centerSuccess();
+            });
+            //$(document).click(function () {
+            //    $('#success').modal('show');
+            //});
+            //$(document).on('keydown', function (e) {
+            //    if (e.keyCode == 27)
+            //        $('#success').modal('show');
+            //});
+            $("#close, #exit").on('click', function () {
+                $("#success").modal('hide');
+            });
+            var users = [];
+            var ledgers = [];
+
+            function getUsersAndLedgers(val, id) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetUsersAndLedgers", "Home")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        users = [];
+                        ledgers = [];
+                        $.each(data.Users, function (key, value) {
+                            users.push({ UserId: value.UserId, UserName: value.UserName, Name: value.Name, Password: value.Password, Designation: value.Designation, AccessRight: value.AccessRight, CanApprove: value.CanApprove, ApproveRight: value.ApproveRight, CanModifyAdmin: value.CanModifyAdmin, AccessReports: value.AccessReports, ValidUser: value.ValidUser, AccountDep: value.AccountDep });
+                        });
+                        $.each(data.Ledgers, function (key1, value1) {
+                            ledgers.push({ Id: value1.Id, Name: value1.GroupName });
+                        });
+                        getUser(val, id);
+                        getLedgers();
+                    },
+                });
+            }
+
+
+            function getUser(isvalid, id) {
+                $("#user").html('');
+                $("#user").append('<option value=""></option>');
+                $.each(users, function () {
+                    if (this.ValidUser == isvalid) {
+                        if (this.UserId == id)
+                            $("#user").append('<option value="' + this.UserId + '" selected>' + this.Name + '</option>');
+                        else
+                            $("#user").append('<option value="' + this.UserId + '">' + this.Name + '</option>');
+                        return;
+                    }
+                });
+            }
+
+            function getLedgers() {
+                var count = 0;
+                $("#ledgerPanel").html('');
+                $.each(ledgers, function () {
+                    $("#ledgerPanel").append('<div class="checkbox"><label class="label_special col-sm-12"><input type="checkbox" name="ledger[]" style="margin-right: 5px;" value="' + this.Id + '" />' + this.Name + '</label></div>');
+                });
+                disableLedger();
+            }
+            disableReport();
+
+            function fillUserInfo(id) {
+                $.each(users, function () {
+                    if (this.UserId == id) {
+                        var accessright = this.AccessRight.split(',');
+                        console.log(this);
+                        $("#fullname").val(this.Name);
+                        $("#designation").val(this.Designation);
+                        $("#username").val(this.UserName);
+                        $("#password").val(this.Password);
+                        $('input:checkbox[name="account"]').prop('checked', this.AccountDep == true ? true : false);
+                        $('input:checkbox[name="admin"]').prop('checked', this.CanModifyAdmin == true ? true : false);
+                        $('input:checkbox[name="access[]"]').prop('checked', false);
+                        $('input:checkbox[name="report[]"]').prop('checked', false);
+                        $('input:checkbox[name="ledger[]"]').prop('checked', false);
+                        $.each(accessright, function () {
+                            $('input:checkbox[name="access[]"][value="' + this + '"]').prop('checked', true);
+                        });
+                        if (this.AccessReports == 'All') {
+                            $('input:checkbox[name="report"]').prop('checked', true);
+                            $('input:radio[name="reports"][value="1"]').prop('checked', true);
+                            disableReport();
+                        } else if (this.AccessReports == null || this.AccessReports == "") {
+                            $('input:checkbox[name="report"]').prop('checked', false);
+                            $('input:radio[name="reports"][value="1"]').prop('checked', true);
+                            $('input:radio[name="reports"][value="0"]').prop('checked', false);
+                            disableReport();
+                        } else {
+                            $('input:checkbox[name="report"]').prop('checked', true);
+                            $('input:radio[name="reports"][value="0"]').prop('checked', true);
+                            enableReport();
+                            var reports = this.AccessReports.split(',');
+                            $.each(reports, function () {
+                                $('input:checkbox[name="report[]"][value="' + this + '"]').prop('checked', true);
+                            });
+                        }
+
+                        if (this.ApproveRight == "" || this.ApproveRight == null) {
+                            $('input:checkbox[name="ledger"]').prop('checked', false);
+                            $('input:radio[name="ledgers"][value="1]"').prop('checked', true);
+                            $('input:radio[name="ledgers"][value="0]"').prop('checked', false);
+                            disableLedger();
+                        } else if (this.ApproveRight == 'All') {
+                            $('input:checkbox[name="ledger"]').prop('checked', true);
+                            $('input:radio[name="ledgers"][value="1"]').prop('checked', true);
+                            disableLedger();
+                        } else {
+                            $('input:checkbox[name="ledger"]').prop('checked', true);
+                            $('input:radio[name="ledgers"][value="0"]').prop('checked', true);
+                            enableLedger();
+                            var ledg = this.ApproveRight.split(',');
+                            $.each(ledg, function () {
+                                $('input:checkbox[name="ledger[]"][value="' + this + '"]').prop('checked', true);
+                            });
+                            setColor();
+                        }
+                        return;
+                    }
+                });
+            };
+
+            $('input:radio[name="reports"]').on('change', function () {
+                if ($(this).val() == 1)
+                    disableReport();
+                else
+                    enableReport();
+            });
+
+            $('input:radio[name="ledgers"]').on('change', function () {
+                if ($(this).val() == 1)
+                    disableLedger();
+                else
+                    enableLedger();
+            });
+
+            function disableReport() {
+                $("#reportPanel input").css('cursor', 'default').prop('disabled', true);
+                $("#reportPanel label").css('cursor', 'default');
+                $("#reportPanel").parent('div.panel-default').css('overflow-x', 'hidden');
+                $("#reportPanel").css('color', 'gray').css('cursor', 'default');
+            }
+
+            function disableLedger() {
+                $("#ledgerPanel input:checkbox").css('cursor', 'default').prop('disabled', true);
+                $("#ledgerPanel label").css('cursor', 'default');
+                $("#ledgerPanel").parent('div.panel-default').css('overflow-y', 'hidden');
+                $("#ledgerPanel").css('color', 'gray').css('cursor', 'default');
+            }
+
+            function enableLedger() {
+                $("#ledgerPanel input:checkbox").css('cursor', '').prop('disabled', false);
+                $("#ledgerPanel").parent('div.panel-default').css('overflow-y', 'scroll');
+                $("#ledgerPanel label").css('cursor', '');
+                $("#ledgerPanel").css('color', '').css('cursor', '');
+            }
+
+            function enableReport() {
+                $("#reportPanel input").css('cursor', '').prop('disabled', false);
+                $("#reportPanel").parent('div.panel-default').css('overflow-x', 'scroll');
+                $("#reportPanel label").css('cursor', '');
+                $("#reportPanel").css('color', '').css('cursor', '');
+            }
+
+            function clearUserInfo() {
+                $("#fullname").val('');
+                $("#designation").val('');
+                $("#username").val('');
+                $("#password").val('');
+                $('input:checkbox[name="account"], input:checkbox[name="admin"]').prop('checked', false);
+                $('input:checkbox[name="access[]"]:not(:first)').prop('checked', false);
+                $('input:checkbox[name="ledger"]').prop('checked', false);
+                $('input:radio[name="ledgers"][value="1"]').prop('checked', true);
+                $('input:radio[name="ledgers"][value="0"]').prop('checked', false);
+                $('input:checkbox[name="report"]').prop('checked', false);
+                $('input:radio[name="reports"][value="1"]').prop('checked', true);
+                $('input:radio[name="reports"][value="0"]').prop('checked', false);
+                disableLedger();
+                disableReport();
+            }
+
+            //$('#exit').on('click', function() {
+            //    alert($("#ledgerPanel").find('input:checkbox').length);
+            //});
+
+            $('input:radio[name="radio"]').on('change', function () {
+                clearUserInfo();
+                getUser($(this).val() == 0 ? false : true);
+                $("#activate").html($(this).val() == 1 ? '<strong>Deactivate control</strong>' : '<strong>Activate control</strong>');
+                $("#activate").val($(this).val() == 0 ? 1 : 0);
+                $("#activate").prop('disabled', true);
+            });
+
+            $('#user').on('change', function () {
+                if ($(this).val() != "") {
+                    $("#activate").prop('disabled', false);
+                    fillUserInfo($(this).val());
+
+                } else {
+                    $("#activate").prop('disabled', true);
+                    clearUserInfo();
+                }
+
+            });
+            $('#ledgerPanel').on('click', function () {
+                setColor();
+            });
+
+            function setColor() {
+                $.each($('#ledgerPanel div.checkbox'), function () {
+                    if ($(this).find('input:checkbox').is(':checked')) {
+                        $(this).find('label').css('background-color', '#2AABD2');
+                    } else
+                        $(this).find('label').css('background-color', '');
+                });
+            }
+
+            $('#activate').on('click', function () {
+                var str = $(this).val() == 0 ? 'Deactivate' : 'Activate';
+                if ($("#user").val() == "") {
+                    var m1 = new Messi('Please select an user to ' + str,
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var c = 0;
+                    var msg = new Messi("Are You sure you want to " + str + " of this user's control?",
+                    {
+                        title: 'Confirm',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'Yes', val: 'Y' },
+                            { id: 1, label: 'No', val: 'N' }
+                        ],
+                        callback: function (val) {
+                            if (c == 1)
+                                return false;
+                            if (val == 'Y') {
+                                var jsonData = { id: $("#user").val(), valid: $('#activate').val() };
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("ActivateDeactivateUser", "Home")',
+                                    contentType: "application/json; charset=utf-8",
+                                    data: JSON.stringify(jsonData),
+                                    dataType: "json",
+                                    success: function (data) {
+                                        if (data == true) {
+                                            getUsersAndLedgers(jsonData.valid == 0 ? false : true, jsonData.id);
+                                            $('input:radio[name="radio"][value="' + jsonData.valid + '"]').prop('checked', true);
+                                            var st = str == 'Activate' ? 'Deactivate' : 'Activate';
+                                            $('#activate').html('<strong>' + st + ' Control</strong>');
+                                            $('#activate').val($('#activate').val() == 0 ? 1 : 0);
+                                            var m2 = new Messi('The Selected user is now ' + str + 'ed.',
+                                            {
+                                                modal: true,
+                                                title: 'Success',
+                                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                                ]
+                                            });
+                                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                        }
+                                    },
+                                });
+                                c = 1;
+                            }
+                            return true;
+                        }
+                    });
+                }
+            });
+
+            $("#clear").on('click', function () {
+                clearUserInfo();
+                $('input:radio[name="radio"][value="1"]').prop('checked', true);
+                $('input:radio[name="radio"][value="0"]').prop('checked', false);
+                getUser(true);
+                $('#activate').html('<strong>Deactivate Control</strong>');
+                $('#activate').val(1).prop('disabled', true);
+            });
+
+            function checkAllAreSpaces(str) {
+                var isSpace = true;
+                for (var l = 0; l < str.length; l++) {
+                    var ch = str[l];
+                    if (ch != " ")
+                        isSpace = false;
+                }
+                return isSpace;
+            }
+
+            $("#update").on('click', function () {
+                var user = $("#user").val();
+                var fullname = $("#fullname").val();
+                var designation = $("#designation").val();
+                var username = $("#username").val();
+                var password = $("#password").val();
+                var account = $('input:checkbox[name="account"]').is(':checked') ? true : false;
+                var admin = $('input:checkbox[name="admin"]').is(':checked') ? true : false;
+                var access = "";
+                if ($("#accessright").is(':checked')) {
+                    $.each($('input:checkbox[name="access[]"]'), function () {
+                        if ($(this).is(':checked'))
+                            access += "," + $(this).val();
+                    });
+                    access = access.substring(1, access.length);
+                }
+                var approve = "";
+                if ($('input:checkbox[name="ledger"]').is(':checked')) {
+                    if ($('input:radio[name="ledgers"]:checked').val() == 1) {
+                        approve = 'All';
+                    } else {
+                        $.each($('input:checkbox[name="ledger[]"]'), function () {
+                            if ($(this).is(':checked'))
+                                approve += "," + $(this).val();
+                        });
+                        approve = approve.substring(1, approve.length);
+                    }
+                }
+                var accessright = "";
+                if ($('input:checkbox[name="report"]').is(':checked')) {
+                    if ($('input:radio[name="reports"]:checked').val() == 1)
+                        accessright = 'All';
+                    else {
+                        $.each($('input:checkbox[name="report[]"]'), function () {
+                            if ($(this).is(':checked'))
+                                accessright += "," + $(this).val();
+                        });
+                        accessright = accessright.substring(1, accessright.length);
+                    }
+                }
+                //alert(accessright);
+                //alert(access + " " + approve + " " + accessright);
+                if (user == "" || checkAllAreSpaces(user)) {
+                    var m0 = new Messi('You must select a user from the user list.',
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    $("#user").focus();
+                } else if (fullname == "" || checkAllAreSpaces(fullname)) {
+                    var m1 = new Messi('You must write the name of the user.',
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    $("#fullname").focus();
+                } else if (username == "" || checkAllAreSpaces(username)) {
+                    var m2 = new Messi('You must define the user name of the user.',
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    $("#username").focus();
+                } else if (password == "" || checkAllAreSpaces(password)) {
+                    var m3 = new Messi('You must define the password of the user.',
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    $("#password").focus();
+                } else if (access == "") {
+                    var m4 = new Messi('You must select an access type.',
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else if (accessright == "") {
+                    var m5 = new Messi('You must select a report.',
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var isvalid = true;
+                    $.each(users, function () {
+                        if (this.UserId != user && this.UserName.toLowerCase() == username.toLowerCase()) {
+                            isvalid = false;
+                            return;
+                        }
+                    });
+                    if (!isvalid) {
+                        var m6 = new Messi('The user name you have given is already exist.<br/>Please give another user name.',
+                        {
+                            modal: true,
+                            title: 'Alert',
+                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else {
+                        var jsonData = { action: 'update', name: fullname, id: user, username: username, password: password, designation: designation, admin: admin, account: account, access: access, approve: approve, accessright: accessright };
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("InsertUpdateUser", "Home")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(jsonData),
+                            dataType: "json",
+                            success: function (data) {
+                                if (data == true) {
+                                    getUsersAndLedgers($('input:radio[name="radio"]').val() == 0 ? false : true, user);
+                                    var m7 = new Messi('User information successfully Updated',
+                                    {
+                                        modal: true,
+                                        title: 'Success',
+                                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                        ]
+                                    });
+                                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                }
+                            },
+                        });
+                    }
+                }
+            });
+            $("#save").on('click', function () {
+                var user = -1;
+                $.each(users, function () {
+                    if (user < this.UserId)
+                        user = this.UserId;
+                });
+                user += 1;
+                var fullname = $("#fullname").val();
+                var designation = $("#designation").val();
+                var username = $("#username").val();
+                var password = $("#password").val();
+                var account = $('input:checkbox[name="account"]').is(':checked') ? true : false;
+                var admin = $('input:checkbox[name="admin"]').is(':checked') ? true : false;
+                var access = "";
+                if ($("#accessright").is(':checked')) {
+                    $.each($('input:checkbox[name="access[]"]'), function () {
+                        if ($(this).is(':checked'))
+                            access += "," + $(this).val();
+                    });
+                    access = access.substring(1, access.length);
+                }
+                var approve = "";
+                if ($('input:checkbox[name="ledger"]').is(':checked')) {
+                    if ($('input:radio[name="ledgers"]:checked').val() == 1) {
+                        approve = 'All';
+                        //alert(approve);
+                    } else {
+                        $.each($('input:checkbox[name="ledger[]"]'), function () {
+                            if ($(this).is(':checked'))
+                                approve += "," + $(this).val();
+                        });
+                        approve = approve.substring(1, approve.length);
+                    }
+                }
+                var accessright = "";
+                if ($('input:checkbox[name="report"]').is(':checked')) {
+                    if ($('input:radio[name="reports"]:checked').val() == 1)
+                        accessright = 'All';
+                    else {
+                        $.each($('input:checkbox[name="report[]"]'), function () {
+                            if ($(this).is(':checked'))
+                                accessright += "," + $(this).val();
+                        });
+                        accessright = accessright.substring(1, accessright.length);
+                    }
+                }
+                if ('@user.CanModifyAdmin' != 'True') {
+                    var m111 = new Messi('Sorry, You have no permission to Add user.',
+                    {
+                        modal: true,
+                        title: 'User Access Control',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else if (fullname == "" || checkAllAreSpaces(fullname)) {
+                    var m1 = new Messi('You must write the name of the user.',
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    $("#fullname").focus();
+                } else if (username == "" || checkAllAreSpaces(username)) {
+                    var m2 = new Messi('You must define the user name of the user.',
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    $("#username").focus();
+                } else if (password == "" || checkAllAreSpaces(password)) {
+                    var m3 = new Messi('You must define the password of the user.',
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    $("#password").focus();
+                } else if (access == "") {
+                    var m4 = new Messi('You must select an access type.',
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else if (accessright == "") {
+                    var m5 = new Messi('You must select a report.',
+                    {
+                        modal: true,
+                        title: 'Alert',
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var isvalid = true;
+                    $.each(users, function () {
+                        if (this.UserName.toLowerCase() == username.toLowerCase()) {
+                            isvalid = false;
+                            return;
+                        }
+                    });
+                    if (!isvalid) {
+                        var m6 = new Messi('The user name you have given is already exist.<br/>Please give another user name.',
+                        {
+                            modal: true,
+                            title: 'Alert',
+                            buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else {
+                        var jsonData = { action: 'insert', name: fullname, id: user, username: username, password: password, designation: designation, admin: admin, account: account, access: access, approve: approve, accessright: accessright };
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("InsertUpdateUser", "Home")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(jsonData),
+                            dataType: "json",
+                            success: function (data) {
+                                if (data == true) {
+                                    getUsersAndLedgers(true, user);
+                                    $('input:radio[name="radio"][value="1"]').prop('checked', true);
+                                    $('#activate').html('<strong>Deactivate Control</strong>');
+                                    $('#activate').val(1);
+                                    $('#activate').prop('disabled', false);
+                                    var m7 = new Messi('User information successfully inserted',
+                                    {
+                                        modal: true,
+                                        title: 'Success',
+                                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                        ]
+                                    });
+                                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                }
+                            },
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+}
+
+
+

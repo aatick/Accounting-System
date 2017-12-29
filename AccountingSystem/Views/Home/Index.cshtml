@@ -1,0 +1,128 @@
+﻿@model AccountingSystem.Models.User
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Log in || BDJobs.com</title>
+    <link rel="icon" type="image/icon" href="~/images/bdjobslogo.gif">
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
+    <link href="~/Content/css/ValidationMessage.css" rel="stylesheet" />
+</head>
+<body>
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post, new { @id = "loginForm" }))
+    {
+        <div class="page-header">
+            <h2 class="col-sm-offset-4 col-sm-4 text-center">WELCOME</h2>
+            <h3 class="col-sm-offset-4 col-sm-4 text-center">Please Log in to Continue</h3>
+        </div>
+        <div id="loginDiv" class="form-horizontal">
+            @Html.ValidationSummary(true)
+            <div class="col-sm-offset-4 col-sm-4">
+                <ul class="list-group">
+                    <li class="list-group-item active">
+                        <label class="control-label">Log in</label>
+                    </li>
+                    <li class="list-group-item">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.UserName, new { @class = "control-label col-md-4" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.UserName)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Password, new { @class = "control-label col-md-4" })
+                            <div class="col-md-6">
+                                @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control", @type = "Password" } })
+                                @Html.ValidationMessageFor(model => model.Password)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-4 col-sm-8">
+                                <input type="checkbox" id="remember" class="checkbox checkbox-inline" />
+                                <label class="control-label" style="margin-left: 5px;">Remember me</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-offset-4 col-md-10">
+                                <input type="submit" value="Sign in" id="login" class="btn btn-info" />
+                                <span id="spinner" hidden>
+                                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                                </span>
+                                <span id="message" hidden class="text-danger">Wrong username or password</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    }
+    <script src="~/Scripts/jquery-2.1.3.js"></script>
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#UserName").on('click', function () {
+                $("#message").hide();
+            });
+            $("#Password").on('click', function () {
+                $("#message").hide();
+            });
+
+            function checkAllAreSpaces(str) {
+                var isSpace = true;
+                for (var l = 0; l < str.length; l++) {
+                    var ch = str[l];
+                    if (ch != " ")
+                        isSpace = false;
+                }
+                return isSpace;
+            }
+
+            $("#loginForm").submit(function () {
+                var username = $("#UserName").val();
+                var password = $("#Password").val();
+                var rememberme = $("#remember").is(':checked');
+                if (username != "" && password != "" && !checkAllAreSpaces(username) && !checkAllAreSpaces(password)) {
+                    $("#login").val("Signing in...");
+                    $("#spinner").show();
+                    var jsonData = { Username: username, Password: password, rememberme: rememberme };
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("Index", "Home")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(jsonData),
+                        dataType: "json",
+                        success: function (data) {
+                            if (data == true) {
+                                window.location = '@Url.Action("AccountingSystem", "Home")';
+                            }
+                            else {
+                                $("#login").val("Sign in");
+                                $("#spinner").hide();
+                                $("#message").show();
+                            }
+                        },
+                    });
+                }
+                return false;
+            });
+        });
+    </script>
+    @if (ViewBag.Username != null && ViewBag.Password != null)
+    {
+        <script>
+            $("#UserName").val('@ViewBag.Username');
+            $("#Password").val('@ViewBag.Password');
+            $("#remember").prop('checked', true);
+        </script>
+    }
+</body>
+</html>

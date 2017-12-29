@@ -1,0 +1,476 @@
+﻿@using AccountingSystem.Models
+@model AccountingSystem.Models.Ledger
+@{
+    ViewBag.Title = "Add New Ledger";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+}
+@if (ViewBag.Page == null)
+{
+
+    @section styles
+    {
+        <link href="~/Content/css/stylesheet.css" rel="stylesheet" />
+        <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+        <style>
+            body .modal-dialog {
+                width: 650px;
+            }
+
+            .modal-footer {
+                margin-top: -20px;
+            }
+
+            #close {
+                position: absolute;
+                top: 0;
+                right: 0px;
+                background: url(../images/close2.png) no-repeat -25px 0;
+                width: 30px;
+                height: 30px;
+                text-indent: -9999px;
+                padding: 0 10px 0 0;
+                cursor: pointer;
+                margin: 0px 0 0 0;
+            }
+        </style>
+    }
+}
+else
+{
+    Layout = null;
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
+    <link href="~/Content/css/stylesheet.css" rel="stylesheet" />
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+
+    <style>
+        body .modal-dialog {
+            width: 650px;
+            margin-top: 0;
+        }
+        select {
+            -moz-appearance: none;
+            -webkit-appearance: none;
+        }
+
+            select[size] {
+                -moz-appearance: listbox;
+                -webkit-appearance: listbox;
+            }
+
+            select.form-control {
+                transition: none;
+                box-shadow: none;
+            }
+
+                select.form-control:focus {
+                    box-shadow: none;
+                }
+            select[size] option:hover {
+                background: #3399FF;
+            }
+            select.ui-datepicker-month, select.ui-datepicker-year {
+                -moz-appearance: menulist;
+                -webkit-appearance: menulist;
+            }
+        #myModal {
+            overflow: hidden;
+        }
+
+        .modal-content {
+            margin: -5px -70px 0px -78px;
+        }
+
+        #close {
+            display: none;
+        }
+
+        .messi {
+            top: 80px;
+        }
+
+        #close {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            background: url(../images/close2.png) no-repeat -25px 0;
+            width: 30px;
+            height: 30px;
+            text-indent: -9999px;
+            padding: 0 10px 0 0;
+            cursor: pointer;
+            margin: 0px 0 0 0;
+        }
+    </style>
+}
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title list-group-item" style="padding-left: 10px;" id="myModalLabel"><img alt="Create_Ledger_logo" src="~/images/Ad_New_Ledger.png" height="20" width="20" /><span class="header_text" style="margin-left: 10px;">Add New Groups / Ledger</span></h4><div id="close"></div>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm())
+                {
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <div class="col-sm-5" style="padding-right: 0;">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-12">Name Of the group</label>
+                                    <div class="col-sm-12">
+                                        @Html.EditorFor(model => model.GroupName, new { htmlAttributes = new { @class = "form-control" } })
+                                        <span id="groupNameError" hidden style="color: red">Group Name is required</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-12">Category</label>
+                                    <div class="col-sm-12">
+                                        @Html.DropDownList("MainGroupList", null, "", new { @class = "form-control" })
+                                        <span id="mainError" hidden style="color: red">Category is required</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <label class="control-label" style="cursor: pointer;">
+                                            @Html.CheckBoxFor(model => model.IsLedgerAccount, new { @class = "checkbox checkbox-inline" })
+                                            Ledger Account
+                                        </label>
+                                        @Html.ValidationMessageFor(model => model.IsLedgerAccount)
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-top: 50px;">
+                                    <div class="col-sm-9">
+                                        <a href="@Url.Action("Edit","Ledger")" class="btn btn-block btn-info" id="update_delete" role="button">Update / Delete Ledger</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-7" style="padding-left: 0; padding-right: 0;">
+                                <label class="control-label col-sm-12">Subgroup Of</label>
+                                <div class="col-sm-12">
+                                    @Html.DropDownList("SubgroupList", null, new { @class = "form-control", @style = "height:250px;", @size = 10 })
+                                </div>
+                                <div class="col-sm-12">
+                                    <span id="subGroupError" hidden style="color: red">Please select a subgroup</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                <div class="col-sm-3 pull-right">
+                    <button type="button" id="exit" class="btn btn-block btn-primary">Exit</button>
+                </div>
+                <div class="col-sm-3 pull-right">
+                    <button type="button" id="save" class="btn btn-block btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@if (ViewBag.Page == null)
+{
+    @section scripts
+    {
+        <script src="~/Scripts/js/messi.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#myModal').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                //$('#myModal').on('click', function () {
+                //    $('#myModal').modal('show');
+                //});
+                $('#close,#exit').on('click', function () {
+                    $('#myModal').modal('hide');
+                });
+                centerSuccess();
+                function centerSuccess() {
+                    $('.modal').css('display', 'block');
+                    var $dialog = $('.modal').find(".modal-dialog");
+                    var offset = ($(window).height() - $dialog.height()) / 2;
+                    // Center modal vertically in window
+                    $dialog.css("margin-top", offset);
+                }
+
+                $(window).on("resize", function () {
+                    centerSuccess();
+                });
+                $("#MainGroupList").on('change', function () {
+                    $("#MainGroupList option[value='']").remove();
+                    var mainGroup = $("#MainGroupList option:selected").text();
+                    var jsonData = { mainGroup: mainGroup };
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GetSubgroups", "Ledger")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(jsonData),
+                        dataType: "json",
+                        success: function (data) {
+                            $("#SubgroupList").html("");
+                            $.each(data, function (key, value) {
+                                $("#SubgroupList").append('<option value="' + value.Id + '">' + value.GroupName + '</option>')
+                            });
+                        },
+                    });
+                });
+                function checkAllAreSpaces(str) {
+                    var isSpace = true;
+                    for (var l = 0; l < str.length; l++) {
+                        var ch = str[l];
+                        if (ch != " ")
+                            isSpace = false;
+                    }
+                    return isSpace;
+                }
+                $("#save").on('click', function () {
+                    var name = $("#GroupName").val();
+                    var subGroupId = $("#SubgroupList option:selected").val();
+                    var mainGroup = $("#MainGroupList option:selected").text();
+                    var isLedger = $("#IsLedgerAccount").is(':checked');
+                    if ('@accessRights.Contains("1")' != 'True') {
+                        var g = new Messi('Sorry, You have no permission to save a ledger.',
+                        {
+                            modal: true,
+                            title: 'Access Denied',
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                    } else if (name == "" || checkAllAreSpaces(name)) {
+                        $("#GroupName").css('border-color', 'red');
+                        $("#groupNameError").show();
+
+                    } else if ($("#MainGroupList option:selected").val() == "") {
+                        $("#mainError").show();
+                        $("#MainGroupList").css('border-color', 'red');
+                    } else if (subGroupId == null) {
+                        $("#subGroupError").show();
+                        $("#SubgroupList").css('border-color', 'red');
+                    } else {
+                        var st = "Are you sure to create this ledger/group '" + name + "'?";
+                        var tt = 0;
+                        var msg = new Messi(st,
+                        {
+                            title: 'Confirm',
+                            modal: true,
+                            buttons: [{ id: 0, label: 'Yes', val: 'Y' },
+                            { id: 1, label: 'No', val: 'N' }],
+                            callback: function (val) {
+                                if (tt == 1)
+                                    return false;
+                                if (val == 'Y') {
+                                    tt = 1;
+                                    var jsonData = { group: name, subGroupId: subGroupId, mainGroup: mainGroup, isLedger: isLedger };
+                                    $.ajax({
+                                        type: "POST",
+                                        url: '@Url.Action("Save", "Ledger")',
+                                        contentType: "application/json; charset=utf-8",
+                                        data: JSON.stringify(jsonData),
+                                        dataType: "json",
+                                        success: function (data) {
+                                            $("#SubgroupList").html("");
+                                            $.each(data, function (key, value) {
+                                                $("#SubgroupList").append('<option value="' + value.Id + '">' + value.GroupName + '</option>');
+                                            });
+                                            $("#GroupName").val("");
+                                            $("#IsLedgerAccount").prop('checked', false);
+                                            var str = "ledger/group '" + name + "' has been created.";
+                                            new Messi(str,
+                                            {
+                                                modal: true,
+                                                title: 'Success',
+                                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                                ]
+                                            });
+                                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                        },
+                                    });
+                                }
+                                return true;
+                            }
+                        });
+                    }
+                });
+                $("#SubgroupList").on('change', function () {
+                    $("#subGroupError").hide();
+                    $("#SubgroupList").css('border-color', '');
+
+                });
+                $("#MainGroupList").on('change', function () {
+                    $("#mainError").hide();
+                    $("#MainGroupList").css('border-color', '');
+
+                });
+                $("#GroupName").on('click', function () {
+                    $("#groupNameError").hide();
+                    $("#GroupName").css('border-color', '');
+                });
+            });
+        </script>
+    }
+}
+else
+{
+    <script src="~/Scripts/jquery-2.1.3.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#myModal').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+            //$('#myModal').on('click', function () {
+            //    $('#myModal').modal('show');
+            //});
+            $('#close').on('click', function () {
+                $('#myModal').remove();
+            });
+            $("#exit").on('click', function () {
+                parent.$.colorbox.close();
+            });
+
+            function forFireFox() {
+                $('.modal-content').css('margin', "-5px -65px 0px -73px");
+            }
+            var browser = ["firefox", "chrome"];
+            if (navigator.userAgent.toUpperCase().indexOf(browser[0].toUpperCase()) > -1) {
+                forFireFox();
+            }
+            $("#MainGroupList").on('change', function () {
+                $("#MainGroupList option[value='']").remove();
+                var mainGroup = $("#MainGroupList option:selected").text();
+                var jsonData = { mainGroup: mainGroup };
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("GetSubgroups", "Ledger")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        $("#SubgroupList").html("");
+                        $.each(data, function (key, value) {
+                            $("#SubgroupList").append('<option value="' + value.Id + '">' + value.GroupName + '</option>')
+                        });
+                    },
+                });
+            });
+            function checkAllAreSpaces(str) {
+                var isSpace = true;
+                for (var l = 0; l < str.length; l++) {
+                    var ch = str[l];
+                    if (ch != " ")
+                        isSpace = false;
+                }
+                return isSpace;
+            }
+            $("#save").on('click', function () {
+                var name = $("#GroupName").val();
+                var subGroupId = $("#SubgroupList option:selected").val();
+                var mainGroup = $("#MainGroupList option:selected").text();
+                var isLedger = $("#IsLedgerAccount").is(':checked');
+                if ('@accessRights.Contains("1")' != 'True') {
+                    var g = new Messi('You have no access to save a ledger.',
+                    {
+                        modal: true,
+                        title: 'Access Denied',
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                }
+                else if (name == "" || checkAllAreSpaces(name)) {
+                    $("#GroupName").css('border-color', 'red');
+                    $("#groupNameError").show();
+                } else if (mainGroup == "" || checkAllAreSpaces(mainGroup)) {
+                    $("#mainError").show();
+                    $("#MainGroupList").css('border-color', 'red');
+                } else if (subGroupId == null || checkAllAreSpaces(subGroupId)) {
+                    $("#subGroupError").show();
+                    $("#SubgroupList").css('border-color', 'red');
+                    $('.modal-footer').css('margin-top', '-15px');
+                } else {
+                    var st = "Are you sure to create this ledger/group '" + name + "'?";
+                    var cc = 0;
+                    var msg = new Messi(st,
+                    {
+                        title: 'Confirm',
+                        modal: true,
+                        buttons: [{ id: 0, label: 'Yes', val: 'Y' },
+                        { id: 1, label: 'No', val: 'N' }],
+                        callback: function (val) {
+                            if (cc == 1)
+                                return false;
+                            if (val == 'Y') {
+                                cc = 1;
+                                var jsonData = { group: name, subGroupId: subGroupId, mainGroup: mainGroup, isLedger: isLedger };
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("Save", "Ledger")',
+                                    contentType: "application/json; charset=utf-8",
+                                    data: JSON.stringify(jsonData),
+                                    dataType: "json",
+                                    success: function (data) {
+                                        $("#SubgroupList").html("");
+                                        $.each(data, function (key, value) {
+                                            $("#SubgroupList").append('<option value="' + value.Id + '">' + value.GroupName + '</option>');
+                                        });
+                                        $("#GroupName").val("");
+                                        $("#IsLedgerAccount").prop('checked', false);
+                                        var str = "ledger/group '" + name + "' has been created.";
+                                        new Messi(str,
+                                        {
+                                            modal: true,
+                                            title: 'Success',
+                                            buttons: [
+                                                { id: 0, label: 'OK', val: 'X' }
+                                            ]
+                                        });
+                                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                        $('.messi').css('top', '130px');
+                                    },
+                                });
+                            }
+                            return true;
+                        }
+                    });
+                }
+                $('.messi').css('top', '130px');
+            });
+            $("#update_delete").hide();
+            $("#SubgroupList").on('change', function () {
+                $("#subGroupError").hide();
+                $("#SubgroupList").css('border-color', '');
+                $('.modal-footer').css('margin-top', '');
+            });
+            $("#MainGroupList").on('change', function () {
+                $("#mainError").hide();
+                $("#MainGroupList").css('border-color', '');
+                $('.modal-footer').css('margin-top', '');
+            });
+            $("#GroupName").on('click', function () {
+                $("#groupNameError").hide();
+                $("#GroupName").css('border-color', '');
+                $('.modal-footer').css('margin-top', '');
+            });
+        });
+    </script>
+    <script>
+        var browser = ["firefox", "chrome"];
+        if (navigator.userAgent.toUpperCase().indexOf(browser[1].toUpperCase()) > -1) {
+            $('select:not(select[size],select.ui-datepicker-month,select.ui-datepicker-year)').css('padding', '0px 10px');
+        }
+        $('select:not(select[size],select.ui-datepicker-month,select.ui-datepicker-year),input.select').css('background', 'url(@Url.Content("~/images/down_arrow.png")) no-repeat right white');
+        $('select:not(select.form-control,select[size],select.ui-datepicker-month,select.ui-datepicker-year)').css('padding', '0px 15px 0px 2px').css('border', '1px solid gray');
+    </script>
+}
+
+

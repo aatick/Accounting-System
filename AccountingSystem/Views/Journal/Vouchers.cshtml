@@ -1,0 +1,227 @@
+﻿@using AccountingSystem.Models
+
+@{
+    ViewBag.Title = "Journal Voucher";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+}
+@section styles
+{
+    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <style type="text/css">
+        .modal-header-lj {
+            color: #fff;
+            border-bottom: 1px solid #eee;
+            background-color: #005BF1;
+            -webkit-border-radius: 5px 5px 0px 0px;
+            -moz-border-radius: 5px 5px 0px 0px;
+            border-radius: 5px 5px 0px 0px;
+            padding: 0px 5px 0px 5px;
+            margin: -10px 0px 0px 0px;
+        }
+
+            .modal-header-lj h4 {
+                color: #fff;
+                line-height: 28px;
+                font-size: 15px;
+                margin: 2px 0px 0px 0px;
+            }
+
+            .modal-header-lj .close {
+                color: #fff;
+                font-size: 20px;
+                line-height: 28px;
+            }
+
+        .ljModal .modal-dialog {
+            width: 500px;
+            margin-top: 200px;
+        }
+
+        .ljModal .modal-body {
+            background: #f0f0f0;
+            padding-bottom: 0px;
+        }
+
+            .ljModal .modal-body label {
+                font-weight: normal;
+            }
+
+        .ljModal .panel {
+            border: 1px solid #333;
+            background: #FFF;
+        }
+        #close {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            background: url(../images/close2.png) no-repeat -25px 0;
+            width: 30px;
+            height: 30px;
+            text-indent: -9999px;
+            padding: 0 10px 0 0;
+            cursor: pointer;
+            margin: -8px 0 0 0;
+        }
+    </style>
+}
+<div class="container">
+    <!-- Modal -->
+    <div class="modal ljModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-header-lj">
+                    <div id="close" data-dismiss="modal" aria-hidden="true"></div>
+                    <h4 class="nstitle"> <img alt="Journal_Voucher_logo" src="~/image/Journal_Voucher.png" width="20" height="20"> List of Journal Voucher</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>Voucher List</label>
+                            <div class="panel">
+                                <div class="panel-body" style="padding:0px 0px 0px 10px;">
+                                    @Html.DropDownList("VoucherList", null, new { @size = "6", @style = "height: 150px; width: 217px; margin-left: -10px; border: none;" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <div class="col-sm-4">
+                                        <label>Year</label>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <select class="form-control input-sm" id="Year">
+                                            <option></option>
+                                            @for (var i = 2000; i <= DateTime.Now.Year; i++)
+                                            {
+                                                <option value="@i">@i</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" style="margin:10px -15px 0px -15px;">
+                                <div class="col-sm-12">
+                                    <div class="col-sm-4">
+                                        <label>Month</label>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <select id="Month" class="form-control input-sm pull-right">
+                                            <option value="1">January</option>
+                                            <option value="2">February</option>
+                                            <option value="3">March</option>
+                                            <option value="4">April</option>
+                                            <option value="5">May</option>
+                                            <option value="6">June</option>
+                                            <option value="7">July</option>
+                                            <option value="8">August</option>
+                                            <option value="9">September</option>
+                                            <option value="10">October</option>
+                                            <option value="11">November</option>
+                                            <option value="12">December</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row" style="margin:10px -15px 5px -15px;">
+                                <div class="col-sm-12">
+                                    <div style="margin:10px 0px 5px 0px;">
+                                        <button id="show" type="button" class="btn btn-info btn-block">Show</button>
+                                    </div>
+                                    <div style="margin:10px 0px 5px 0px;">
+                                        <button id="exit" type="button" class="btn btn-info btn-block">Exit</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- Modal -->
+</div>
+@section scripts
+{
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#show').prop('disabled', true);
+            //$(document).click(function () {
+            //    $('#success').modal({
+            //        backdrop: 'static',
+            //        keyboard: false
+            //    });
+            //});
+            //$(document).on('keydown', function (e) {
+            //    if (e.keyCode == 27)
+            //        $('#success').modal('show');
+            //});
+            $('#success').modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+            $("#close, #exit").on('click', function () {
+                $('#success').modal('hide');
+            });
+            var today = new Date();
+            $("#Year option[value='" + today.getFullYear() + "']").prop('selected', true);
+            $("#Month option[value='" + (today.getMonth() + 1) + "']").prop('selected', true);
+            $("#Year, #Month").on('change', function () {
+                getVouchers();
+            });
+            centerSuccess();
+            function centerSuccess() {
+                $('.modal').css('display', 'block');
+                var $dialog = $('.modal').find(".modal-dialog");
+                var offset = ($(window).height() - $dialog.height()) / 2;
+                // Center modal vertically in window
+                $dialog.css("margin-top", offset);
+            }
+
+            $(window).on("resize", function () {
+                centerSuccess();
+            });
+            function getVouchers() {
+                var jsonData = { year: $("#Year").val(), month: $("#Month").val() };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetVouchers", "Journal")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        $("#VoucherList").html('');
+                        $.each(data, function (key, value) {
+                            $("#VoucherList").append('<option value="' + value.Id + '">' + value.InvoiceNo + '</option>');
+                        });
+                    },
+                });
+            }
+
+            $("#VoucherList").on('change', function () {
+                $("#show").prop('disabled', false);
+            });
+
+            $("#show").on('click', function () {
+                var jsonData = { voucherId: $("#VoucherList").val() };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetVoucherReport", "Journal")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        if (data == true)
+                            window.open('.././ReportingForms/CRViewer.aspx');
+                    },
+                });
+            });
+        });
+    </script>
+}

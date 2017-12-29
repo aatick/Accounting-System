@@ -1,0 +1,1467 @@
+﻿@using AccountingSystem.Models
+@using AccountingSystem.Models.ViewModel
+
+@{
+    ViewBag.Title = "Online Jobs";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+}
+
+@section styles
+{
+    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/dataTables.jqueryui.css" rel="stylesheet" />
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <style>
+        #from, #to, #invoiceNo, #price, #billingName {
+            background: white;
+            cursor: default;
+        }
+
+        #invoiceTable tbody tr, #jobTable tbody tr, #companyTable tbody tr {
+            cursor: pointer;
+        }
+
+        .DataTables_sort_icon {
+            display: none;
+        }
+
+        .modal-header-gci {
+            color: #fff;
+            border-bottom: 1px solid #eee;
+            background-color: #005BF1;
+            -webkit-border-radius: 5px 5px 0px 0px;
+            -moz-border-radius: 5px 5px 0px 0px;
+            border-radius: 5px 5px 0px 0px;
+            padding: 0px 5px 0px 5px;
+            margin: -10px 0px 0px 0px;
+        }
+
+            .modal-header-gci h4 {
+                color: #fff;
+                line-height: 28px;
+                font-size: 15px;
+                margin: 2px 0px 0px 0px;
+            }
+
+            .modal-header-gci .close {
+                color: #fff;
+                font-size: 20px;
+                line-height: 28px;
+            }
+
+        .gciModal .modal-dialog {
+            width: 800px;
+        }
+
+        .gciModal .modal-body {
+            background: #e0e0e0;
+            padding-bottom: 0px;
+        }
+
+            .gciModal .modal-body label {
+                font-weight: normal;
+            }
+
+            .gciModal .modal-body .panel-body {
+                padding: 5px 15px 5px 15px;
+            }
+
+                .gciModal .modal-body .panel-body p {
+                    line-height: 14px;
+                }
+
+        .Purple {
+            font-weight: normal;
+            color: #5f1d65;
+        }
+
+        .lemon {
+            background: #c1ffc0;
+            border: 1px solid #576f57;
+        }
+
+        .light_purple {
+            background: #c0c0ff;
+            border: 1px solid #59657f;
+        }
+
+        .light_gray {
+            background: #ffdfc1;
+            border: 1px solid #696559;
+        }
+
+        .ui-datepicker {
+            z-index: 1151 !important;
+        }
+
+        .blue_text {
+            color: #0002c2;
+        }
+
+        .green_text {
+            color: #028003;
+        }
+
+        .gray_text {
+            color: #7c0200;
+        }
+
+        .oneline {
+            max-height: 16px;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        table.dataTable {
+            border-collapse: collapse;
+        }
+
+        table thead tr th {
+            border: 1px solid #111;
+        }
+
+        .clz {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            background: url(../images/close2.png) no-repeat -25px 0;
+            width: 30px;
+            height: 30px;
+            text-indent: -9999px;
+            padding: 0 10px 0 0;
+            cursor: pointer;
+            margin: -8px 0 0 0;
+        }
+
+        .acenter {
+            text-align: center;
+        }
+
+        .aright {
+            text-align: right;
+        }
+
+        .left {
+            text-align: left;
+        }
+    </style>
+}
+<div class="form-horizontal" style="padding: 0;margin-top: 4px;" id="Ojob">
+    <div class="form-group-sm">
+        <div class="col-sm-12">
+            <div class="col-sm-12" style="background-color: #6A6C6F;">
+                <center><h3 style="padding-top: 0; margin-top: 0; padding-bottom: 0; margin-bottom: 0; color: white;">Online Jobs<img alt="cross_img" src="~/images/cross-button.jpg" height="20" width="20" class="pull-right" style="padding: 0; margin: 3px -12px 0 0; cursor: pointer;" id="cross" /></h3></center>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group-sm">
+        <div class="col-sm-12" style=" margin-top: 10px; padding-left: 0;padding-right: 0;">
+            <div class="col-sm-5">
+                <label class="control-label col-sm-1" style="padding: 5px 5px 5px 0; margin-right: 5px;">From</label>
+                <div class="col-sm-4" style="padding: 0 5px 0 0;">
+                    <input type="text" readonly class="form-control input-sm select" id="from" />
+                </div>
+                <label class="control-label col-sm-offset-1 col-sm-1" style="padding: 5px 5px 5px 0;">To</label>
+                <div class="col-sm-4" style="padding: 0;">
+                    <input type="text" readonly class="form-control input-sm select" id="to" />
+                </div>
+            </div>
+            <div class="col-sm-7">
+                <div class="col-sm-3" style="padding: 0">
+                    <input type="button" class="btn btn-block btn-info btn-sm" id="download" value="Download Jobs" />
+                </div>
+                <div class="col-sm-offset-6 col-sm-3" style="padding: 0;">
+                    <a type="button" role="button" class="btn btn-block btn-info btn-sm" id="verify" href="#">Company Verification</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group-sm">
+        <div class="col-sm-12" style="margin-top: 10px;padding-left: 0;padding-right: 0;">
+            <div class="col-sm-2 pull-left">
+                <label class="control-label">List of Companies</label>
+            </div>
+            <div class="col-sm-offset-3 col-sm-2 pull-left" id="down" hidden>
+                <label class="control-label" style="font-size: 20px;">Downloading...</label>
+            </div>
+            <div class="col-sm-2 pull-right">
+                <span style="border: 1px solid gray; background: #C5C69D; height: 20px; width: 20px; margin: 3px 5px;" class="pull-left"></span>
+                <label class="control-label pull-left">Paid Online</label>
+            </div>
+        </div>
+        <div class="col-sm-12" style="padding-left: 0; padding-right: 0;">
+            <div class="col-sm-12" id="companyDiv">
+                <table id="companyTable" class="table table-bordered table-responsive" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Sl#</th>
+                            <th>CP Id</th>
+                            <th>AccId</th>
+                            <th class="acenter">Name Of Company</th>
+                            <th>Job Posted</th>
+                            <th>Total Job Posted</th>
+                            <th>OPID</th>
+                            <th>AddType</th>
+                            <th>Company Status</th>
+                            <th>PostingDate</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <center>
+                <div id="spinner" hidden style="margin-top: 50px; margin-bottom: 50px;">
+                    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+                </div>
+            </center>
+        </div>
+    </div>
+
+    <div class="form-group-sm">
+        <div class="col-sm-12" style="margin-top: 10px;padding-right: 0;padding-left: 0;">
+            <div class="col-sm-5 pull-left">
+                <label class="control-label">Job titles of <span id="company" class="control-label"></span></label>
+            </div>
+            <div class="col-sm-5 pull-right" style="padding-right: 0;">
+                <label class="col-sm-5 control-label pull-left" style="text-align: left; padding-left: 0;">Invoices to Upload</label>
+                <div class="col-sm-7 pull-left">
+                    <select id="serviceList" class="form-control input-sm">
+                        <option value="" data-serviceid="0"></option>
+                        @foreach (Service service in ViewBag.Services)
+                        {
+                            <option value="@service.LedgerId" data-serviceid="@service.ServiceId">@service.ServiceName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12" style="margin-top: 5px;padding-right: 0; padding-left: 0;">
+            <div class="col-sm-7">
+                <table id="jobTable" class="table table-bordered" style="width: 100%">
+                    <thead>
+                        <tr>
+                            <th>Sl#</th>
+                            <th class="acenter">Job title</th>
+                            <th>Type</th>
+                            <th>Posted</th>
+                            <th>ValidDate</th>
+                            <th>JpId</th>
+                            <th>CompanyName</th>
+                            <th>AddType</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="col-sm-5">
+                <table id="invoiceTable" class="table table-bordered table-responsive">
+                    <thead>
+                        <tr>
+                            <th class="acenter">Sl#</th>
+                            <th class="acenter">Invoice No</th>
+                            <th class="acenter">Job Title</th>
+                            <th class="acenter">Price</th>
+                            <th>Id</th>
+                            <th>Sales Price</th>
+                            <th>Submitted</th>
+                            <th>OpId</th>
+                            <th>Add Type</th>
+                            <th>Ledger Id</th>
+                            <th>BillingContact</th>
+                            <th>Jp Id</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group-sm">
+        <div class="col-sm-12" style=" margin-top: 20px;padding-left: 0;padding-right: 0;">
+            <div class="col-sm-12" style="padding-left: 0;">
+                <label class="control-label col-sm-1" style="padding: 5px 5px 5px 0;">Invoice No</label>
+                <div class="col-sm-3" style="padding: 0 5px 0 0;">
+                    <input type="text" readonly class="form-control input-sm" id="invoiceNo" />
+                </div>
+                <label class="control-label col-sm-1" style="padding: 5px 5px 5px 0;">Billing To</label>
+                <div class="col-sm-3" style="padding: 0;">
+                    <input type="text" readonly class="form-control input-sm" id="billingName" />
+                </div>
+                <label class="control-label col-sm-2" style="padding: 5px 5px 5px 0;">Invoice Price</label>
+                <div class="col-sm-2" style="padding: 0;">
+                    <input type="text" readonly class="form-control input-sm" id="price" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group-sm">
+        <div class="col-sm-12" style=" margin-top: 10px; margin-bottom: 10px; padding-left: 0;padding-right: 0;">
+            <div class="col-sm-2">
+                <input type="button" id="refresh" class="btn btn-block btn-primary" value="Refresh" />
+            </div>
+            <div class="col-sm-2">
+                <input type="button" id="make" class="btn btn-block btn-primary" value="Make Sale" />
+            </div>
+            <div class="col-sm-2">
+                <input type="button" id="delete" class="btn btn-block btn-primary" value="Delete" />
+            </div>
+            <div class="col-sm-2">
+                <input type="button" id="upload" class="btn btn-block btn-primary" value="Upload Invoice" />
+            </div>
+            <div class="col-sm-2 pull-right">
+                <a role="button" id="close" class="btn btn-block btn-primary">Exit</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal gciModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-header-gci">
+                <div data-dismiss="modal" aria-hidden="true" class="clz"></div>
+                <h4 class="nstitle"> <i class="glyphicon glyphicon-saved"></i>  Checking Companies and giving companies IDs</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <label><ins>View Company list from online</ins></label>
+                                <div class="radio" style="margin:-5px 0px 0px 0px;">
+                                    <label><input type="radio" name="radio" id="newradio" value="0" checked>New</label>
+                                    <label style="margin:0px 0px 0px 5px;"><input type="radio" name="radio" id="allradio" value="1">All</label>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <button type="button" class="btn btn-info btn-sm pull-right" id="showDetail">Show details from online</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <select class="form-control input-sm" id="onlineCompanies" size="6" style="height: 96px;"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <label>List of Companies in local database</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <button type="button" class="btn btn-info btn-sm pull-right" data-dismiss="modal" aria-hidden="true">Exit</button>
+                            </div>
+                        </div>
+                        <div class="row" style="margin:8px -15px 0px -15px;">
+                            <div class="col-sm-12">
+                                <select class="form-control input-sm" id="localCompanies" size="6" style="height: 96px;"></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="margin:5px -15px 0px -15px;">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="Purple">Details of online registered company</label>
+                                <div class="panel panel-default">
+                                    <div class="panel-body lemon">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <p class="text-center blue_text" id="OName"><strong>Name of company</strong></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <p><strong>Address:</strong></p>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <p id="OAddress" style="padding-top: 0;margin-top: 0; height: 40px;">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <p><strong>City:</strong></p>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <p id="OCity" style="margin-left: -25px;" class="oneline">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <p><strong>Phone:</strong></p>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <p id="OPhone" style="margin-left: -9px;" class="oneline">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <p><strong>Email:</strong></p>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <p id="OEmail" style="margin-left: -14px;" class="oneline">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-5">
+                                                <p><strong>Contact Person:</strong></p>
+                                            </div>
+                                            <div class="col-sm-7" style="margin-left: -30px;">
+                                                <p id="OContactPerson" style="margin-left: -8px;" class="oneline">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <p><strong>Designation:</strong></p>
+                                            </div>
+                                            <div class="col-sm-8">
+                                                <p id="ODesignation" style="margin-left: -30px;" class="oneline">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <p><strong>Account created on:</strong></p>
+                                            </div>
+                                            <div class="col-sm-6" style="margin-left: -20px;">
+                                                <p id="OCreatedDate" class="oneline" style="margin-left: -20px;" class="oneline">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label class="gray_text">Details of local inserted company</label>
+                                <div class="panel panel-default">
+                                    <div class="panel-body light_purple">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <p class="text-center gray_text" id="LName"><strong>Name of company</strong></p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <p><strong>Address:</strong></p>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <p id="LAddress" style="padding-top: 0;margin-top: 0; height: 40px;">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <p><strong>City:</strong></p>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <p id="LCity" class="oneline" style="margin-left: -25px;">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <p><strong>Phone:</strong></p>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <p id="LPhone" class="oneline" style="margin-left: -9px;">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-2">
+                                                <p><strong>Email:</strong></p>
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <p id="LEmail" class="oneline" style="margin-left: -14px;">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-5">
+                                                <p><strong>Contact Person:</strong></p>
+                                            </div>
+                                            <div class="col-sm-7" style="margin-left: -30px;">
+                                                <p id="LContactPerson" class="oneline" style="margin-left: -8px;">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <p><strong>Designation:</strong></p>
+                                            </div>
+                                            <div class="col-sm-8">
+                                                <p id="LDesignation" class="oneline" style="margin-left: -30px;">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <p><strong>Local Company Id:</strong></p>
+                                            </div>
+                                            <div class="col-sm-6" style="margin-left: -45px;">
+                                                <p id="LId" class="oneline" style="margin-left: -6px;">&nbsp;</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="row" style="margin:-22px -15px 0px -15px;">
+                            <div class="col-sm-12">
+                                <div class="panel panel-default">
+                                    <div class="panel-body light_gray">
+                                        <div class="row">
+                                            <div class="col-sm-10">
+                                                <p class="green_text"><strong>If onLine company is not found in local company list then you must add information of onLine company into local company database (Click Insert)</strong></p>
+                                            </div>
+                                            <div class="col-sm-2" hidden>
+                                                <button type="button" class="btn btn-info btn-sm pull-right" id="in">&nbsp; Insert&nbsp;</button>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-8">
+                                                <p class="gray_text"><strong>If onLine company information is exist in local company list but onLine company is showed as 'New' then write the ID number of local company and click Update</strong></p>
+                                            </div>
+                                            <div class="col-sm-2 form-group-sm">
+                                                <input id="accId" type="text" class="form-control input-sm">
+                                            </div>
+                                            <div class="col-sm-2" hidden>
+                                                <button type="button" class="btn btn-info btn-sm pull-right" id="up">Update</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- Modal -->
+@section scripts
+{
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#from, #to").datepicker({
+                changeMonth: true,
+                changeYear: true
+            });
+            var con = '@ViewBag.Connection';
+            getOnlineCompanyList(0);
+            getLocalCompanyList();
+            $("#verify").on('click', function () {
+                $('select, input:text').val('');
+                $('#OAddress, #OCity, #OPhone, #OContactPerson, #OEmail, #ODesignation, #OCreatedDate, #LAddress, #LCity, #LPhone, #LContactPerson, #LEmail, #LDesignation, #LId').html('&nbsp;');
+                $('#LName, #OName').html('Name Of Company');
+                $("#showDetail, #in, #up").prop('disabled', true);
+                $('#success').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                centerSuccess();
+            });
+            $('input:radio[name="radio"]').on('change', function () {
+                getOnlineCompanyList($('input:radio[name="radio"]:checked').val());
+                $("#up, #in").prop('disabled', true);
+            });
+            $("#up, #in").prop('disabled', true);
+
+            function getOnlineCompanyList(radio) {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetOnlineCompanyList", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ radio: radio }),
+                    dataType: "json",
+                    success: function (data) {
+                        $("#onlineCompanies").html('');
+                        $.each(data, function (key, value) {
+                            $("#onlineCompanies").append('<option value="' + value.CP_Id + '" data-accid="' + value.Id + '">' + value.Name + '</option>');
+                        });
+                    },
+                });
+            }
+
+            function getLocalCompanyList() {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetLocalCompanyList", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        $("#localCompanies").html('');
+                        $.each(data, function (key, value) {
+                            $("#localCompanies").append('<option value="' + value.Id + '">' + value.Name + '</option>');
+                        });
+                    },
+                });
+            }
+
+            $('#onlineCompanies').on('dblclick', function () {
+                getOnlineCompanyInfo($("#onlineCompanies option:selected").val());
+            });
+
+            $('#onlineCompanies').on('change', function () {
+                $("#showDetail").prop('disabled', false);
+            });
+
+            $("#showDetail").on('click', function () {
+                getOnlineCompanyInfo($("#onlineCompanies option:selected").val());
+            });
+
+            function getOnlineCompanyInfo(cpId) {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetOnlineCompanyInfo", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ cpId: cpId, connectionString: con }),
+                    dataType: "json",
+                    success: function (data) {
+                        $('#OName').html(data.Name);
+                        $("#OAddress").html(data.Address);
+                        $("#OCity").html(data.City);
+                        $("#OPhone").html(data.Phone);
+                        $("#OContactPerson").html(data.ContactPerson);
+                        $("#OEmail").html(data.Email);
+                        $("#ODesignation").html(data.Designation);
+                        $("#OCreatedDate").html(data.AccCreatedDate);
+                        $("#accId").val(data.Id);
+                        $("#showDetail").prop('disabled', true);
+                        if ($("#onlineCompanies option:selected").data('accid') != 0) {
+                            $('#localCompanies option[value="' + $("#onlineCompanies option:selected").data('accid') + '"]').prop('selected', true);
+                            getLocalCompanyInfo($("#onlineCompanies option:selected").data('accid'));
+                        } else {
+                            $('#localCompanies').val('');
+                            $('#LName').html('Name Of Company');
+                            $("#LAddress").html('&nbsp;');
+                            $("#LCity").html('&nbsp;');
+                            $("#LPhone").html('&nbsp;');
+                            $("#LContactPerson").html('&nbsp;');
+                            $("#LEmail").html('&nbsp;');
+                            $("#LDesignation").html('&nbsp;');
+                            $("#LId").html('&nbsp;');
+                        }
+                        $("#up, #in").prop('disabled', false);
+                    },
+                });
+            }
+
+            $("#showDetail").prop('disabled', true);
+            $("#localCompanies").on('change', function () {
+                getLocalCompanyInfo($("#localCompanies option:selected").val());
+            });
+
+            function getLocalCompanyInfo(id) {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetLocalCompanyInfo", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({ cpId: id }),
+                    dataType: "json",
+                    success: function (data) {
+                        $('#LName').html(data.Name);
+                        $("#LAddress").html(data.Address);
+                        $("#LCity").html(data.City);
+                        $("#LPhone").html(data.Phone);
+                        $("#LContactPerson").html(data.ContactPerson);
+                        $("#LEmail").html(data.Email);
+                        $("#LDesignation").html(data.Designation);
+                        $("#LId").html(data.Id);
+                    },
+                });
+            }
+
+            $("#in").on('click', function () {
+                var action = "INSERT";
+                var cpId = $("#onlineCompanies option:selected").val();
+                var name = $("#OName").html();
+                var address = $("#OAddress").html();
+                var city = $("#OCity").html();
+                var phone = $("#OPhone").html();
+                var email = $("#OEmail").html();
+                var cPerson = $("#OContactPerson").html();
+                var designation = $("#ODesignation").html();
+                var companyId = $("#accId").val();
+                if ('@accessRights.Contains("1")' != 'True') {
+                    var m1 = new Messi('Sorry, You have no permission to add a record.',
+                    {
+                        title: 'Alert',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else if (cpId == 0) {
+                    var m2 = new Messi("You must select an online registered company, then double click on that item<br/><br/>or press '<strong>Enter</strong>' or press '<strong>Show details from Online</strong>' button and then press '<strong>Insert</strong>' button.",
+                    {
+                        title: 'Alert',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("CheckCompany", "Sale")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ name: name }),
+                        dataType: "json",
+                        success: function (data) {
+                            if (data.length != 0) {
+                                var m10 = new Messi('This company is already exist in local database.<br/><br/>You can not add a duplicate company in local database.',
+                                {
+                                    title: 'Alert',
+                                    modal: true,
+                                    buttons: [
+                                        { id: 0, label: 'OK', val: 'X' }
+                                    ]
+                                });
+                                $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                            } else if (data.length == 0) {
+                                var jsonData = { action: action, cpId: cpId, name: name, address: address, city: city, phone: phone, email: email, cPerson: cPerson, designation: designation, companyId: companyId };
+                                $.ajax({
+                                    type: "Post",
+                                    url: '@Url.Action("InsertUpdateOnlineCompany", "Sale")',
+                                    contentType: "application/json; charset=utf-8",
+                                    data: JSON.stringify(jsonData),
+                                    dataType: "json",
+                                    success: function (dt) {
+                                        if (dt == true) {
+                                            var m = "";
+                                            var rd = $('input:radio[name="radio"]:checked').val();
+                                            if (rd == 0) {
+                                                m = "Now refresh the online company list. This company is not showed this time.";
+                                            }
+                                            $('input:radio[name="radio"][value="1"]').prop('checked', true);
+                                            getOnlineCompanyList(1);
+                                            $('#onlineCompanies option[value="' + cpId + '"]').prop('selected', true);
+                                            getLocalCompanyList();
+                                            if (rd == 0) {
+                                                getOnlineCompanyInfo(cpId);
+                                            }
+                                            var m11 = new Messi("All information of the company '" + name + "' has been inserted successfully.<br/>And also updated the online database.<br/>" + m,
+                                            {
+                                                title: 'Alert',
+                                                modal: true,
+                                                buttons: [
+                                                    { id: 0, label: 'OK', val: 'X' }
+                                                ]
+                                            });
+                                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                        }
+                                    },
+                                });
+                            }
+                        },
+                    });
+                }
+            });
+
+            $("#up").on('click', function () {
+                var action = "UPDATE";
+                var cpId = $("#onlineCompanies option:selected").val();
+                var name = $("#OName").html();
+                var address = $("#OAddress").html();
+                var city = $("#OCity").html();
+                var phone = $("#OPhone").html();
+                var email = $("#OEmail").html();
+                var cPerson = $("#OContactPerson").html();
+                var designation = $("#ODesignation").html();
+                var companyId = $("#accId").val();
+                if ('@accessRights.Contains("2")' != 'True') {
+                    var m0 = new Messi('Sorry, You have no permission to update a record.',
+                    {
+                        title: 'Alert',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else if ($("#accId").val() == 0 || $("#accId").val() == "") {
+                    var m6 = new Messi("You must give an ID number of local registered company<br/>which matched with selected online registered company.",
+                    {
+                        title: 'Alert',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else if (!$.isNumeric(companyId)) {
+                    var m66 = new Messi("Give a numeric ID number.",
+                    {
+                        title: 'Alert',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var c = 0;
+                    var msg = new Messi("Are you sure that this online registered company and the local company of your given ID is same?",
+                    {
+                        title: 'Confirm',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'Yes', val: 'Y' },
+                            { id: 1, label: 'No', val: 'N' }
+                        ],
+                        callback: function (vv) {
+                            if (c == 1)
+                                return false;
+                            if (vv == 'Y') {
+                                var iid = parseInt(companyId);
+                                $.ajax({
+                                    type: "Post",
+                                    url: '@Url.Action("CheckOnlineCompany", "Sale")',
+                                    contentType: "application/json; charset=utf-8",
+                                    data: JSON.stringify({ id: iid }),
+                                    dataType: "json",
+                                    success: function (dd) {
+                                        console.log("cpId: " + cpId);
+                                        if (dd.CP_Id != 0 && dd.CP_Id != cpId) {
+                                            var d = 0;
+                                            var msg1 = new Messi("The company of given ID number indicates another online company.<br/>Do you still want to update?",
+                                            {
+                                                title: 'Confirm',
+                                                modal: true,
+                                                buttons: [
+                                                    { id: 0, label: 'Yes', val: 'Y' },
+                                                    { id: 1, label: 'No', val: 'N' }
+                                                ],
+                                                callback: function (conf) {
+                                                    if (d == 1)
+                                                        return false;
+                                                    if (conf == 'Y') {
+                                                        var jsonData = { action: action, cpId: cpId, name: name, address: address, city: city, phone: phone, email: email, cPerson: cPerson, designation: designation, companyId: companyId };
+                                                        $.ajax({
+                                                            type: "Post",
+                                                            url: '@Url.Action("InsertUpdateOnlineCompany", "Sale")',
+                                                            contentType: "application/json; charset=utf-8",
+                                                            data: JSON.stringify(jsonData),
+                                                            dataType: "json",
+                                                            success: function (dat) {
+                                                                if (dat == true) {
+                                                                    var m33 = new Messi("Update completed successfully.",
+                                                                    {
+                                                                        title: 'Success',
+                                                                        modal: true,
+                                                                        buttons: [
+                                                                            { id: 0, label: 'OK', val: 'X' }
+                                                                        ]
+                                                                    });
+                                                                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                                                }
+                                                            },
+                                                        });
+                                                        d = 1;
+                                                    }
+                                                    return true;
+                                                }
+                                            });
+                                        } else {
+                                            var json = { action: action, cpId: cpId, name: name, address: address, city: city, phone: phone, email: email, cPerson: cPerson, designation: designation, companyId: companyId };
+                                            $.ajax({
+                                                type: "Post",
+                                                url: '@Url.Action("InsertUpdateOnlineCompany", "Sale")',
+                                                contentType: "application/json; charset=utf-8",
+                                                data: JSON.stringify(json),
+                                                dataType: "json",
+                                                success: function (dat) {
+                                                    if (dat == true) {
+                                                        var m33 = new Messi("Update completed successfully.",
+                                                        {
+                                                            title: 'Success',
+                                                            modal: true,
+                                                            buttons: [
+                                                                { id: 0, label: 'OK', val: 'X' }
+                                                            ]
+                                                        });
+                                                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                                    }
+                                                },
+                                            });
+                                        }
+                                    },
+                                });
+                                c = 1;
+                            }
+                            return true;
+                        }
+                    });
+                }
+            });
+
+            var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+            $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+
+            function centerSuccess() {
+                if ($(".modal").is(':visible')) {
+                    $(".modal").css('display', 'block');
+                    var $dialog = $('.modal').find(".modal-dialog");
+                    var offset = ($(window).height() - $dialog.height()) / 2;
+                    // Center modal vertically in window
+                    $dialog.css("margin-top", offset);
+                }
+            }
+
+            $(window).on("resize", function () {
+                if ($(".modal").is(':visible')) {
+                    centerSuccess();
+                }
+            });
+
+            //$('.modal-backdrop').click(function () {
+            //    if ($("#success").is(':visible'))
+            //        $('#success').modal('show');
+            //});
+            //$(".modal-backdrop").on('keydown', function (e) {
+            //    if ($("#success").is(':visible')) {
+            //        if (e.keyCode == 27)
+            //            $('#success').modal('show');
+            //    }
+            //});
+
+            function pad(str, max) {
+                str = str.toString();
+                return str.length < max ? pad("0" + str, max) : str;
+            }
+            var today = new Date();
+            var toDate = pad((today.getMonth() + 1), 2) + "/" + pad(today.getDate(), 2) + "/" + today.getFullYear();
+            var preDate = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            var prevDate = pad((preDate.getMonth() + 1), 2) + "/" + pad(preDate.getDate(), 2) + "/" + preDate.getFullYear();
+            $("#to").val(toDate);
+            $("#from").val(prevDate);
+            $("#make, #delete, #upload").prop('disabled', true);
+            var companyList = $("#companyTable").DataTable({
+                "bFilter": false,
+                "bInfo": false,
+                "scrollY": "140px",
+                "scrollCollapse": true,
+                "paging": false,
+                "jQueryUI": true,
+                columnDefs: [
+                    { sortable: false, targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
+                    { visible: false, targets: [2, 6, 7, 9] },
+                    { "width": "4%", "targets": [0] },
+                    { "width": "7%", "targets": [1] },
+                    { "width": "39%", "targets": [3] },
+                    { "width": "15%", "targets": [4] },
+                    { "width": "20%", "targets": [5] },
+                    { "width": "15%", "targets": [8] },
+                    { className: "acenter", targets: [0, 1, 2, 4, 5, 6, 7, 8] }
+                ]
+            });
+            var jobList = $("#jobTable").DataTable({
+                "bFilter": false,
+                "bInfo": false,
+                "scrollY": "105px",
+                "scrollCollapse": true,
+                "paging": false,
+                "jQueryUI": true,
+                "aoColumns": [
+                    { "bSortable": true, "sType": "nullable" }
+                ],
+                columnDefs: [
+                    { sortable: false, targets: [1, 2, 3, 4, 5, 6, 7] },
+                    { visible: false, targets: [5, 6, 7] },
+                    { "width": "10%", "targets": [0] },
+                    { "width": "50%", "targets": [1] },
+                    { "width": "10%", "targets": [2] },
+                    { "width": "15%", "targets": [3]},
+                    { "width": "15%", "targets": [4] },
+                    { className: "acenter", targets: [0, 2, 4, 5, 6, 7, 3] }
+                ]
+            });
+
+
+            var invoiceList = $("#invoiceTable").DataTable({
+                "bFilter": false,
+                "bInfo": false,
+                "scrollY": "105px",
+                "scrollCollapse": true,
+                "paging": false,
+                "jQueryUI": true,
+                "sScrollXInner":"150%",
+                "aoColumns": [
+                    { "bSortable": true, "sType": "nullable" }
+                ],
+                columnDefs: [
+                    { sortable: false, targets: [0, 1, 2, 3, 4, 5, 6, 7] },
+                    { visible: false, targets: [2, 4, 5, 6, 7, 8, 9, 10, 11] },
+                    { "width": "10%", "targets": [0] },
+                    { "width": "70%", "targets": [1] },
+                    { "width": "20%", "targets": [3] },
+                    { "width": "70%", "targets": [2] },
+                    { className: "acenter", targets: [0] },
+                    { className: "aright", targets: [3] },
+                    { className: "aleft", targets: [1, 2] }
+                ]
+            });
+
+            $("#refresh").on('click', function () {
+                $("#companyDiv").hide();
+                $("#spinner").show();
+                $("#down label").html('Retrieving...');
+                $("#down").show();
+                refresh();
+                $("#spinner").hide();
+                $("#down label").html('Downloading...');
+                $("#down").hide();
+                $("#companyDiv").show();
+            });
+
+            function refresh() {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetOnlineJobList", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        companyList.clear().draw();
+                        $.each(data, function (key, value) {
+                            companyList.row.add([value.Serial, value.CpId, value.AccId, value.Company, value.JobPosted, value.TotalJobPosted, value.OpId, value.AddType, value.CompanyStatus, value.Date]).draw();
+                        });
+                        setColor();
+                        invoiceClear();
+                        jobClear();
+                        $("#serviceList option[value='']").prop('selected', true);
+                        $("input:text:not(#from, #to)").val('');
+                        $("#make, #delete, #upload").prop('disabled', true);
+                        if (data.length < 9) {
+                            for (var i = 1; i <= 9 - data.length; i++) {
+                                companyList.row.add(["", "", "", "", "", "", "", "", "", ""]).draw();
+                            }
+                        }
+                    },
+                });
+            }
+            
+            companyClear();
+            jobClear();
+            invoiceClear();
+            $('.dataTables_scrollBody').css('overflow-y', 'scroll').css('overflow-x', 'hidden');
+            function companyClear() {
+                companyList.clear().draw();
+                for (var i = 1; i <= 9; i++) {
+                    companyList.row.add(["", "", "", "", "", "", "", "", "",""]).draw();
+                }
+            }
+
+            function jobClear() {
+                jobList.clear().draw();
+                for (var i = 1; i <= 7; i++) {
+                    jobList.row.add(["", "", "", "", "", "", "", ""]).draw();
+                }
+            }
+
+
+            function invoiceClear() {
+                invoiceList.clear().draw();
+                for (var i = 1; i <= 7; i++) {
+                    invoiceList.row.add(["", "", "", "", "", "", "", "", "", "", "", ""]).draw();
+                }
+            }
+
+            function setColor() {
+                $("#companyTable tbody tr").each(function () {
+                    if (companyList.cell($(this), 6).data() > 0 || companyList.cell($(this), 7).data() > 0) {
+                        if (companyList.cell($(this), 7).data() > 0)
+                            $(this).css('background', '#C5C69D');
+                        else
+                            $(this).css('background', '#C0E0FF');
+                    }
+                });
+            }
+
+            $.fn.dataTableExt.oSort['nullable-asc'] = function (a, b) {
+                if (a == '')
+                    return 1;
+                else if (b == '')
+                    return -1;
+                else {
+                    var ia = parseInt(a);
+                    var ib = parseInt(b);
+                    return (ia < ib) ? -1 : ((ia > ib) ? 1 : 0);
+                }
+            }
+
+            $.fn.dataTableExt.oSort['nullable-desc'] = function (a, b) {
+                if (a == '')
+                    return 1;
+                else if (b == '')
+                    return -1;
+                else {
+                    var ia = parseInt(a);
+                    var ib = parseInt(b);
+                    return (ia > ib) ? -1 : ((ia < ib) ? 1 : 0);
+                }
+            }
+            $('#companyTable tbody').on('click', 'tr', function () {
+                if (companyList.cell($(this), 0).data() != "") {
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                        jobClear();
+                        invoiceClear();
+                        setColor();
+                    } else {
+                        if (companyList.cell($('tr.selected'), 6).data() > 0 || companyList.cell($('tr.selected'), 7).data() > 0) {
+                            setColor();
+                        }
+                        if (companyList.cell($(this), 6).data() > 0 || companyList.cell($(this), 7).data() > 0) {
+                            $(this).css('background', '');
+                        }
+                        companyList.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+
+                        var jsonData = { cpId: companyList.cell($(this), 1).data(), date: companyList.cell($(this), 9).data() };
+                        $.ajax({
+                            type: "Post",
+                            url: '@Url.Action("GetJobs", "Sale")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(jsonData),
+                            dataType: "json",
+                            success: function (data) {
+                                jobList.clear().draw();
+                                var count = 0;
+                                $.each(data, function (key, value) {
+                                    count++;
+                                    jobList.row.add([count, value.Title, value.Type, value.PostingDate, value.ValidDate, value.JpId, value.CompanyName, value.AddType]).draw();
+                                });
+                                if (data.length < 7) {
+                                    for (var i = 1; i <= 7 - data.length; i++) {
+                                        jobList.row.add(["", "", "", "", "", "", "", ""]).draw();
+                                    }
+                                }
+                                if (data.length == 0) {
+                                    fillInvoiceTable(companyList.cell('tr.selected', 1).data(), '', 0);
+                                } else {
+                                    invoiceClear();
+                                    invoiceList.column(2).visible(false);
+                                    invoiceList.column(1).visible(true);
+                                    fillInfo('', '', '');
+                                }
+
+                                $("#make, #delete, #upload").prop('disabled', true);
+                            },
+                        });
+                    }
+                }
+            });
+
+            function fillInvoiceTable(cpId, sDate, ledgerId) {
+                var jsonData = { cpId: cpId, sDate: sDate, ledgerId: ledgerId };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetInvoices", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        var count = 0;
+                        invoiceList.clear().draw();
+                        $.each(data, function (key, value) {
+                            count++;
+                            invoiceList.row.add([count, value.InvoiceNo, value.Title, value.TotalAmount.toFixed(2), value.Id, value.SalesPrice, value.Submitted, value.OpId, value.AddType, value.LedgerId, value.BillingContact, value.JpId]).draw();
+                        });
+                        if (data.length < 7) {
+                            for (var i = 1; i <= 7 - data.length; i++) {
+                                invoiceList.row.add(["", "", "", "", "", "", "", "", "", "", "", ""]).draw();
+                            }
+                        }
+                        if (cpId > 0) {
+                            invoiceList.column(1).visible(false);
+                            invoiceList.column(2).visible(true);
+                        } else {
+                            invoiceList.column(2).visible(false);
+                            invoiceList.column(1).visible(true);
+                        }
+                        if (data != 0) {
+                            $("#invoiceTable tbody tr:nth-child(1)").addClass('selected');
+                            fillInfo(invoiceList.cell('tr.selected', 1).data(), invoiceList.cell('tr.selected', 10).data(), invoiceList.cell('tr.selected', 3).data());
+                            if (cpId > 0) {
+                                if (invoiceList.cell('tr.selected', 6).data() > 0)
+                                    $("#upload").prop('disabled', true);
+                                else
+                                    $("#upload").prop('disabled', false);
+                            } else
+                                $("#upload").prop('disabled', false);
+                        } else {
+                            $("#upload").prop('disabled', true);
+                        }
+                    },
+                });
+            }
+
+            function fillInfo(invoiceNo, name, price) {
+                $("#invoiceNo").val(invoiceNo);
+                $("#billingName").val(name);
+                $("#price").val(price);
+            }
+
+            $("#serviceList").on('change', function () {
+                if ($(this).val() != "") {
+                    var sDate = "";
+                    if ($(this).val() == 18 || $(this).val() == 44)
+                        sDate = "01/01/2010";
+                    else
+                        sDate = "01/01/2011";
+                    fillInvoiceTable(0, sDate, $(this).val());
+                } else {
+                    invoiceClear();
+                    $("#upload").prop('disabled', true);
+                }
+            });
+
+            $('#invoiceTable tbody').on('click', 'tr', function () {
+                if (invoiceList.cell($(this), 0).data() != "") {
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                        fillInfo();
+                        $("#upload").prop('disabled', true);
+                    } else {
+                        invoiceList.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                        fillInfo(invoiceList.cell('tr.selected', 1).data(), invoiceList.cell('tr.selected', 10).data(), invoiceList.cell('tr.selected', 3).data());
+                        $("#upload").prop('disabled', false);
+                    }
+                }
+            });
+
+            $('#jobTable tbody').on('click', 'tr', function () {
+                if (jobList.cell($(this), 0).data() != "") {
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                        $("#make, #delete").prop('disabled', true);
+                    } else {
+                        jobList.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                        $("#make, #delete").prop('disabled', false);
+                    }
+                }
+            });
+
+            $("#make").on('click', function () {
+                var accId = companyList.cell('tr.selected', 2).data();
+                if (accId > 0) {
+                    var onlinejobId = jobList.cell('tr.selected', 5).data();
+                    var onlineProduct = "";
+                    if (jobList.cell('tr.selected', 2).data() == "Stand-out")
+                        onlineProduct = "Online Job Posting (Stand-out)";
+                    else if (jobList.cell('tr.selected', 2).data() == "Premium")
+                        onlineProduct = "Online Job Posting (Premium)";
+                    else
+                        onlineProduct = "Online Job Posting (Basic)";
+                    var jsonData = { onlineProduct: onlineProduct };
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("GetOnlineLedgerId", "Sale")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(jsonData),
+                        dataType: "json",
+                        success: function (data) {
+                            window.location = '.././Sale/New?onlinejobId=' + onlinejobId + '&onlineLedgerId=' + data + '&companyid=' + accId;
+                        },
+                    });
+                } else {
+                    var msg = new Messi("<p style='text-align: justify;'>The company '" + companyList.cell('tr.selected', 3).data() + "' is new for local database.<br/>You must add the information of this company to local database from another form by clicking<br/>'Check companies & set company ID' button.<br/>Then click 'Make Sales' button to add sales information into database.</p>",
+                    {
+                        title: 'Error',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                }
+            });
+
+            $("#delete").on('click', function () {
+                if ('@accessRights.Contains("3")' != 'True') {
+                    var mm0 = new Messi("Sorry, You have no permission to delete a record.",
+                    {
+                        title: 'User Access Control',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var c = 0;
+                    var msg = new Messi('Are you sure to delete the selected job?',
+                    {
+                        title: 'Confirm',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'Yes', val: 'Y' },
+                            { id: 1, label: 'No', val: 'N' }
+                        ],
+                        callback: function (val) {
+                            if (c == 1)
+                                return false;
+                            if (val == 'Y') {
+                                c = 1;
+                                var jsonData = { jpId: jobList.cell('tr.selected', 5).data() };
+                                $.ajax({
+                                    type: "Post",
+                                    url: '@Url.Action("DeleteOnlineJob", "Sale")',
+                                    contentType: "application/json; charset=utf-8",
+                                    data: JSON.stringify(jsonData),
+                                    dataType: "json",
+                                    success: function (data) {
+                                        if (data == true) {
+                                            var m = new Messi("Delete operation completed successfully.",
+                                            {
+                                                title: 'Success',
+                                                modal: true,
+                                                buttons: [
+                                                    { id: 0, label: 'OK', val: 'X' }
+                                                ]
+                                            });
+                                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                            jobList.row('.selected').remove().draw(false);
+                                            var cnt = 0;
+                                            $("#jobTable tbody tr").each(function () {
+                                                if (jobList.cell($(this), 0).data() != "") {
+                                                    cnt++;
+                                                    jobList.cell($(this), 0).data(cnt);
+                                                }
+                                            });
+                                            if (jobList.cell(0, 0).data() == "")
+                                                companyList.row('.selected').remove().draw(false);
+                                            $("#make, #delete").prop('disabled', true);
+                                        }
+                                    },
+                                });
+                            }
+                            return true;
+                        }
+                    });
+                }
+            });
+
+            $("#download").on('click', function () {
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("IsAllUploaded", "Sale")',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data == false) {
+
+                            var m = new Messi("<p style='text-align: justify; font-size: 12px;'>You made some invoices which had not uploaded. You must upload those Invoices, then you can download new jobs.<br/>To upload invoices, click the '<strong>Refresh</strong>' button. Then find the jobs which has invoice number.<br/>After getting the invoice number, click the '<strong>Send Invoice number to Online</strong>' button.</p>",
+                            {
+                                title: 'Alert',
+                                modal: true,
+                                closebutton: true,
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        } else {
+                            $("#companyDiv").hide();
+                            $("#spinner").show();
+                            $("#down").show();
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("CheckOnlineConnection", "Sale")',
+                                contentType: "application/json; charset=utf-8",
+                                dataType: "json",
+                                success: function (ok) {
+                                    if (ok == true) {
+                                        $.ajax({
+                                            type: "Post",
+                                            url: '@Url.Action("DeleteTmpJobs", "Sale")',
+                                            contentType: "application/json; charset=utf-8",
+                                            dataType: "json",
+                                            success: function (value) {
+                                                if (value == true) {
+                                                    var jsonData = { fromDate: $("#from").val(), toDate: $("#to").val() };
+                                                    $.ajax({
+                                                        type: "Post",
+                                                        url: '@Url.Action("DownloadJobs", "Sale")',
+                                                        contentType: "application/json; charset=utf-8",
+                                                        data: JSON.stringify(jsonData),
+                                                        dataType: "json",
+                                                        success: function (val) {
+                                                            if (val == false) {
+                                                                var m21 = new Messi("<p style='text-align: justify;'>An Online Connection Error has been occured</p>",
+                                                                {
+                                                                    title: 'Error',
+                                                                    modal: true,
+                                                                    buttons: [
+                                                                        { id: 0, label: 'OK', val: 'X' }
+                                                                    ]
+                                                                });
+                                                                $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                                            } else {
+                                                                refresh();
+                                                            }
+                                                            $("#spinner").hide();
+                                                            $("#down").hide();
+                                                            $("#companyDiv").show();
+                                                        },
+                                                    });
+                                                }
+                                            },
+                                        });
+                                    } else {
+                                        var m2 = new Messi("<p style='text-align: justify;'>An Online Connection Error has been occured</p>",
+                                        {
+                                            title: 'Error',
+                                            modal: true,
+                                            buttons: [
+                                                { id: 0, label: 'OK', val: 'X' }
+                                            ]
+                                        });
+                                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                        $("#spinner").hide();
+                                        $("#down").hide();
+                                        $("#companyDiv").show();
+                                    }
+                                },
+                            });
+                        }
+                    },
+                });
+            });
+            $("#close, #cross").on('click', function () {
+                $("#Ojob").remove();
+            });
+            $(window).on('load', function () {
+                setTimeout(resize(), 1000);
+                $(window).trigger('resize');
+            });
+
+            function resize() {
+                $('.footer').css('margin-bottom', '-15px');
+                $('.sidebar1').css('height', ($('.footer').offset().top - $('.sidebar1').offset().top) + 'px');
+            }
+            
+        });
+    </script>
+}
+

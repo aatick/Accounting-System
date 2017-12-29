@@ -1,0 +1,413 @@
+﻿@{
+    ViewBag.Title = "Label Builder";
+}
+@section styles
+{
+    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <style>
+        legend {
+            width: auto;
+            border-bottom: 0px;
+            color: inherit;
+        }
+        ul.pagination {margin-bottom: 0px;}
+        fieldset.schedule-border {
+            font-family: Verdana, Arial, sans-serif;
+            font-size: small;
+            font-weight: normal;
+            border: 1px solid #999999;
+            padding: 0;
+            padding-bottom: 10px;
+        }
+
+        legend.schedule-border {
+            font-size: 90%;
+            color: #888888;
+            background-color: transparent;
+            font-weight: bold;
+            padding-left: 5px;
+            padding-right: 5px;
+            margin: 0;
+        }
+
+        .form-horizontal .control-label {
+            text-align: left;
+        }
+
+        .aright {
+            text-align: right;
+        }
+
+        .acenter {
+            text-align: center;
+        }
+
+        .multiselect {
+            border: solid 1px #c0c0c0;
+            overflow: auto;
+        }
+
+        .multiselect-on {
+            color: #ffffff;
+            background-color: #000099;
+        }
+
+        .ui-datepicker {
+            z-index: 1415 !important;
+        }
+
+        #withCheckbox {
+            min-height: 196px;
+            border: 1px solid gray;
+        }
+    </style>
+
+}
+<div class="form-horizontal" style="padding: 0; margin-top: 4px;" id="CLabel">
+    <div class="form-group">
+        <div class="col-sm-12">
+            <div class="col-sm-12" style="background-color: #6A6C6F;">
+                <center>
+                    <h3 style="padding-top: 0; margin-top: 0; padding-bottom: 0; margin-bottom: 0; color: white;">Label Creation<img alt="cross_img" src="~/images/cross-button.jpg" height="20" width="20" class="pull-right" style="padding: 0; margin: 3px -12px 0 0; cursor: pointer;" id="cross" /></h3>
+                </center>
+            </div>
+        </div>
+    </div>
+    <div class="form-group" style="margin-top: -10px;">
+        <div class="col-sm-6">
+            <fieldset class="col-sm-12 schedule-border" style="padding: 0;margin:0;">
+                <legend class="schedule-border input-sm">Show</legend>
+                <div class="col-sm-4">
+                    <div class="col-sm-12" style="padding-right: 0;">
+                        <input type="radio" style="margin-right: 5px;" id="invoiceList" name="type" value="0" /><span>Invoice List</span>
+                    </div>
+                    <div class="col-sm-12" style="padding-right: 0;">
+                        <input type="radio" style="margin-right: 5px;" id="companyList" name="type" value="1" /><span>Company List</span>
+                    </div>
+                </div>
+                <div class="col-sm-8" style="margin-top: -20px;">
+                    <div class=" col-sm-12">
+                        <label class="control-label">Product List</label>
+                    </div>
+                    <div class="col-sm-12" style="margin-bottom: 10px;">
+                        @Html.DropDownList("Products", null, new { @class = "form-control", @size = "7", @style = "height: 135px;" })
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="col-sm-6">
+            <fieldset class="col-sm-12 schedule-border" style="padding: 0;margin:0;">
+                <legend class="schedule-border input-sm">Select from list</legend>
+                <div class="col-sm-12">
+                    <span class="control-label col-sm-2">From</span>
+                    <div class="col-sm-3">
+                        <input type="text" id="from" class="form-control input-sm" />
+                    </div>
+                    <span class="control-label col-sm-2">To</span>
+                    <div class="col-sm-3">
+                        <input type="text" id="to" class="form-control input-sm" />
+                    </div>
+                    <div class="col-sm-2" style="padding-right: 0;">
+                        <input type="button" class="btn btn-block btn-info btn-sm" value="Select" id="select" />
+                    </div>
+                </div>
+                <label class="control-label col-sm-12" style="margin: 51px 0 5px 0;">Date Range</label>
+                <div class="col-sm-12" style="margin-bottom: 10px;">
+                    <span class="control-label col-sm-2">From</span>
+                    <div class="col-sm-3" style="padding-right: 0;">
+                        <input type="text" id="fromRange" class="form-control input-sm select" style="padding: 0 0 0 10px; cursor: default;" />
+                    </div>
+                    <span class="control-label col-sm-2">To</span>
+                    <div class="col-sm-3" style="padding-right: 0;">
+                        <input type="text" id="toRange" class="form-control input-sm select" style="padding: 0 0 0 10px; cursor: default;" />
+                    </div>
+                    <div class="col-sm-2" style="padding-right: 0;">
+                        <input type="button" class="btn btn-block btn-info btn-sm" value="Show" id="show" />
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-12">
+            Show
+            <select id="pagesize">
+                <option value="20">20</option>
+                <option value="40">40</option>
+                <option value="60">60</option>
+                <option value="80">80</option>
+            </select>
+            entries per page<br />
+            <div class="col-sm-5" style="margin-left:-15px;margin-top: 20px;">
+                List of invoices ( <span id="no"></span> found )
+            </div>
+            <div class="col-sm-7" id="paging" style="text-align: right; margin-top: -20px; margin-bottom: -10px; margin-left: 15px; padding: 0;">
+
+            </div>
+            <div class="col-sm-12" id="withCheckbox" style="background-color: white;">
+                <table class="multiselect table table-responsive" style="border: none; margin-bottom: 0px;" id="lists">
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="col-sm-12" style="padding-right: 0;">
+                <div class="col-sm-offset-5 col-sm-7" id="pagingBottom" style="text-align: right; padding-right: 0;">
+
+                </div>
+            </div>
+            <div class="col-sm-12" style="margin-top: 0px;padding-left: 0; padding-right: 0;">
+                <fieldset class="col-sm-12 schedule-border" style="padding: 0 0 5px 0;margin:0;">
+                    <legend class="schedule-border input-sm">Label font</legend>
+                    <div class="form-group-sm">
+                        <div class="col-sm-12">
+                            <span class="control-label col-sm-1" style="padding-right: 0; font-size: 11px;">Font Size</span>
+                            <span class="col-sm-1" style="padding-right: 0;">
+                                <select id="fontSize" class="form-control input-sm" style="padding-right: 0;">
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12" selected="selected">12</option>
+                                </select>
+                            </span>
+                            <span class="col-sm-offset-1 col-sm-3" style="padding-right: 0;">
+                                <input type="checkbox" id="contact" style="padding-right: 0;" />
+                                <span class="control-label" style="font-size: 11px;">Bold Contact person</span>
+                            </span>
+                            <span class="col-sm-3">
+                                <input type="checkbox" id="company" />
+                                <span class="control-label" style="font-size: 11px;">Bold Company Name</span>
+                            </span>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="col-sm-12" style="margin-top: 10px; padding-left: 0; padding-right: 0;">
+                <div class="col-sm-3" style="padding-left: 0; margin-left: 0;padding-right: 0;">
+                    <input type="button" id="addCompany" class="btn btn-block btn-primary" value="Add/Update Company" />
+                </div>
+                <div class="col-sm-2">
+                    <input type="button" id="preview" class="btn btn-block btn-primary" value="Preview Label" />
+                </div>
+                <div class="col-sm-2">
+                    <input type="button" id="refresh" class="btn btn-block btn-primary" value="Refresh" />
+                </div>
+                <div class="col-sm-offset-3 col-sm-2" style="padding-right: 0;">
+                    <a role="button" id="close" class="btn btn-block btn-primary">Exit</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/jquery.bootpag.min.js"></script>
+    <script src="~/Scripts/js/jquery.dataTables.min.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('input:radio[value="0"]').prop('checked', true);
+            $('#Products option[value="0"]').prop('selected', true);
+            $('#pagesize option[value="20"]').prop('selected', true);
+            $('#preview').prop('disabled', true);
+            var today = new Date();
+            var toDate = (today.getMonth() + 1) + "/" + today.getDate() + "/" + today.getFullYear();
+            var fromdate = 1 + "/" + today.getDate() + "/" + today.getFullYear();
+            $("#fromRange").val(fromdate);
+            $("#toRange").val(toDate);
+            $("#from").val(0);
+            $("#to").val(0);
+            $("#from, #to").on('focusout', function () {
+                if ($(this).val() == "")
+                    $(this).val(0);
+            });
+            var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+
+            $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+
+            $("#show").on('click', function () {
+                fillData(1, $("#pagesize").val(), $('input:radio[name=type]:checked').val(), $("#Products").val(), $("#fromRange").val(), $("#toRange").val());
+            });
+            $("#close,#cross").on('click', function () {
+                $("#CLabel").remove();
+            });
+            $('#lists').on('click', function () {
+                var c = 0;
+                var checks = $('.multiselect').find('input:checkbox');
+                checks.each(function () {
+                    if ($(this).is(':checked'))
+                        c++;
+                });
+                if (c == 0)
+                    $('#preview').prop('disabled', true);
+                else
+                    $('#preview').prop('disabled', false);
+            });
+
+            $("#select").on('click', function () {
+                if (+$('#from').val() == 0 || +$('#to').val() == 0 || +$('#from').val() > +$('#pagesize').val() || +$('#to').val() > +$('#pagesize').val() || +$('#from').val() > +$('#to').val()) {
+                    var mmg = "";
+                    if (+$('#from').val() > +$('#to').val())
+                        mmg = "'<strong>From</strong>' value must be less than or equal to '<string>To</strong>' value.";
+                    else
+                        mmg = 'The value must between 1 to ' + $('#pagesize').val() + '.';
+                    new Messi(mmg,
+                    {
+                        title: 'Error',
+                        modal: true,
+                        buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var from = $("#from").val();
+                    var to = $("#to").val();
+                    var count = 0;
+                    var checks = $('.multiselect').find('input:checkbox');
+                    checks.each(function () {
+                        count++;
+                        if (count >= from && count <= to) {
+                            $(this).prop('checked', true);
+                            $("#preview").prop('disabled', false);
+                        } else
+                            $(this).prop('checked', false);
+                    });
+                }
+            });
+            $("#refresh").on('click', function () {
+                var checks = $('.multiselect').find('input:checkbox');
+                checks.each(function () {
+                    $(this).prop('checked', false);
+                });
+                $("#from,#to").val(0);
+                $("#preview").prop('disabled', true);
+            });
+
+            $("#preview").on('click', function () {
+                var str = "";
+                var checks = $('.multiselect').find('input:checkbox');
+                checks.each(function () {
+                    if ($(this).is(':checked'))
+                        str += $(this).val() + ",";
+                });
+                str = str.substring(0, str.length - 1);
+
+                var contactBold, companyBold;
+                if ($("#contact").is(':checked'))
+                    contactBold = "true";
+                else
+                    contactBold = "false";
+                if ($("#company").is(':checked'))
+                    companyBold = "true";
+                else
+                    companyBold = "false";
+                var fontSize = $("#fontSize").val();
+                var jsonData = { type: $('input:radio[name=type]:checked').val(), list: str, companyBold: companyBold, contactBold: contactBold, fontSize: fontSize };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("PreviewLabelReport", "Invoice")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        window.open('.././ReportingForms/CRViewer.aspx');
+                    },
+                });
+            });
+
+            $("input:radio, #Products, #pagesize").on('change', function () {
+                fillData(1, $("#pagesize").val(), $('input:radio[name=type]:checked').val(), $("#Products").val(), $("#fromRange").val(), $("#toRange").val());
+            });
+
+            $("#fromRange").datepicker({
+                changeYear: true,
+                changeMonth: true
+            });
+            $("#toRange").datepicker({
+                changeYear: true,
+                changeMonth: true
+            });
+            $("#fromRange, #toRange").on('keydown', function (e) {
+                return false;
+            });
+            $("#from, #to").on('keypress', function (e) {
+                if (!$.isNumeric(String.fromCharCode(e.which)))
+                    return false;
+                return true;
+            });
+            fillData(1, 20, 0, 0, fromdate, toDate);
+
+            function fillData(pageNo, pageSize, type, productId, from, to) {
+                var jsonData = { pageNo: pageNo, pageSize: pageSize, type: type, productId: productId, from: from, to: to };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("ListOfLabels", "Invoice")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        $("#lists tbody").html('');
+                        $('#pagingBottom, #paging').show();
+                        var str = "";
+                        var dividend = data.length % 4;
+                        for (var i = 0; i < data.length - dividend; i += 4) {
+                            str += '<tr><td><input type="checkbox" name="option[]" style="margin-right: 5px;" value="' + data[i].Id + '" />' + data[i].InvoiceNo + '</td><td><input type="checkbox" name="option[]" style="margin-right: 5px;" value="' + data[i + 1].Id + '" />' + data[i + 1].InvoiceNo + '</td><td><input type="checkbox" style="margin-right: 5px;" name="option[]" value="' + data[i + 2].Id + '" />' + data[i + 2].InvoiceNo + '</td><td><input type="checkbox" style="margin-right: 5px;" name="option[]" value="' + data[i + 3].Id + '" />' + data[i + 3].InvoiceNo + '</td></tr>';
+                        }
+                        if (dividend != 0) {
+                            str += '<tr>';
+                            for (var j = data.length - 1; j > data.length - 1 - dividend; j--) {
+                                str += '<td><input type="checkbox" style="margin-right: 5px;" name="option[]" style="margin-right: 5px;" value="' + data[j].Id + '" />' + data[j].InvoiceNo + '</td>';
+                            }
+                            str += '</tr>';
+                        }
+                        $("#lists tbody").append(str);
+                        $('#lists tbody tr:first td').css('border-top', 'none');
+                        var total = 0;
+                        var pager = 0;
+                        if (data.length != 0) {
+                            total = data[0].TotalInvoices;
+                            pager = total / pageSize;
+                            pager = pager | 0;
+                            if (total % pageSize != 0)
+                                pager = pager + 1;
+                        }
+                        $("#no").html(total);
+                        if (pager != 0) {
+                            $('#paging, #pagingBottom').bootpag({
+                                total: pager,
+                                page: pageNo,
+                                maxVisible: 6,
+                                firstLastUse: true,
+                                first: 'start',
+                                last: 'end',
+                                leaps: true,
+                                wrapClass: 'pagination',
+                                activeClass: 'active',
+                                disabledClass: 'disabled',
+                                nextClass: 'next',
+                                prevClass: 'prev',
+                                lastClass: 'last',
+                                firstClass: 'first'
+                            });
+                        } else {
+                            $('#pagingBottom, #paging').hide();
+                        }
+                        $('.footer').css('margin-bottom', '-15px');
+                        $('.sidebar1').css('height', ($('.footer').offset().top - $('.sidebar1').offset().top) + 'px');
+                    },
+                });
+
+            }
+            $('#pagingBottom').bootpag({ total: 1 });
+
+            $('#paging').bootpag({ total: 1 }).on("page", function (event, num) {
+                fillData(num, $("#pagesize").val(), $('input:radio[name=type]:checked').val(), $("#Products").val(), $("#fromRange").val(), $("#toRange").val());
+            });
+            $('#addCompany').on('click', function () {
+                window.open('@Url.Action("Index","Company")');
+            });
+        });
+    </script>
+}
+

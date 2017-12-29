@@ -1,0 +1,723 @@
+﻿@using AccountingSystem.Models
+@model AccountingSystem.Models.Ledger
+@{
+    ViewBag.Title = "Remarks";
+    var user = (User)Session["loggedinUser"];
+    var accessRights = user.AccessRight.Split(',');
+}
+@section styles
+{
+    <link href="~/Content/css/stylesheet.css" rel="stylesheet" />
+    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/dataTables.jqueryui.css" rel="stylesheet" />
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <style>
+        /*#myModal {
+            overflow: hidden;
+        }*/
+
+        body .modal-dialog {
+            margin-top: 3px;
+            width: 850px;
+        }
+
+        .modal-footer {
+            border: none;
+        }
+
+        legend {
+            width: auto;
+            border-bottom: 0px;
+            color: inherit;
+        }
+
+        fieldset.schedule-border {
+            font-family: Verdana, Arial, sans-serif;
+            font-size: small;
+            font-weight: normal;
+            border: 1px solid #999999;
+            padding: 0;
+            padding-bottom: 10px;
+        }
+
+        legend.schedule-border {
+            font-size: 90%;
+            color: #888888;
+            background-color: transparent;
+            font-weight: bold;
+            padding-left: 5px;
+            padding-right: 5px;
+            margin: 0;
+        }
+
+        .row .control-label {
+            text-align: left;
+        }
+
+        .aright {
+            text-align: right;
+        }
+
+        .acenter {
+            text-align: center;
+        }
+
+        .aleft {
+            text-align: left;
+        }
+
+        #invoiceTable, #remarksTable tbody tr:hover {
+            cursor: pointer;
+        }
+
+        tr {
+            height: 20px;
+            padding: 0;
+        }
+
+        table {
+            min-height: 100px;
+        }
+
+        #allInvoices, #selectedInvoices, #outstandingInvoice {
+            height: 42px;
+        }
+
+        #close {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            background: url(../images/close2.png) no-repeat -25px 0;
+            width: 30px;
+            height: 30px;
+            text-indent: -9999px;
+            padding: 0 10px 0 0;
+            cursor: pointer;
+            margin: 0 5px 0 0;
+        }
+    </style>
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+}
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="margin-bottom: 0;">
+                <h4 class="modal-title list-group-item" style="padding-left: 10px;" id="myModalLabel"><img alt="Remarks_logo" src="~/images/Remarks.png" height="20" width="20" /><span class="header_text" style="margin-left: 10px;">Remarks</span></h4><div id="close"></div>
+            </div>
+            <div class="modal-body" style="margin: -7px -10px 0 -10px;">
+                <div class="row">
+                    <div class="col-sm-5" style="padding-right: 0;">
+                        <div class="col-sm-12">
+                            <label class="control-label input-sm">List of Companies</label>
+                        </div>
+                        <div class="col-sm-12">
+                            @Html.DropDownList("CompanyList", null, new { @class = "form-control input-sm", @size = "13", @style = "height: 200px;" })
+                        </div>
+                    </div>
+                    <div class="col-sm-7">
+                        <div class="col-sm-12" style="padding-left: 0;">
+                            <label class="control-label input-sm">Invoices of selected Companies</label>
+                        </div>
+                        <div class="col-sm-12" style="padding-left: 0;">
+                            <table id="invoiceTable" class="table table-bordered" style="font-size: 10px; width: 100%">
+                                <thead>
+                                    <tr>
+                                        <th class="acenter">Sl#</th>
+                                        <th class="acenter">Invoice No.</th>
+                                        <th class="acenter">Amount</th>
+                                        <th>Id</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="col-sm-12" style="padding: 0; margin-top: 3px;">
+                            <div class="col-sm-5" style="padding-right: 0;">
+                                <label style="cursor: pointer; padding: 0; margin: 0;"><input type="checkbox" id="paid_check" style="padding-right: 0;margin-right: 3px; cursor: pointer;" value="1" />Paid Invoices</label>
+                            </div>
+                            <div class="col-sm-7">
+                                <label style="cursor: pointer; padding: 0; margin: 0;"><input type="checkbox" id="outstanding_check" style="margin-right: 3px;" value="2" />Outstanding Invoices</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <fieldset class="schedule-border" style="margin: 5px 12px 5px 14px;">
+                            <legend class="schedule-border input-sm">Remarks</legend>
+                            <div class="col-sm-7" style="padding-top: 0; margin-top: -10px;">
+                                <div class="col-sm-12" style="padding-left: 0;">
+                                    <label class="control-label input-sm">Previous Remarks</label>
+                                </div>
+                                <div class="col-sm-12" style="padding-left: 0; max-height: 200px;">
+                                    <table id="remarksTable" class="table table-bordered table-responsive" style="font-size: 10px;">
+                                        <thead>
+                                            <tr>
+                                                <th width="20px;">Sl#</th>
+                                                <th>Date</th>
+                                                <th>Remarks</th>
+                                                <th>Id</th>
+                                                <th>Invoice Id</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="col-sm-12" id="actions" style="margin-top: 5px;">
+                                    <div class="col-sm-4">
+                                        <input type="button" class="btn btn-block btn-info" id="add" value="Add New" />
+                                        <input type="button" class="btn btn-block btn-info" id="insert" style="margin-top: 0;" value="Insert" />
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <input type="button" class="btn btn-block btn-info" id="update" value="Update" />
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <input type="button" class="btn btn-block btn-info" id="delete" value="Delete" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-5">
+                                <fieldset class="col-sm-12 schedule-border" id="remarksFieldset" style="padding: 0 0 5px 0;margin:0;">
+                                    <legend class="schedule-border input-sm">Remark Info</legend>
+                                    <div class="col-sm-12" style="padding-top: 0; margin-top: -10px;">
+                                        <label class="control-label input-sm">Date</label>
+                                        <input type="text" id="date" class="form-control input-sm select" style="cursor: default;" />
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <label class="control-label input-sm">Remark</label>
+                                        <textarea class="form-control input-sm" id="remark" style="height: 100px; resize: none;"></textarea>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: -30px; margin-bottom: -10px;">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="col-sm-2" style="padding: 0 2px 0 2px;">
+                            <button type="button" id="allInvoices" class="btn btn-block btn-primary btn-sm" value="1">Preview Remarks for<br />all invoice</button>
+                        </div>
+                        <div class="col-sm-2" style="padding: 0 5px 0 3px;">
+                            <button type="button" id="selectedInvoices" class="btn btn-block btn-primary btn-sm" value="2">Preview Remarks for<br />selected invoice</button>
+                        </div>
+                        <div class="col-sm-2" style="padding: 0 5px 0 3px;">
+                            <button type="button" id="outstandingInvoice" class="btn btn-block btn-primary btn-sm" value="3">Preview Outstanding<br />invoices</button>
+                        </div>
+                        <div class="col-sm-2 pull-right" style="padding: 0 10px 0 0;">
+                            <input type="button" id="exit" class="btn btn-block btn-info" value="Exit" />
+                        </div>
+                        <div class="col-sm-2 pull-right" style="padding: 0 10px 0 0;">
+                            <input type="button" id="refresh" class="btn btn-block btn-info" value="Refresh" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script src="~/Scripts/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var invoiceTable;
+            var remarksTable;
+            $(window).on('load', function () {
+                onLoad();
+                setTimeout(showModal(), 3000);
+
+            });
+
+            function showModal() {
+                $("#myModal").modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            }
+            $("#date").datepicker({
+                changeMonth: true,
+                changeYear: true
+            });
+
+            function onLoad() {
+                invoiceTable = $("#invoiceTable").DataTable({
+                    "bFilter": false,
+                    "bInfo": false,
+                    "scrollY": "125px",
+                    "scrollCollapse": true,
+                    "paging": false,
+                    "jQueryUI": true,
+                    "aoColumns": [
+                        { "bSortable": true, "sType": "nullable" }
+                    ],
+                    columnDefs: [
+                        { sortable: false, targets: [1, 2, 3] },
+                        { visible: false, targets: [3] },
+                        { "width": "5%", "targets": [0] },
+                        { "width": "80%", "targets": [1] },
+                        { "width": "15%", "targets": [2] },
+                        { className: "aright", targets: [2] },
+                        { className: "acenter", targets: [0] },
+                        { className: "aleft", targets: [0, 1] }
+                    ]
+                });
+                remarksTable = $("#remarksTable").DataTable({
+                    "bFilter": false,
+                    "bInfo": false,
+                    "scrollY": "120px",
+                    "scrollCollapse": true,
+                    "paging": false,
+                    "jQueryUI": true,
+                    "aoColumns": [
+                        { "bSortable": true, "sType": "nullable" }
+                    ],
+                    columnDefs: [
+                        //{ sortable: false, targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
+                        { visible: false, targets: [3, 4] }
+                        //{ className: "aright", targets: [3] },
+                        //{ className: "acenter", targets: [0, 4, 5, 8, 9] }
+                    ]
+                });
+            }
+            var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+
+            $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+            $("#insert").hide();
+            $("#remarksFieldset").prop('disabled', true);
+            $("#remarksFieldset").css('color', 'gray');
+            $("#add, #insert, #update, #delete").prop('disabled', true);
+            
+            
+
+            $.fn.dataTableExt.oSort['nullable-asc'] = function (a, b) {
+                if (a == '')
+                    return 1;
+                else if (b == '')
+                    return -1;
+                else {
+                    var ia = parseInt(a);
+                    var ib = parseInt(b);
+                    return (ia < ib) ? -1 : ((ia > ib) ? 1 : 0);
+                }
+            }
+
+            $.fn.dataTableExt.oSort['nullable-desc'] = function (a, b) {
+                if (a == '')
+                    return 1;
+                else if (b == '')
+                    return -1;
+                else {
+                    var ia = parseInt(a);
+                    var ib = parseInt(b);
+                    return (ia > ib) ? -1 : ((ia < ib) ? 1 : 0);
+                }
+            }
+
+            function invoiceTableClear() {
+                invoiceTable.clear().draw();
+                for (var i = 1; i <= 7; i++) {
+                    invoiceTable.row.add(["", "", "", ""]).draw();
+                }
+            }
+
+            function remarksTableClear() {
+                remarksTable.clear().draw();
+                for (var i = 1; i <= 7; i++) {
+                    remarksTable.row.add(["", "", "", "", ""]).draw();
+                }
+            }
+
+            centerSuccess();
+
+            function centerSuccess() {
+                $("#myModal").css('display', 'block');
+                var $dialog = $('#myModal').find(".modal-dialog");
+                var offset = ($(window).height() - $dialog.height()) / 2;
+                // Center modal vertically in window
+                if (offset >= 0)
+                    $dialog.css("margin-top", offset);
+            }
+
+            $(window).on("resize", function () {
+                centerSuccess();
+            });
+
+            $("#CompanyList option:first").prop('selected', true);
+            $("#outstanding_check").prop('checked', true);
+
+            var today = new Date();
+            var datestr = (today.getMonth() + 1) + "/" + today.getDate() + "/" + today.getFullYear();
+            fillRemarks(datestr, "");
+
+            function fillInvoiceTable(companyId, fullPayment) {
+                var jsonData = { companyId: companyId, fullPayment: fullPayment };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetInvoicesForRemarks", "Invoice")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonData),
+                    dataType: "json",
+                    success: function (data) {
+                        invoiceTable.clear().draw();
+                        var count = 0;
+                        $.each(data, function (key, value) {
+                            count++;
+                            invoiceTable.row.add([count, value.InvoiceNo, parseFloat(value.TAmount).toFixed(2), value.Id]).draw();
+                        });
+
+                        if (data.length < 7) {
+                            for (var j = 1; j <= 7 - data.length; j++) {
+                                invoiceTable.row.add(["", "", "", ""]).draw();
+                            }
+                        }
+
+                        if (invoiceTable.cell(0, 0).data() != "") {
+                            $('#invoiceTable tbody tr:first').addClass('selected');
+                            fillRemarkTable(invoiceTable.cell('.selected', 3).data());
+                            $("#add").prop('disabled', false);
+                        }
+                        if (fullPayment != 2) {
+                            if (data.length == 0) {
+                                remarksTableClear();
+                                $('#allInvoices, #selectedInvoices').prop('disabled', true);
+                            } else
+                                $('#allInvoices, #selectedInvoices').prop('disabled', false);
+                            $('#outstandingInvoice').prop('disabled', true);
+                        } else {
+                            if (data.length == 0) {
+                                remarksTableClear();
+                                $('#allInvoices, #selectedInvoices, #outstandingInvoice').prop('disabled', true);
+                            } else {
+                                $('#allInvoices, #selectedInvoices').prop('disabled', true);
+                                $('#outstandingInvoice').prop('disabled', false);
+                            }
+                        }
+                        if (data.length == 0) {
+                            $("#add").prop('disabled', true).show();
+                        } else {
+                            $("#add").prop('disabled', false).show();
+                        }
+                        $("#insert").hide();
+                        $("#remarksFieldset").prop('disabled', true);
+                        $("#remarksFieldset").css('color', 'gray');
+                    },
+                });
+                $('table.dataTable').css('border-collapse', 'collapse');
+                $('.dataTables_scrollBody').css('overflow-y', 'scroll').css('overflow-x', 'hidden');
+            }
+
+            function fillRemarkTable(invoiceId) {
+                var jsonDt = { invoiceId: invoiceId };
+                $.ajax({
+                    type: "Post",
+                    url: '@Url.Action("GetRemarksForInvoice", "Invoice")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonDt),
+                    dataType: "json",
+                    success: function (dt) {
+                        remarksTable.clear().draw();
+                        var cnt = 0;
+                        $.each(dt, function (key, value) {
+                            cnt++;
+                            remarksTable.row.add([cnt, value.RemarkDate, value.Remarks, value.Id, value.InvoiceId]).draw();
+                        });
+                        if (dt.length < 7) {
+                            for (var j = 1; j <= 7 - dt.length; j++) {
+                                remarksTable.row.add(["", "", "", "", ""]).draw();
+                            }
+                        }
+                    },
+                });
+            }
+
+            fillInvoiceTable($("#CompanyList").val(), 2);
+
+            function determinefullPayment() {
+                var fullPayment;
+                if ($("#paid_check").is(':checked') && $("#outstanding_check").is(':checked'))
+                    fullPayment = 3;
+                else if (!$("#paid_check").is(':checked') && $("#outstanding_check").is(':checked'))
+                    fullPayment = 2;
+                else if ($("#paid_check").is(':checked') && !$("#outstanding_check").is(':checked'))
+                    fullPayment = 1;
+                else
+                    fullPayment = 0;
+                return fullPayment;
+            }
+
+            $("#CompanyList, input:checkbox").on('change', function () {
+                fillInvoiceTable($("#CompanyList").val(), determinefullPayment());
+            });
+            $('#invoiceTable tbody').on('click', 'tr', function () {
+                if (invoiceTable.cell($(this), 0).data() != "") {
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                        remarksTableClear();
+                        fillRemarks(datestr, "");
+                        $("#remarksFieldset").prop('disabled', true);
+                        $("#remarksFieldset").css('color', 'gray');
+                        $("#add").prop('disabled', true);
+                        $("#insert, #update, #delete, #selectedInvoices, #outstandingInvoice").prop('disabled', true);
+                        $('#allInvoices').prop('disabled', false);
+                    } else {
+                        invoiceTable.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                        fillRemarkTable(invoiceTable.cell('.selected', 3).data());
+                        $("#insert").hide();
+                        $("#add").show();
+                        $("#add").prop('disabled', false);
+                        if (determinefullPayment() == 2) {
+                            $('#allInvoices, #selectedInvoices, #outstandingInvoice').prop('disabled', false);
+                        } else {
+                            $('#allInvoices, #selectedInvoices').prop('disabled', false);
+                            $('#outstandingInvoice').prop('disabled', true);
+                        }
+                    }
+                }
+            });
+            $('#remarksTable tbody').on('click', 'tr', function () {
+                if (remarksTable.cell($(this), 0).data() != "") {
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                        fillRemarks(datestr, "");
+                        $("#remarksFieldset").prop('disabled', true);
+                        $("#remarksFieldset").css('color', 'gray');
+                        $("#add").prop('disabled', false);
+                        $("#insert, #update, #delete").prop('disabled', true);
+                    } else {
+                        remarksTable.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                        fillRemarks(remarksTable.cell('.selected', 1).data(), remarksTable.cell('.selected', 2).data());
+                        $("#remarksFieldset").prop('disabled', false);
+                        $("#remarksFieldset").css('color', '');
+                        $("#add").prop('disabled', true);
+                        $("#add").show();
+                        $("#insert").hide();
+                        $("#insert, #update, #delete").prop('disabled', false);
+                    }
+                }
+            });
+
+            function fillRemarks(date, remarks) {
+                $('#date').val(date);
+                $('#remark').val(remarks);
+            }
+
+            $("#add").on('click', function () {
+                $("#remarksFieldset").prop('disabled', false);
+                $("#remarksFieldset").css('color', '');
+                $(this).hide();
+                $("#insert").prop('disabled', false);
+                $("#insert").show();
+            });
+
+            $('#insert, #update, #delete').on('click', function () {
+                var action, remarkId, invoiceId, userId;
+                var date = $("#date").val();
+                var remark = $("#remark").val();
+                userId = parseInt("@user.UserId");
+                var val = $(this).val();
+                if (val == "Insert") {
+                    action = 'I';
+                    remarkId = 0;
+                    invoiceId = invoiceTable.cell('.selected', 3).data();
+                    if (date == "" || remark == "") {
+                        new Messi("Please Enter Date and Remark field.", {
+                            title: 'Error',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        return false;
+                    }
+                } else if (val == 'Update') {
+                    action = 'U';
+                    remarkId = remarksTable.cell('.selected', 3).data();
+                    invoiceId = remarksTable.cell('.selected', 4).data();
+                    if (date == "" || remark == "") {
+                        new Messi("Please Enter Date and Remark field.", {
+                            title: 'Error',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        return false;
+                    }
+                } else {
+                    action = 'D';
+                    remarkId = remarksTable.cell('.selected', 3).data();
+                    invoiceId = remarksTable.cell('.selected', 4).data();
+                    date = '';
+                    remark = '';
+                }
+                var t = 0;
+                var mmg = new Messi("Are you sure to " + val + " this?",
+                {
+                    title: 'Confirm',
+                    modal: true,
+                    buttons: [
+                        { id: 0, label: 'Yes', val: 'Y' },
+                        { id: 1, label: 'No', val: 'N' }
+                    ],
+                    callback: function (a) {
+                        if (t == 1)
+                            return false;
+                        if (a == 'Y') {
+                            t = 1;
+                            var jsonDt = { action: action, remarkId: remarkId, date: date, remark: remark, invoiceId: invoiceId, userId: userId };
+                            $.ajax({
+                                type: "Post",
+                                url: '@Url.Action("InsertUpdateDeleteRemark", "Invoice")',
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify(jsonDt),
+                                dataType: "json",
+                                success: function (dt) {
+                                    remarksTable.clear().draw();
+                                    var cnt = 0;
+                                    $.each(dt, function (key, value) {
+                                        cnt++;
+                                        remarksTable.row.add([cnt, value.RemarkDate, value.Remarks, value.Id, value.InvoiceId]).draw();
+                                    });
+                                    if (dt.length < 7) {
+                                        for (var j = 1; j <= 7 - data.length; j++) {
+                                            remarksTable.row.add(["", "", "", "", ""]).draw();
+                                        }
+                                    }
+                                    fillRemarks(datestr, "");
+                                    $("#insert").hide();
+                                    $("#add").show();
+                                    $("#add").prop('disabled', false);
+                                    $("#update, #delete").prop('disabled', true);
+                                    $("#remarksFieldset").prop('disabled', true);
+                                },
+                            });
+                        }
+                        return true;
+                    }
+                });
+                return true;
+            });
+
+            $("#outstandingInvoice, #allInvoices, #selectedInvoices").on('click', function () {
+                var invoiceType = $(this).val();
+                var previewType, incComId, uri;
+                if ($("#paid_check").is(':checked') && $('#outstanding_check').is(':checked'))
+                    previewType = 3;
+                else if (!$("#paid_check").is(':checked') && !$('#outstanding_check').is(':checked'))
+                    previewType = 0;
+                else
+                    previewType = $('input:checkbox:checked').val();
+                if (invoiceType == 1) {
+                    incComId = $("#CompanyList").val();
+                    uri = '@Url.Action("GetInvoiceReportWithRemark", "Invoice")';
+                } else if (invoiceType == 3) {
+                    incComId = $("#CompanyList").val();
+                    uri = '@Url.Action("PreviewOutstandingInvoiceReport", "Invoice")';
+                } else {
+                    incComId = invoiceTable.cell('.selected', 3).data();
+                    uri = '@Url.Action("GetInvoiceReportWithRemark", "Invoice")';
+                }
+                if (invoiceType == 1) {
+                    if (invoiceTable.cell(0, 0).data() == "") {
+                        new Messi("There is no invoice for reporting.", {
+                            title: 'Error',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        return false;
+                    }
+                } else if (invoiceType == 2) {
+                    if (invoiceTable.cell(0, 0).data() == "") {
+                        new Messi("There is no invoice for reporting.", {
+                            title: 'Error',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        return false;
+                    }
+                    var count = 0;
+                    $('#invoiceTable tbody tr').each(function () {
+                        if ($(this).hasClass('selected'))
+                            count = count + 1;
+                    });
+                    if (count == 0) {
+                        new Messi("Please select an invoice to report", {
+                            title: 'Error',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        return false;
+                    } else {
+                        if (remarksTable.cell(0, 0).data() == "") {
+                            new Messi("There is no remark for the selected invoice.", {
+                                title: 'Error',
+                                modal: true,
+                                buttons: [
+                                    { id: 0, label: 'OK', val: 'X' }
+                                ]
+                            });
+                            $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                            return false;
+                        }
+                    }
+                } else {
+                    if (invoiceTable.cell(0, 0).data() == "") {
+                        new Messi("There is no invoice for reporting.", {
+                            title: 'Error',
+                            modal: true,
+                            buttons: [
+                                { id: 0, label: 'OK', val: 'X' }
+                            ]
+                        });
+                        $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                        return false;
+                    }
+                }
+
+                var jsonDt = { invoiceType: invoiceType, previewType: previewType, incComId: incComId };
+                $.ajax({
+                    type: "Post",
+                    url: uri,
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(jsonDt),
+                    dataType: "json",
+                    success: function (dt) {
+                        if (dt == true)
+                            window.open('.././ReportingForms/CRViewer.aspx');
+                    },
+                });
+                return true;
+            });
+            $("#date").on('keydown', function () {
+                return false;
+            });
+            $('#refresh').on('click', function () {
+                $('#remarksTable tbody tr').each(function () {
+                    if ($(this).hasClass('selected'))
+                        $(this).removeClass('selected');
+                });
+                fillRemarks(datestr, "");
+            });
+            $("#close, #exit").on('click', function () {
+                $("#myModal").modal('hide');
+            });
+        });
+    </script>
+}

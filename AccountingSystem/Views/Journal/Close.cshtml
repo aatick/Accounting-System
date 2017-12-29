@@ -1,0 +1,239 @@
+﻿@using System.Activities.Statements
+@using AccountingSystem.Models
+@using AccountingSystem.Models.ViewModel
+@{
+    ViewBag.Title = "Close Journal";
+    var user = (User)Session["loggedinUser"];
+    var approveRight = user.ApproveRight;
+}
+@section styles
+{
+    <link href="~/Content/css/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/css/messi.min.css" rel="stylesheet" />
+    <style type="text/css">
+        .modal-header-cj {
+            color: #fff;
+            border-bottom: 1px solid #eee;
+            background-color: #005BF1;
+            -webkit-border-radius: 5px 5px 0px 0px;
+            -moz-border-radius: 5px 5px 0px 0px;
+            border-radius: 5px 5px 0px 0px;
+            padding: 0px 5px 0px 5px;
+            margin: -10px 0px 0px 0px;
+        }
+
+            .modal-header-cj h4 {
+                color: #fff;
+                line-height: 28px;
+                font-size: 15px;
+                margin: 2px 0px 0px 0px;
+            }
+
+            .modal-header-cj .close {
+                color: #fff;
+                font-size: 20px;
+                line-height: 28px;
+            }
+
+        .cjModal .modal-dialog {
+            width: 36.60%;
+        }
+
+        .cjModal .modal-body {
+            background: #000;
+            padding-bottom: 0px;
+        }
+
+        .cjModal .panel {
+            border: 1px solid #FFF;
+            background: #000;
+            color: #FFF;
+        }
+
+        .ui-datepicker-month {
+            z-index: 4000;
+        }
+
+        .ui-datepicker-year {
+            z-index: 4000;
+        }
+
+        #close {
+            position: absolute;
+            top: 0;
+            right: 0px;
+            background: url(../images/close2.png) no-repeat -25px 0;
+            width: 30px;
+            height: 30px;
+            text-indent: -9999px;
+            padding: 0 10px 0 0;
+            cursor: pointer;
+            margin: -8px 0 0 0;
+        }
+    </style>
+}
+<div class="container">
+    <!-- Modal -->
+    <div class="modal cjModal" id="success" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-header-cj">
+                    <div id="close" data-dismiss="modal" aria-hidden="true"></div>
+                    <h4 class="nstitle"><img alt="Close_Journal_logo" src="~/image/Close_Journal.png" width="20" height="20"> Close Journal</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <p class="text-left text-danger"><strong>You can change last closing date here. After giving new closing date you cannot edit journals which are posted before that date.</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10">
+                            <div class="panel">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-sm-5">Last closing Date</div>
+                                        <div class="col-sm-7 form-group">
+                                            <input class="form-control input-sm select" id="dp1" type="text" readonly style="background: white; cursor: default;">
+                                        </div>
+                                    </div>
+
+                                    <div class="row" style="margin:10px -15px 0px -15px;">
+                                        <div class="col-sm-5">
+                                            <div class="form-group">
+                                                <label>Last closing date set on</label>
+                                                <input id="dp2" readonly style="background: white; cursor: default;" type="text" class="form-control input-sm">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-7">
+                                            <div class="form-group">
+                                                <label>Set by</label>
+                                                <input readonly style="background: white; cursor: default;" type="text" id="name" class="form-control input-sm">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 text-center">
+                            <div style="margin:20px 0px 5px 0px;">
+                                <button id="save" type="button" class="btn btn-info">Save</button>
+                            </div>
+                            <div style="margin:30px 0px 5px 0px;">
+                                <button type="button" id="exit" class="btn btn-info">&nbsp;Exit&nbsp;</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- Modal -->
+</div>
+@section scripts
+{
+    <script src="~/Scripts/jquery-ui-1.11.4.js"></script>
+    <script src="~/Scripts/js/messi.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#dp1').datepicker({
+                changeMonth: true,
+                changeYear: true
+            });
+            $(window).load(function () {
+                $('#success').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            });
+            //$(document).click(function () {
+            //    $('#success').modal('show');
+            //});
+            //$(document).on('keydown', function (e) {
+            //    if (e.keyCode == 27)
+            //        $('#success').modal('show');
+            //});
+            var enforceModalFocusFn = $.fn.modal.Constructor.prototype.enforceFocus;
+
+            $.fn.modal.Constructor.prototype.enforceFocus = function () { };
+            $("#close, #exit").on('click', function () {
+                $('#success').modal('hide');
+            });
+            centerSuccess();
+
+            function centerSuccess() {
+                $('.modal').css('display', 'block');
+                var $dialog = $('.modal').find(".modal-dialog");
+                var offset = ($(window).height() - $dialog.height()) / 2;
+                // Center modal vertically in window
+                if (offset >= 0)
+                    $dialog.css("margin-top", offset);
+            }
+
+            $(window).on("resize", function () {
+                centerSuccess();
+            });
+            var today = new Date();
+            var toDate = pad((today.getMonth() + 1), 2) + "/" + pad(today.getDate(), 2) + "/" + today.getFullYear();
+
+
+            function pad(str, max) {
+                str = str.toString();
+                return str.length < max ? pad("0" + str, max) : str;
+            }
+
+            $.ajax({
+                type: "Post",
+                url: '@Url.Action("GetJournalClosing", "Journal")',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    var dt = data.SetDate.split('/');
+                    var dt1 = data.ClosingDate.split('/');
+                    $("#dp1").val(pad(dt1[0], 2) + "/" + pad(dt1[1], 2) + "/" + dt1[2]);
+                    $("#dp2").val(pad(dt[0], 2) + "/" + pad(dt[1], 2) + "/" + dt[2]);
+                    $("#name").val(data.Name);
+                },
+            });
+            $("#save").on('click', function () {
+                if ('@string.IsNullOrEmpty(approveRight)' == 'True') {
+                    var m0 = new Messi("<p style='text-align: justify;'>Sorry, You have no permission to change closing date.</p>",
+                    {
+                        title: 'Permission Denied',
+                        modal: true,
+                        buttons: [
+                            { id: 0, label: 'OK', val: 'X' }
+                        ]
+                    });
+                    $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                } else {
+                    var jsonData = { closingDate: $("#dp1").val(), setDate: toDate, userId: '@user.UserId' };
+                    $.ajax({
+                        type: "Post",
+                        url: '@Url.Action("SetJournalClosing", "Journal")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify(jsonData),
+                        dataType: "json",
+                        success: function (data) {
+                            if (data == true) {
+                                var m = new Messi("<p style='text-align: justify;'>Closing Date is successfully updated.</p>",
+                                {
+                                    title: 'Success',
+                                    modal: true,
+                                    buttons: [
+                                        { id: 0, label: 'OK', val: 'X' }
+                                    ]
+                                });
+                                $('.messi-actions').css('float', 'left').css('margin-left', '205px');
+                                $("#dp2").val(toDate);
+                                $("#name").val('@user.Name');
+                            }
+                        },
+                    });
+                }
+            });
+        });
+    </script>
+}
